@@ -5,7 +5,7 @@ import TestMutationComponent from '@/components/TestMutation';
 export default function Page() {
     return (
         <div>
-            <h1>Hello, Next.js!</h1>
+            <h1>Hello, Next.js! fix</h1>
             <Test />
             <TestMutationComponent />
         </div>
