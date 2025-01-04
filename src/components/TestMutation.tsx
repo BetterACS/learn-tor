@@ -27,7 +27,7 @@ export default function TestMutationComponent() {
                 placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className='rounded-tl-lg bg-yellow-50' 
+                className='rounded-tl-lg bg-yellow-50 text-black' 
             />
             <button onClick={handleSubmit} disabled={mutation.status === "pending"}> {/*'"error" | "idle" | "pending" | "success"' and '"loading"'  แต่ loading มีเฉพาะ query */}
                 Submit
