@@ -3,6 +3,7 @@ import { connectDB } from '@/server/db';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { publicProcedure } from '../trpc';
+import jwt from "jsonwebtoken";
 
 export default function register() {
 	return {
@@ -35,8 +36,18 @@ export default function register() {
 						email: email,
 						password: hashedPassword,
 						username: username,
-
 					});
+
+					//create token
+					const token = jwt.sign(
+						{ userId: newUser._id, email },
+						process.env.JWT_SECRET,
+						{
+							expiresIn: '1h',
+						}
+					);
+					newUser.token = token;
+		
 					console.log('newUser:', newUser);
 					await newUser.save();
 					return {
