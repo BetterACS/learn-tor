@@ -2,6 +2,7 @@ import { UserModel } from "@/db/models";
 import { connectDB } from "@/server/db";
 import { z } from "zod";
 import { publicProcedure } from "../trpc";
+import bcrypt from 'bcrypt';
 
 export default function login() {
     return {
@@ -23,7 +24,7 @@ export default function login() {
                         data: { message: "User not found" },
                         };
                     }
-                    const isPasswordCorrect = await user.comparePassword(password);
+                    const isPasswordCorrect = await bcrypt.compare(password, user.password);
                     if (!isPasswordCorrect) {
                         return {
                         status: 400,
