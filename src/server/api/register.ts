@@ -18,6 +18,18 @@ export default function register() {
 				const { email, password, username} = input;
 				try {
 					await connectDB();
+					const existingUser = await UserModel.findOne({
+						$or: [{ email }, { username }],
+					});
+
+					if (existingUser) {
+						return {
+							status: 400,
+							data: {
+								message: 'Email or username already exists.',
+							},
+						};
+					}
 					const hashedPassword = await bcrypt.hash(password, 12);
 					const newUser = new UserModel({
 						email: email,
