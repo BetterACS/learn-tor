@@ -94,3 +94,15 @@ body {
   background: var(--background);
   font-family: var(--font-noto-sans-thai), sans-serif;
 }
+
+.slick-slide > div {
+  margin: 0 0.75vw;
+}
+
+.slick-list {
+  margin: 0 -0.75vw;
+}
+
+.slick-prev:before, .slick-next:before  {
+  content: '' !important;
+}
