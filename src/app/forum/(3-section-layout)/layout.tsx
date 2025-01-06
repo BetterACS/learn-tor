@@ -13,12 +13,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </aside>
         
         {/* Main Content */}
-        <main className="flex-1 h-full py-10 px-[6vw]">
+        <main className="flex-1 h-full overflow-auto py-16 px-[6vw]">
           {children}
         </main>
 
         {/* Right Sidebar */}
-        <aside className="w-full max-w-[250px] min-w-[150px] h-full bg-monochrome-300">
+        <aside className="w-full max-w-[350px] min-w-[150px] h-full bg-monochrome-300">
           
         </aside>
       </div>
