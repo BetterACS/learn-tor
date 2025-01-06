@@ -34,7 +34,7 @@ export default function Navbar() {
 
         <div className="relative" ref={dropdownRef}>
           <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex gap-1 items-center">
-            <p>Information</p> 
+            <p>Information</p>
             <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
               <title>down_line</title>
               <g id="down_line" fill='none' fillRule='evenodd'>
