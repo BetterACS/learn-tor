@@ -4,8 +4,8 @@ import Link from 'next/link';
 const RegisterBlock = () => {
   return (
     <div className="flex items-center justify-center min-h-screen ">
-      <div className="flex bg-white rounded-[25px] shadow-lg overflow-hidden w-[1200px] h-[600px]">
-        <div className="w-[55%] bg-primary-600 flex flex-col justify-center items-center text-white p-8">
+      <div className="flex bg-monochrome-50 rounded-[25px] shadow-lg overflow-hidden w-[1200px] h-[600px]">
+        <div className="w-[55%] bg-primary-600 flex flex-col justify-center items-center text-monochrome-50 p-8">
         <img src='/images/Learntorbgg.png' className="w-full h-full object-contain" alt="Learntor Logo"/>
         </div>
         {/* Right Section */}
@@ -20,7 +20,7 @@ const RegisterBlock = () => {
               <input
                 type="text"
                 placeholder="Username"
-                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
+                className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Email */}
@@ -28,7 +28,7 @@ const RegisterBlock = () => {
               <input
                 type="email"
                 placeholder="Email Address"
-                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
+                className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Password */}
@@ -36,7 +36,7 @@ const RegisterBlock = () => {
               <input
                 type="password"
                 placeholder="Password"
-                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
+                className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Confirm Password */}
@@ -44,7 +44,7 @@ const RegisterBlock = () => {
               <input
                 type="password"
                 placeholder="Confirm Password"
-                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
+                className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Submit Button */}
@@ -55,7 +55,7 @@ const RegisterBlock = () => {
           </form>
           {/* Login Link */}
           <div className="mt-5 text-center">
-            <span className="text-gray-600">
+            <span className="text-monochrome-500">
               Already have an account?{" "}
               <Link href="/login" className="text-primary-600 hover:text-primary-700 font-semibold">
                 Login
