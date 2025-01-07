@@ -133,9 +133,11 @@ export default function CreateTopic() {
         </div>
 
         {/* Image display */}
+        {postData.img &&
         <div className="flex w-fit h-[12rem] self-center">
           <img src={postData.img ?? undefined} alt="" className="w-full h-full object-cover" />
         </div>
+        }
 
         <div className="w-full flex justify-between">
           <Button button_name="Add tags" variant="secondary" onClick={handleOnClickAddTags} />
