@@ -7,7 +7,9 @@ import TrendingTopic from '@/components/trending-topic';
 import Button from '@/components/button';
 import Registerblock from '@/components/registerblock';
 import Loginblock from '@/components/loginblock';
-
+import Resetpasswordblock from '@/components/resetpasswordblock';
+import Verifypassblock from '@/components/verifypassblock';
+import Updatepassblock from '@/components/updatepassblock';
 
 export {
   Test,
@@ -19,4 +21,7 @@ export {
   Button,
   Registerblock,
   Loginblock,
+  Resetpasswordblock,
+  Verifypassblock,
+  Updatepassblock,
 }
