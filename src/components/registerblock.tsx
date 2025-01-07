@@ -10,8 +10,8 @@ const RegisterBlock = () => {
         </div>
         {/* Right Section */}
         <div className="w-[45%] py-20 px-24">
-          <h2 className="text-[3rem] font-bold mb-4 text-gray-700">Sign up</h2>
-          <p className="text-[#818181] mb-9">
+         <h2 className="text-headline-3 font-bold mb-4 text-monochrome-800">Sign up</h2>
+          <p className="text-monochrome-500 mb-9">
             Create your account in seconds 
           </p>
           <form action="#">
@@ -20,7 +20,7 @@ const RegisterBlock = () => {
               <input
                 type="text"
                 placeholder="Username"
-                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-[#0077C2] h-[3.7rem]"
+                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Email */}
@@ -28,7 +28,7 @@ const RegisterBlock = () => {
               <input
                 type="email"
                 placeholder="Email Address"
-                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-[#0077C2] h-[3.7rem]"
+                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Password */}
@@ -36,7 +36,7 @@ const RegisterBlock = () => {
               <input
                 type="password"
                 placeholder="Password"
-                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-[#0077C2] h-[3.7rem]"
+                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Confirm Password */}
@@ -44,12 +44,12 @@ const RegisterBlock = () => {
               <input
                 type="password"
                 placeholder="Confirm Password"
-                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-[#0077C2] h-[3.7rem]"
+                className="border border-gray-300 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Submit Button */}
             <button 
-              className="w-full bg-[#0077C2] text-white py-2 rounded-[7px] hover:bg-[#005fa3] transition h-[3.7rem] font-bold">
+              className="w-full bg-primary-600 text-white text-headline-6 py-2 rounded-[7px] hover:bg-primary-700 transition h-[3.7rem] font-bold">
               Create an account
             </button>
           </form>
@@ -57,7 +57,7 @@ const RegisterBlock = () => {
           <div className="mt-5 text-center">
             <span className="text-gray-600">
               Already have an account?{" "}
-              <Link href="/login" className="text-[#0077C2] hover:text-[#005fa3] font-semibold">
+              <Link href="/login" className="text-primary-600 hover:text-primary-700 font-semibold">
                 Login
               </Link>
             </span>
