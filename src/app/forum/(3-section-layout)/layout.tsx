@@ -1,4 +1,4 @@
-import { Navbar, Sidebar } from '@/components/index';
+import { Navbar, Sidebar, TrendingTopic } from '@/components/index';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-full max-w-[250px] min-w-[150px] h-full bg-monochrome-300">
+        <aside className="w-full max-w-[250px] min-w-[190px] h-full bg-monochrome-300">
           <Sidebar />
         </aside>
         
@@ -18,8 +18,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </main>
 
         {/* Right Sidebar */}
-        <aside className="w-full max-w-[350px] min-w-[150px] h-full bg-monochrome-300">
-          
+        <aside className="w-full max-w-[350px] min-w-[250px] h-full bg-monochrome-300">
+          <TrendingTopic />
         </aside>
       </div>
     </div>

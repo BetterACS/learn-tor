@@ -3,6 +3,7 @@ import TestMutation from '@/components/TestMutation';
 import Navbar from '@/components/navbar';
 import Sidebar from '@/components/sidebar';
 import Carousel from '@/components/carousel';
+import TrendingTopic from '@/components/trending-topic';
 
 export {
   Test,
@@ -10,4 +11,5 @@ export {
   Navbar,
   Sidebar,
   Carousel,
+  TrendingTopic,
 }
