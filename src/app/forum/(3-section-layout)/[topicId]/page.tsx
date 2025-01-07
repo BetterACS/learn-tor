@@ -158,7 +158,7 @@ export default function Topic() {
               placeholder="Add a comment"
               rows={!isCommentExpanded ? 1 : 2}
               onChange={(e) => setComment(e.target.value)}
-              className={`w-full text-body-large text-monochrome-950 placeholder-monochrome-600 resize-none outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-100`}
+              className={`w-full text-body-large text-monochrome-950 placeholder-monochrome-600 resize-none outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-100 caret-monochrome-600`}
             ></textarea>
             {isCommentExpanded && (
               <div className="flex justify-end gap-1 text-button">

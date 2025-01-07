@@ -36,7 +36,7 @@ export default function TrendingTopic() {
   ];
 
   return (
-    <div className="h-[calc(100vh-5.25rem)] w-full bg-monochrome-50 sticky overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-100 top-[5.25rem] flex flex-col items-center p-8 border-l border-monochrome-400">
+    <div className="h-[calc(100vh-5.25rem)] w-full bg-monochrome-50 sticky overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-200 top-[5.25rem] flex flex-col items-center p-8 border-l border-monochrome-400">
       <p className="w-full text-headline-5 text-primary-600">Stayed on Trend Topics</p>
       <div className="w-fit h-fit flex flex-col divide-y divide-monochrome-200 pt-4">
         {mockup_topics.map((item, index) => (
