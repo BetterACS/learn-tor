@@ -4,7 +4,9 @@ import Navbar from '@/components/navbar';
 import Sidebar from '@/components/sidebar';
 import Carousel from '@/components/carousel';
 import TrendingTopic from '@/components/trending-topic';
+import Button from '@/components/button';
 import Registerblock from '@/components/registerblock';
+
 
 export {
   Test,
@@ -13,5 +15,6 @@ export {
   Sidebar,
   Carousel,
   TrendingTopic,
+  Button,
   Registerblock,
 }
