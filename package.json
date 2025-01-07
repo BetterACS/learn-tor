@@ -22,7 +22,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-slick": "^0.30.3",
+<<<<<<< HEAD
+=======
     "slick-carousel": "^1.8.1",
+>>>>>>> main
     "tailwind-merge": "^2.6.0",
     "zod": "^3.24.1"
   },
