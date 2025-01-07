@@ -38,10 +38,12 @@ export default function register() {
 						username: username,
 					});
 
-					//create token
+					if (!process.env.NEXT_PUBLIC_JWT_SECRET) {
+						throw new Error('JWT secret is not defined');
+					}
 					const token = jwt.sign(
 						{ userId: newUser._id, email },
-						process.env.JWT_SECRET,
+						process.env.NEXT_PUBLIC_JWT_SECRET,
 						{
 							expiresIn: '1h',
 						}
