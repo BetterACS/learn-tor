@@ -6,6 +6,7 @@ import Carousel from '@/components/carousel';
 import TrendingTopic from '@/components/trending-topic';
 import Button from '@/components/button';
 import Registerblock from '@/components/registerblock';
+import CommentSection from '@/components/comment-section';
 
 
 export {
@@ -17,4 +18,5 @@ export {
   TrendingTopic,
   Button,
   Registerblock,
+  CommentSection,
 }
