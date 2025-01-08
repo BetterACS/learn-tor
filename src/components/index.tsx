@@ -10,6 +10,7 @@ import Loginblock from '@/components/loginblock';
 import Resetpasswordblock from '@/components/resetpasswordblock';
 import Verifypassblock from '@/components/verifypassblock';
 import Updatepassblock from '@/components/updatepassblock';
+import CommentSection from '@/components/comment-section';
 
 export {
   Test,
@@ -24,4 +25,5 @@ export {
   Resetpasswordblock,
   Verifypassblock,
   Updatepassblock,
+  CommentSection,
 }
