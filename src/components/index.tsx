@@ -6,8 +6,11 @@ import Carousel from '@/components/carousel';
 import TrendingTopic from '@/components/trending-topic';
 import Button from '@/components/button';
 import Registerblock from '@/components/registerblock';
+import Loginblock from '@/components/loginblock';
+import Resetpasswordblock from '@/components/resetpasswordblock';
+import Verifypassblock from '@/components/verifypassblock';
+import Updatepassblock from '@/components/updatepassblock';
 import CommentSection from '@/components/comment-section';
-
 
 export {
   Test,
@@ -18,5 +21,9 @@ export {
   TrendingTopic,
   Button,
   Registerblock,
+  Loginblock,
+  Resetpasswordblock,
+  Verifypassblock,
+  Updatepassblock,
   CommentSection,
 }
