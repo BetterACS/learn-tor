@@ -22,8 +22,8 @@ const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-60">
             {/* Left Column - Learntor Links */}
             <div>
-              <h3 className="font-regular text-3xl mb-4">Learntor</h3>
-              <ul className="space-y-2 text-xl">
+              <div className="text-headline-4 mb-4">Learntor</div>
+              <ul className="space-y-2 text-headline-5">
                 <li>
                   <Link href="/" className="hover:underline">
                     FAQ
@@ -54,8 +54,8 @@ const Footer: React.FC = () => {
 
             {/* Right Column - Function Links */}
             <div className="mt-6 md:mt-0">
-              <h3 className="font-regular text-3xl mb-4">Link For Function</h3>
-              <ul className="space-y-2 text-xl">
+              <div className="text-headline-4 mb-4">Link For Function</div>
+              <ul className="space-y-2 text-headline-5">
                 <li>
                   <Link href="/" className="hover:underline">
                     Home
@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
 
           {/* Right Section - Contact Us */}
           <div className="flex flex-col items-start">
-            <h3 className="font-regular text-3xl mb-4">Contact Us</h3>
+            <div className="text-headline-4 mb-4">Contact Us</div>
             <div className="flex space-x-4">
               <Link href="https://www.instagram.com" className="bg-white p-2 rounded-full" aria-label="Instagram">
                 <img
