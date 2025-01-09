@@ -32,7 +32,7 @@ export default function Navbar() {
           </button>
           {dropdownOpen && (
             <div className="absolute w-full mt-2 bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
-              <Link href="/" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
+              <Link href="/tcas-info" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
                 TCAS Info
               </Link>
               <Link href="/" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">

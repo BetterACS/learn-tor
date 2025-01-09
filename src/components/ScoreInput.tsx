@@ -4,7 +4,7 @@ import React from 'react';
 
 interface ScoreInputProps {
   label: string;
-  value: string;
+  value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isEditing: boolean;
 }
@@ -23,7 +23,7 @@ const ScoreInput = ({ label, value, onChange, isEditing }: ScoreInputProps) => {
           placeholder="-"
           min="1"
           max="100"
-          value={value}
+          value={value || ''}
           onChange={isEditing ? onChange : undefined}
           className={`w-16 text-center py-2 rounded-lg ${
             isEditing
