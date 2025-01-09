@@ -3,10 +3,10 @@ import Link from "next/link";
 
 const Footer: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col">
       <main className="flex-grow"></main>
 
-      <footer className="bg-primary-600 py-6 text-monochrome-50 mt-auto">
+      <footer className="bg-primary-600 py-6 text-monochrome-50">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between">
 
           {/* Left Section - Logo */}
