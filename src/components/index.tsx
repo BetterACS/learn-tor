@@ -7,6 +7,7 @@ import TrendingTopic from '@/components/trending-topic';
 import Button from '@/components/button';
 import Registerblock from '@/components/registerblock';
 import CommentSection from '@/components/comment-section';
+import CommentInput from '@/components/comment-input';
 
 
 export {
@@ -19,4 +20,5 @@ export {
   Button,
   Registerblock,
   CommentSection,
+  CommentInput,
 }

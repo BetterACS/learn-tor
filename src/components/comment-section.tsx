@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { CommentInput } from '@/components/index';
 
 interface Comment {
   username: string;
@@ -13,14 +14,13 @@ interface Comment {
 
 interface CommentProps {
   comment: Comment;
-  level: number;
 }
 
-
-const CommentComponent = ({ comment, level }: CommentProps) => {
+const CommentComponent = ({ comment }: CommentProps) => {
+  const [isCommentClicked, setIsCommentClicked] = useState(false);
 
   return (
-    <div className="flex flex-col item-start">
+    <div className="h-fit w-full flex flex-col item-start">
       <div className="flex content-center items-center gap-2">
         <div className="w-10 min-w-10">
           <img src='/images/profile.png' className="w-full h-full object-cover rounded-full"/>
@@ -34,15 +34,15 @@ const CommentComponent = ({ comment, level }: CommentProps) => {
         </p>
       </div>
 
-      <div className="flex">
+      <div className="h-fit w-full flex">
         <div className="flex justify-end w-12 min-w-12 pt-2">
           {comment.comments.length > 0 &&
             <div className={`h-full w-[20px] border-l-2 border-monochrome-200`}></div>
           }
         </div>
-        <div className="w-full flex flex-col ml-0 gap-2">
+        <div className="w-full h-fit flex flex-col ml-0 gap-2">
           {/* Comment text */}
-          <p className="w-full text-headline-5">
+          <p className="text-headline-5">
             {comment.text}
           </p>
 
@@ -54,20 +54,35 @@ const CommentComponent = ({ comment, level }: CommentProps) => {
                 {comment.likes} Likes
               </p>
             </button>
-            <button type="button" name="share" className={`text-button flex items-center gap-1 bg-monochrome-100 py-2 px-2 rounded-[1.5rem] group hover:text-primary-500 transition duration-200`}>
+            <button 
+              type="button" 
+              name="share"
+              onClick={() => setIsCommentClicked(true)}
+              className={`text-button flex items-center gap-1 bg-monochrome-100 py-2 px-2 rounded-[1.5rem] group hover:text-primary-500 transition duration-200`}
+            >
               <svg className="size-6" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path className="fill-current" d="M144 208C126.3 208 112 222.2 112 239.1C112 257.7 126.3 272 144 272s31.1-14.25 31.1-32S161.8 208 144 208zM256 207.1c-17.75 0-31.1 14.25-31.1 32s14.25 31.1 31.1 31.1s31.1-14.25 31.1-31.1S273.8 207.1 256 207.1zM368 208c-17.75 0-31.1 14.25-31.1 32s14.25 32 31.1 32c17.75 0 31.99-14.25 31.99-32C400 222.2 385.8 208 368 208zM256 31.1c-141.4 0-255.1 93.12-255.1 208c0 47.62 19.91 91.25 52.91 126.3c-14.87 39.5-45.87 72.88-46.37 73.25c-6.624 7-8.373 17.25-4.624 26C5.818 474.2 14.38 480 24 480c61.49 0 109.1-25.75 139.1-46.25c28.87 9 60.16 14.25 92.9 14.0c141.4 0 255.1-93.13 255.1-207.1S397.4 31.1 256 31.1zM256 400c-26.75 0-53.12-4.125-78.36-12.12l-22.75-7.125L135.4 394.5c-14.25 10.12-33.87 21.38-57.49 29c7.374-12.12 14.37-25.75 19.87-40.25l10.62-28l-20.62-21.87C69.81 314.1 48.06 282.2 48.06 240c0-88.25 93.24-160 207.1-160s207.1 71.75 207.1 160S370.8 400 256 400z"/></svg>
               <p className="text-nowrap">
                 Comment
               </p>
             </button>
           </div>
+          {isCommentClicked && 
+          <div className="">
+            <CommentInput 
+              topic_id={null} 
+              parent_id={null} 
+              setIsCommentClicked={setIsCommentClicked}
+            />
+          </div>
+          }
         </div>
       </div>
+
       {/* Nested comments */}
       {comment.comments.length > 0 && (
-        <div className="relative w-full flex">
+        <div className="relative w-full h-fit flex">
           {/* Nested comments */}
-          <div className="flex flex-col ml-10 gap-6 pt-4">
+          <div className="w-full h-fit flex flex-col ml-10 gap-6 pt-4">
             {comment.comments.map((nestedComment, index) => {
               // Function to check if there is a next same-level comment
               const checkIfNextSameLevel = (comments: Comment[], index: number): boolean => {
@@ -81,24 +96,19 @@ const CommentComponent = ({ comment, level }: CommentProps) => {
               const hasNextSameLevel = checkIfNextSameLevel(comment.comments, index);
 
               return (
-                <div key={index} className="relative flex">
+                <div key={index} className="relative flex w-full h-fit">
                   {/* Connecting line to profile image */}
                   <div 
                     className={`absolute -left-[14px] -top-6 h-12 w-6 border-b-2 border-l-2 border-monochrome-200 rounded-bl-lg`}
                   ></div>
-                  {/* <p>{level}</p> */}
                   {hasNextSameLevel &&
                     <div 
                       className={`absolute -left-[14px] top-0 h-full w-6 border-l-2 border-monochrome-200`}
                       ></div>
                   }
-                  {/* Display the calculated parent level for the nested comment */}
-                  {/* <p>{level}</p> */}
-                  {/* Check and display if there is a next same-level comment */}
-                  {/* <p>{hasNextSameLevel ? "Y" : "N"}</p> */}
 
                   {/* Recursively render nested comments with updated level */}
-                  <CommentComponent comment={nestedComment} level={level + 1}/>
+                  <CommentComponent comment={nestedComment}/>
                 </div>
               );
             })}
@@ -231,7 +241,7 @@ export default function CommentSection() {
       {/* Users comment area */}
       {/* Sort by */}
       {comments.length > 0 && 
-      <div className="flex flex-col gap-6">
+      <div className="h-fit w-full flex flex-col gap-6">
         <div className="flex w-fit gap-2 items-center">
           <p>
             Sort by: 
@@ -265,9 +275,9 @@ export default function CommentSection() {
         </div>
 
         {/* Comments */}
-        <div className="flex flex-col gap-8">
+        <div className="h-fit w-full flex flex-col gap-8">
           {comments.map((comment, index) => (
-            <CommentComponent key={index} comment={comment} level={1}/>
+            <CommentComponent key={index} comment={comment}/>
           ))}
         </div>
       </div>}
