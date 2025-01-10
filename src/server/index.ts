@@ -1,6 +1,6 @@
 import apiTest from './api/test';
-import register from './api/register';
-import login from  './api/login';
+import register from './api/auth/register';
+import login from  './api/auth/login';
 
 import { createCallerFactory, router } from './trpc';
 export const appRouter = router({
