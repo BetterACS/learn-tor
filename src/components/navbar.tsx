@@ -4,12 +4,18 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) &&
+        (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target as Node))
+      ) {
         setDropdownOpen(false);
+        setProfileDropdownOpen(false);
       }
     };
 
@@ -45,10 +51,24 @@ export default function Navbar() {
         <Link href="/forum">Forum</Link>
         <Link href="/">TCAS Calculate</Link>
         <Link href="/">Chatbot</Link>
-        <Link href="/" className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-          <img src='/images/profile.png'/>
-        </Link>
+
+        {/* Profile Dropdown */}
+        <div className="relative" ref={profileDropdownRef}>
+          <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
+            <img src='/images/profile.png'/>
+          </button>
+          {profileDropdownOpen && (
+            <div className="absolute right-0 mt-2  w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
+              <Link href="/profile" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
+                Profile
+              </Link>
+              <Link href="/home" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
+                Log out
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  )
+  );
 }
