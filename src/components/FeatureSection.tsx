@@ -15,7 +15,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({ title, description, img
     <div className="text-headline-4 text-center mb-4">{description}</div>
     <a
       href={link}
-      className="bg-white text-primary-600 rounded-lg py-4 px-6 text-big-button hover:bg-monochrome-100 transition duration-150"
+      className="bg-monochrome-50 text-primary-600 rounded-lg py-4 px-6 text-big-button hover:bg-monochrome-100 transition duration-150"
     >
       เรียนรู้เพิ่มเติม
     </a>

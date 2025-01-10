@@ -26,7 +26,7 @@ interface UniversityLogosProps {
 
 const UniversityLogos: React.FC<UniversityLogosProps> = ({ logos }) => {
   return (
-    <div className="bg-white py-12">
+    <div className="bg-monochrome-50 py-12">
       <div className="container mx-auto text-center px-4 md:px-8 py-16">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-8 justify-center">
           {logos.map((logo, index) => (
