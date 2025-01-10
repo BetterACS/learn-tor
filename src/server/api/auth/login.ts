@@ -1,8 +1,9 @@
 import { UserModel } from "@/db/models";
 import { connectDB } from "@/server/db";
 import { z } from "zod";
-import { publicProcedure } from "../trpc";
+import { publicProcedure } from "../../trpc";
 import bcrypt from 'bcrypt';
+import jwt from "jsonwebtoken";
 
 export default function login() {
     return {
@@ -20,17 +21,19 @@ export default function login() {
                     const user = await UserModel.findOne({ email });
                     if (!user) {
                         return {
-                        status: 400,
-                        data: { message: "User not found" },
+                            status: 400,
+                            data: { message: "User not found" },
                         };
                     }
+
                     const isPasswordCorrect = await bcrypt.compare(password, user.password);
                     if (!isPasswordCorrect) {
                         return {
-                        status: 400,
-                        data: { message: "Password incorrect" },
+                            status: 400,
+                            data: { message: "Password incorrect" },
                         };
                     }
+                    
                     return {
                         status: 200,
                         data: { message: "Login successful" },
