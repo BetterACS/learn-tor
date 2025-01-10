@@ -96,28 +96,28 @@ const Footer: React.FC = () => {
             <div className="flex space-x-4">
               <Link href="https://www.instagram.com" className="bg-white p-2 rounded-full" aria-label="Instagram">
                 <img
-                  src="/images/instagram-logo.png"
+                  src="/images/contact/instagram-logo.png"
                   alt="Instagram"
                   className="h-10 w-10"
                 />
               </Link>
               <Link href="https://www.facebook.com" className="bg-white p-2 rounded-full" aria-label="Facebook">
                 <img
-                  src="/images/facebook-logo.png"
+                  src="/images/contact/facebook-logo.png"
                   alt="Facebook"
                   className="h-10 w-10"
                 />
               </Link>
               <Link href="https://www.twitter.com" className="bg-white p-2 rounded-full" aria-label="Twitter">
                 <img
-                  src="/images/twitter-logo.png"
+                  src="/images/contact/twitter-logo.png"
                   alt="Twitter"
                   className="h-10 w-10"
                 />
               </Link>
               <Link href="https://www.linkedin.com" className="bg-white p-2 rounded-full" aria-label="LinkedIn">
                 <img
-                  src="/images/linkedIn-logo.png"
+                  src="/images/contact/linkedIn-logo.png"
                   alt="LinkedIn"
                   className="h-10 w-10"
                 />

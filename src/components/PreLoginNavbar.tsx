@@ -22,7 +22,7 @@ export default function Navbar() {
   return (
     <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-10 text-big-button">
       <Link href="/home" className="h-full w-[4rem] min-w-[4rem]">
-        <img src='/images/logo.png' />
+        <img src='/images/logo.png' alt="Logo" />
       </Link>
       <div className="flex w-full h-fit gap-[2%] items-center justify-end text-monochrome-50 text-nowrap">
         <div className="relative" ref={dropdownRef}>
@@ -45,10 +45,12 @@ export default function Navbar() {
         <Link href="/forum">Forum</Link>
         <Link href="/">TCAS Calculate</Link>
         <Link href="/">Chatbot</Link>
-        <Link href="/" className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-          <img src='/images/profile.png'/>
+        <Link
+          href="/login"
+          className="rounded-full bg-monochrome-50  text-primary-600 px-5 py-2 text-big-button flex items-center justify-center hover:bg-monochrome-100 transition duration-150">
+          Login
         </Link>
       </div>
     </div>
-  )
+  );
 }

@@ -170,7 +170,7 @@ const UserProfile = () => {
             </Link>
         </div>
         <div className="mt-6 flex justify-start gap-4 w-full">
-            <Link href="/login" passHref>
+            <Link href="/" passHref>
                 <button className="w-[200px] text-big-button bg-red-800 text-monochrome-50 py-3 px-6 rounded-lg hover:bg-red-700">
                     ออกจากระบบ
                 </button>
