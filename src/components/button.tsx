@@ -17,7 +17,7 @@ export default function Button({ button_name, variant="primary", onClick }: Butt
   return (
     <button 
       onClick={onClick}
-      className={`h-auto w-fit px-[1.3rem] py-[0.7rem] ${variantClasses} rounded-lg flex justify-center items-center border border-primary-600  text-button`}
+      className={`h-auto w-fit px-[1.3rem] py-[0.7rem] ${variantClasses} rounded-lg flex justify-center items-center text-nowrap border border-primary-600 text-button`}
     >
       <p>{button_name}</p>
     </button>

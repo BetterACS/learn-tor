@@ -11,6 +11,7 @@ import Resetpasswordblock from '@/components/resetpasswordblock';
 import Verifypassblock from '@/components/verifypassblock';
 import Updatepassblock from '@/components/updatepassblock';
 import CommentSection from '@/components/comment-section';
+import CommentInput from '@/components/comment-input';
 
 export {
   Test,
@@ -26,4 +27,5 @@ export {
   Verifypassblock,
   Updatepassblock,
   CommentSection,
+  CommentInput,
 }
