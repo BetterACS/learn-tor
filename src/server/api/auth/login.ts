@@ -33,7 +33,19 @@ export default function login() {
                             data: { message: "Password incorrect" },
                         };
                     }
-                    
+                    if (user && isPasswordCorrect) {
+                        const token = jwt.sign(
+                            { email: user.email, user_id: user._id },
+                            process.env.NEXT_PUBLIC_JWT_SECRET as string,
+                            { expiresIn: "1h" }
+                        );
+
+                        user.token = token;
+                        return {
+                            status: 200,
+                            data: { user },
+                        };
+                    }
                     return {
                         status: 200,
                         data: { message: "Login successful" },
