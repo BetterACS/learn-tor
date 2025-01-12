@@ -101,7 +101,7 @@ const UserProfile = () => {
 
         <div className="mt-6 grid grid-cols-3 gap-x-40 gap-y-6">
           <InputField label="ชื่อผู้ใช้" name="username" value={formData.username} disabled={!isEditing} onChange={handleChange} />
-          <InputField label="อีเมล" name="email" value={formData.email} disabled={!isEditing} onChange={handleChange} />
+          <InputField label="อีเมล" name="email" value={formData.email} disabled={true} onChange={handleChange} />
           <InputField label="สายการเรียน" name="major" value={formData.major} disabled={!isEditing} onChange={handleChange} />
         </div>
 

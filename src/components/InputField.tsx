@@ -18,7 +18,7 @@ const InputField: React.FC<InputFieldProps> = ({ name, value, disabled, onChange
         value={value}
         disabled={disabled}
         onChange={onChange}
-        className={`w-full border ${disabled ? 'border-monochrome-200' : 'border-monochrome-200'} rounded-lg px-4 py-2 ${disabled ? 'bg-monochrome-100' : 'bg-white'} focus:outline-none focus:ring-1 focus:ring-primary-600 focus:border-primary-950`}
+        className={`w-full border ${disabled ? 'border-monochrome-200' : 'border-monochrome-200'} rounded-lg px-4 py-2 ${disabled ? 'bg-monochrome-100' : 'bg-white'} focus:outline-none focus:ring-1 focus:ring-primary-600 focus:border-primary-600`}
        />
 
     </div>
