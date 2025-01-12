@@ -15,7 +15,6 @@ const Footer: React.FC = () => {
 
       <footer className="bg-primary-600 py-6 text-monochrome-50">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between">
-          {/* Left Section - Logo */}
           <div className="flex flex-col items-start mb-6 md:mb-0">
             <img
               src="/images/logofooter.png"
@@ -24,9 +23,7 @@ const Footer: React.FC = () => {
             />
           </div>
 
-          {/* Middle Section */}
           <div className="flex flex-col md:flex-row gap-60">
-            {/* Left Column - Learntor Links */}
             <div>
               <div className="text-headline-4 mb-4">Learntor</div>
               <ul className="space-y-2 text-headline-5">
@@ -40,7 +37,6 @@ const Footer: React.FC = () => {
               </ul>
             </div>
 
-            {/* Right Column - Function Links */}
             <div className="mt-6 md:mt-0">
               <div className="text-headline-4 mb-4">Link For Function</div>
               <ul className="space-y-2 text-headline-5">
@@ -55,7 +51,6 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Section - Contact Us */}
           <div className="flex flex-col items-start">
             <div className="text-headline-4 mb-4">Contact Us</div>
             <div className="flex space-x-4">
