@@ -11,6 +11,7 @@ import Resetpasswordblock from '@/components/resetpasswordblock';
 import Verifypassblock from '@/components/verifypassblock';
 import Updatepassblock from '@/components/updatepassblock';
 import CommentSection from '@/components/comment-section';
+import CommentInput from '@/components/comment-input';
 import Footer from '@/components/footer';
 import EditButtons from '@/components/EditButtons';
 import InputField from '@/components/InputField';
@@ -30,6 +31,7 @@ export {
   Verifypassblock,
   Updatepassblock,
   CommentSection,
+  CommentInput,
   Footer,
   EditButtons,
   InputField,

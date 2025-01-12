@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import { CommentSection } from '@/components/index';
+import { CommentSection, CommentInput } from '@/components/index';
 
 export default function Topic() {
   const search_params = useSearchParams();
@@ -10,8 +10,6 @@ export default function Topic() {
   const raw_data = search_params.keys().next().value;
   const data = raw_data ? JSON.parse(raw_data) : null;
 
-  const [isCommentExpanded, setIsCommentExpanded] = useState(false);
-  const [comment, setComment] = useState('');
   const [buttonStates, setButtonStates] = useState<Record<string, { liked: boolean, isClicked: boolean }>>({
     like: { liked: false, isClicked: false },
     save: { liked: false, isClicked: false },
@@ -106,30 +104,7 @@ export default function Topic() {
         </div>
         {/* Comment text area */}
         <div className="flex">
-          <div className={`w-full h-fit rounded-[1.1rem] flex flex-col gap-2 px-3 py-3 border ${!isCommentExpanded ? "border-monochrome-500" : "border-primary-600"}`} onClick={() => !isCommentExpanded ? setIsCommentExpanded(true) : null}>
-            <textarea 
-              name="comment_text_area"
-              value={comment}
-              id=""
-              placeholder="Add a comment"
-              rows={!isCommentExpanded ? 1 : 2}
-              onChange={(e) => setComment(e.target.value)}
-              className={`w-full text-body-large text-monochrome-950 placeholder-monochrome-600 resize-none outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-100 caret-monochrome-600`}
-            ></textarea>
-            {isCommentExpanded && (
-              <div className="flex justify-end gap-1 text-button">
-                <button 
-                  className="px-3 py-3 rounded-[1.3rem] bg-monochrome-200"
-                  onClick={() => {setIsCommentExpanded(false); setComment("");}}
-                >
-                  Cancle
-                </button>
-                <button className="px-3 py-3 rounded-[1.3rem] bg-primary-600 text-monochrome-50">
-                  Comment
-                </button>
-              </div>
-            )}
-          </div>
+          <CommentInput topic_id={null} parent_id={null} />
         </div>
         <div>
           <CommentSection />
