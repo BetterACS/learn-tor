@@ -12,6 +12,7 @@ interface User extends Document {
   reset_token?: string;
   reset_token_expire?: Date;
   score_id?: mongoose.Types.ObjectId;
+  token?: string;
 }
 
 const UserSchema: Schema<User> = new Schema({
@@ -25,7 +26,9 @@ const UserSchema: Schema<User> = new Schema({
   reset_token: { type: String },
   reset_token_expire: { type: Date },
   score_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Score' },
+  token: { type: String },
 });
+
 
 const UserModel = mongoose.models.User || mongoose.model<User>('User', UserSchema);
 
