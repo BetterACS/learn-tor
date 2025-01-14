@@ -4,6 +4,7 @@ import "./globals.css";
 import Provider from '@/app/_trpc/Provider';
 import { CookiesProvider } from 'next-client-cookies/server';
 import { cn } from '@/utils/utils';
+
 // ใส่ font ที่เราต้องการใช้งาน
 const notoSansThai = Noto_Sans_Thai({
   variable: "--font-noto-sans-thai",
