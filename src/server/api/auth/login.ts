@@ -39,11 +39,9 @@ export default function login() {
                             process.env.NEXT_PUBLIC_JWT_SECRET as string,
                             { expiresIn: "1h" }
                         );
-
-                        user.token = token;
                         return {
                             status: 200,
-                            data: { user },
+                            data: { token },
                         };
                     }
                     return {
