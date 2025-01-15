@@ -1,7 +1,49 @@
 'use client';
+import React, {useState} from 'react';
 import Link from 'next/link';
 
+
+interface RegisterBlockProps {
+  setData: (data: any) => void;
+}
+
 const RegisterBlock = () => {
+  const [formValues, setFormValues] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+});
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const newFormValues = {
+        ...formValues,
+        [name]: value,
+    };
+    setFormValues(newFormValues);
+  };  
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_PORT}api/trpc/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formValues),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log('Success:', data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
   return (
     <div className="flex items-center justify-center min-h-screen ">
       <div className="flex bg-monochrome-50 rounded-[25px] shadow-lg overflow-hidden w-[1200px] h-[600px]">
@@ -14,12 +56,16 @@ const RegisterBlock = () => {
           <p className="text-monochrome-500 mb-9">
             Create your account in seconds 
           </p>
-          <form action="#">
+          <form onSubmit={handleSubmit} action="#">
             {/* Username */}
             <div className="mb-8">
               <input
                 type="text"
+                name="username"
                 placeholder="Username"
+                value={formValues.username}
+                onChange={handleChange}
+                required
                 className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
@@ -27,7 +73,11 @@ const RegisterBlock = () => {
             <div className="mb-8">
               <input
                 type="email"
+                name="email"
                 placeholder="Email Address"
+                value={formValues.email}
+                onChange={handleChange}
+                required
                 className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
@@ -35,7 +85,11 @@ const RegisterBlock = () => {
             <div className="mb-8">
               <input
                 type="password"
+                name="password"
                 placeholder="Password"
+                value={formValues.password}
+                onChange={handleChange}
+                required
                 className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
@@ -43,13 +97,18 @@ const RegisterBlock = () => {
             <div className="mb-8">
               <input
                 type="password"
+                name="confirmPassword"
                 placeholder="Confirm Password"
+                value={formValues.confirmPassword}
+                onChange={handleChange}
+                required
                 className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
             </div>
             {/* Submit Button */}
             <button 
-              className="w-full bg-primary-600 text-white text-headline-6 py-2 rounded-[7px] hover:bg-primary-700 transition h-[3.7rem] font-bold">
+              className="w-full bg-primary-600 text-white text-headline-6 py-2 rounded-[7px] hover:bg-primary-700 transition h-[3.7rem] font-bold"
+              type="submit">
               Create an account
             </button>
           </form>
