@@ -71,6 +71,7 @@ const CommentComponent = ({ comment }: CommentProps) => {
             <CommentInput 
               topic_id={null} 
               parent_id={null} 
+              isCommentClicked={isCommentClicked}
               setIsCommentClicked={setIsCommentClicked}
             />
           </div>
