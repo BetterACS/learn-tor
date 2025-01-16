@@ -16,7 +16,6 @@ import Footer from '@/components/footer';
 import EditButtons from '@/components/EditButtons';
 import InputField from '@/components/InputField';
 import ScoreInput from '@/components/ScoreInput';
-import PreLoginNavbar from '@/components/PreLoginNavbar';
 import UniLogo from '@/components/uni-logo';
 import FeatureSection from '@/components/FeatureSection';
 
@@ -39,7 +38,6 @@ export {
   EditButtons,
   InputField,
   ScoreInput,
-  PreLoginNavbar,
   UniLogo,
   FeatureSection,
 }

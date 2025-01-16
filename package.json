@@ -16,9 +16,10 @@
     "@trpc/server": "^11.0.0-rc.682",
     "bcrypt": "^5.1.1",
     "clsx": "^2.1.1",
+    "critters": "^0.0.25",
     "learn-tor": "file:",
     "mongoose": "^8.9.3",
-    "next": "15.1.3",
+    "next": "^15.1.4",
     "next-client-cookies": "^2.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -30,8 +31,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/bcrypt": "^5.0.2",
-    "@types/node": "^20",
-    "@types/react": "^19",
+    "@types/node": "^20.17.12",
+    "@types/react": "^19.0.6",
     "@types/react-dom": "^19",
     "@types/react-slick": "^0.23.13",
     "eslint": "^9",
@@ -39,6 +40,6 @@
     "postcss": "^8",
     "tailwind-scrollbar": "^3.0.0",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5.7.3"
   }
 }

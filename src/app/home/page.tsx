@@ -1,6 +1,6 @@
-'use client'; 
+'use client';
 import { useState } from 'react';
-import { PreLoginNavbar, Navbar, Footer, UniLogo, FeatureSection } from '@/components/index';
+import { Navbar, Footer, UniLogo, FeatureSection } from '@/components/index';
 
 const Section4 = () => {
   const cards = [
@@ -9,7 +9,7 @@ const Section4 = () => {
     { title: 'บริหารธุรกิจ', imageUrl: '/images/career/business.png' },
     { title: 'วิทยาศาสตร์', imageUrl: '/images/career/science.png' },
     { title: 'เภสัชศาสตร์', imageUrl: '/images/career/pharmacy.png' },
-    { title: 'ครุศาสตร์', imageUrl: '/images/career/education.png' }
+    { title: 'ครุศาสตร์', imageUrl: '/images/career/education.png' },
   ];
 
   interface CardProps {
@@ -19,10 +19,10 @@ const Section4 = () => {
 
   const Card: React.FC<CardProps> = ({ title, imageUrl }) => (
     <div
-      className="bg-cover bg-center p-8 rounded-xl opacity-80  h-[200px] w-full sm:w-[500px] mx-auto flex items-center justify-center"
+      className="bg-cover bg-center p-8 rounded-xl opacity-80 h-[200px] w-full mx-auto flex items-center justify-center"
       style={{ backgroundImage: `url(${imageUrl})` }}
     >
-      <div className="text-headline-3 font-bold text-monochrome-50 drop-shadow text-center">
+      <div className="sm:text-headline-5 md:text-headline-4 lg:text-headline-3 font-bold text-monochrome-50 drop-shadow text-center">
         {title}
       </div>
     </div>
@@ -31,11 +31,10 @@ const Section4 = () => {
   return (
     <div className="bg-primary-600 py-12">
       <div className="container mx-auto text-center px-4 md:px-8 py-16">
-        <div className="text-headline-3 font-bold text-monochrome-50 drop-shadow mb-8">
+        <div className="text-headline-4 font-bold md:text-headline-3 md:font-bold text-monochrome-50 drop-shadow mb-8">
           มาดูกันซิว่าเรามีคณะอะไรกันบ้าง!!
         </div>
-        {/* Card grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-20">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 px-6 max-w-full overflow-hidden py-10">
           {cards.map((card, index) => (
             <Card key={index} title={card.title} imageUrl={card.imageUrl} />
           ))}
@@ -71,21 +70,26 @@ export default function Page() {
 
   return (
     <div>
-      {isLoggedIn ? <Navbar /> : <PreLoginNavbar />}
-
-      {/* Section 1 */}
-      <div className="flex flex-col md:flex-row items-center justify-between px-16 md:px-32 py-16 bg-white">
-        <div className="md:w-1/2">
-          <div className="text-headline-2 font-light text-primary-600 mb-4 drop-shadow">
+      <Navbar />
+      <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 sm:px-12 md:px-16 lg:px-32 py-16 sm:py-24 lg:py-32 bg-monochrome-50">
+        <div className="w-full md:w-1/2 flex justify-center order-1 md:order-2 mb-8 md:mb-0">
+          <img
+            src="/images/logofooter.png"
+            alt="LearnTor Logo"
+            className="w-3/5 sm:w-4/5 md:w-3/4 lg:max-w-[600px] h-auto"
+          />
+        </div>
+        <div className="w-full md:w-1/2 text-center md:text-left order-2 md:order-1">
+          <div className="text-headline-4 md:text-headline-2 font-light text-primary-600 mb-4 drop-shadow">
             ยินดีต้อนรับเข้าสู่ LearnTor
           </div>
-          <div className="text-headline-4 text-monochrome-950 mb-6 drop-shadow">
-            Learntorช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย โดยพิจารณาจากข้อมูลสำคัญ
-            เครื่องมือคำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ มีฟอรั่มในการพูดคุย
-            แลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะและแชตบอตอัจฉริยะ
+          <div className="sm:text-body-large md:text-headline-5 lg:text-headline-4 text-monochrome-950 mb-6 drop-shadow leading-relaxed">
+            Learntorช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย
+            โดยพิจารณาจากข้อมูลสำคัญ เครื่องมือคำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ
+            มีฟอรั่มในการพูดคุย แลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะและแชตบอตอัจฉริยะ
           </div>
           {!isLoggedIn && (
-            <div className="flex gap-4">
+            <div className="flex sm:flex-row gap-4 justify-center md:justify-start">
               <a
                 href="/login"
                 className="border border-primary-600 text-primary-600 py-3 px-6 rounded-lg text-big-button hover:bg-monochrome-100 transition duration-150"
@@ -101,25 +105,16 @@ export default function Page() {
             </div>
           )}
         </div>
-        <div className="md:w-1/2 flex justify-center">
-          <img
-            src="/images/logofooter.png"
-            alt="LearnTor Logo"
-            className="max-w-[160%] h-auto"
-          />
-        </div>
       </div>
 
-      {/* Section 2 */}
       <div className="bg-primary-600 py-12">
         <div className="container mx-auto text-center px-4 md:px-8 py-16">
-          <div className="text-headline-3 font-bold text-monochrome-50 drop-shadow">
+          <div className="text-headline-4 px-2 font-bold md:text-headline-3 md:font-bold text-monochrome-50 drop-shadow">
             Learntor มีฟีเจอร์อะไรเพื่อน้องๆบ้าง!!
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 px-12 md:px-24">
-          <div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-12 md:px-24">
+          <div className="mt-4">
             <FeatureSection
               title="Compare Courses"
               description="ช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย โดยพิจารณาจากข้อมูลสำคัญ"
@@ -127,7 +122,7 @@ export default function Page() {
               link="/"
             />
           </div>
-          <div className="border-l-2 border-white p-4">
+          <div className="border-l-2 border-monochrome-50 p-4">
             <FeatureSection
               title="Chatbot"
               description="แชตบอตที่จะสามารถตอบข้อมูลเกี่ยวกับการเรียนต่อที่คุณต้องการได้อย่างรวดเร็วและทันใจ"
@@ -135,7 +130,7 @@ export default function Page() {
               link="/"
             />
           </div>
-          <div className="border-l-2 border-white p-4">
+          <div className="border-0 md:border-l-2 border-monochrome-50 p-4">
             <FeatureSection
               title="TCAS Calculate"
               description="คำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ"
@@ -143,7 +138,7 @@ export default function Page() {
               link="/"
             />
           </div>
-          <div className="border-l-2 border-white p-4">
+          <div className="border-l-2 border-monochrome-50 p-4">
             <FeatureSection
               title="Forum"
               description="ฟอรั่มในการพูดคุยแลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะ"
@@ -154,19 +149,15 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Section 3 */}
-      <div className="bg-white py-12">
+      <div className="bg-monochrome-50 py-12">
         <div className="container mx-auto text-center px-4 md:px-8 py-16">
-          <div className="text-headline-3 font-bold text-primary-600 drop-shadow">
+          <div className="text-headline-4 font-bold md:text-headline-3 md:font-bold text-primary-600 drop-shadow">
             พวกเราข้อมีข้อมูลมหาวิทยาลัยชื่อดังทั่วประเทศไทย
           </div>
           <UniLogo logos={logos} />
         </div>
       </div>
-
-      {/* Section 4 */}
       <Section4 />
-
       <Footer />
     </div>
   );
