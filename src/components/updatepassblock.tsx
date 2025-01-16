@@ -10,7 +10,7 @@ const UpdateBlock = () => {
         </div>
         {/* Right Section */}
         <div className="w-[45%] flex flex-col justify-center py-20 px-24">
-         <h2 className="text-headline-3 font-bold mb-4 text-monochrome-800">Update Password</h2>
+         <div className="text-headline-3 font-bold mb-4 text-monochrome-800">Update Password</div>
           <p className="text-monochrome-500 mb-9">
             Enter new password
           </p>

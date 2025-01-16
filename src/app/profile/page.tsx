@@ -181,16 +181,16 @@ const UserProfile = () => {
           <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
         </div>
         <EditButtons isEditing={isEditing} onEditClick={handleEditClick} onCancelClick={handleCancelClick} onSaveClick={handleSaveClick} />
-        <div className="mt-6 flex justify-start gap-4 w-full items-center">
+        <div className="mt-6 flex justify-start gap-4 w-full">
           <Link href="/forget" passHref>
-            <button className="w-full sm:w-[100px] md:w-[400px] text-big-button border border-primary-600 bg-monochrome-50 text-primary-600 py-3 px-6 rounded-lg hover:bg-monochrome-100">
+            <button className="w-full sm:w-full md:w-[315px] lg:w-[400px] text-big-button border border-primary-600 bg-monochrome-50 text-primary-600 py-3 px-6 rounded-lg hover:bg-monochrome-100">
               เปลี่ยนรหัสผ่าน
             </button>
           </Link>
         </div>
         <div className="mt-6 flex justify-start gap-4 w-full">
           <Link href="/login" passHref>
-            <button className="w-full sm:w-[100px] md:w-[400px] text-big-button bg-red-800 text-monochrome-50 py-3 px-6 rounded-lg hover:bg-red-700">
+            <button className="w-full sm:w-full md:w-[315px] lg:w-[400px] text-big-button bg-red-800 text-monochrome-50 py-3 px-6 rounded-lg hover:bg-red-700">
               ออกจากระบบ
             </button>
           </Link>
