@@ -13,7 +13,7 @@ const UniLogo: React.FC<UniLogoProps> = ({ src, alt }) => (
       width={100}
       height={100}
       quality={100}
-      className="opacity-50 group-hover:opacity-100 transition-opacity duration-300 object-contain"
+      className="opacity-50 group-hover:opacity-100 group-hover:scale-110 transform transition duration-300 object-contain"
     />
   </div>
 );

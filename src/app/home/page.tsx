@@ -10,6 +10,9 @@ const Section4 = () => {
     { title: 'วิทยาศาสตร์', imageUrl: '/images/career/science.png' },
     { title: 'เภสัชศาสตร์', imageUrl: '/images/career/pharmacy.png' },
     { title: 'ครุศาสตร์', imageUrl: '/images/career/education.png' },
+    { title: 'เทคโนโลยีสารสนเทศ', imageUrl: '/images/career/it.jpg' },
+    { title: 'นิเทศศาสตร์', imageUrl: '/images/career/comart2.jpg' },
+    { title: 'นิติศาสตร์', imageUrl: '/images/career/law-4.jpg' },
   ];
 
   interface CardProps {
@@ -19,7 +22,7 @@ const Section4 = () => {
 
   const Card: React.FC<CardProps> = ({ title, imageUrl }) => (
     <div
-      className="bg-cover bg-center p-8 rounded-xl opacity-80 h-[200px] w-full mx-auto flex items-center justify-center"
+      className="bg-cover bg-center p-8 rounded-xl opacity-60 hover:opacity-100 hover:scale-105 transform transition duration-300 h-[250px] w-full mx-auto flex items-center justify-center"
       style={{ backgroundImage: `url(${imageUrl})` }}
     >
       <div className="sm:text-headline-5 md:text-headline-4 lg:text-headline-3 font-bold text-monochrome-50 drop-shadow text-center">
@@ -76,15 +79,15 @@ export default function Page() {
           <img
             src="/images/logofooter.png"
             alt="LearnTor Logo"
-            className="w-3/5 sm:w-4/5 md:w-3/4 lg:max-w-[600px] h-auto"
+            className="w-3/5 sm:w-4/5 md:w-3/4 lg:max-w-[600px] h-auto animate-floatsImage"
           />
         </div>
         <div className="w-full md:w-1/2 text-center md:text-left order-2 md:order-1">
-          <div className="text-headline-4 md:text-headline-2 font-light text-primary-600 mb-4 drop-shadow">
+          <div className="text-headline-4 md:text-headline-2 font-bold text-primary-600 mb-4 drop-shadow">
             ยินดีต้อนรับเข้าสู่ LearnTor
           </div>
           <div className="sm:text-body-large md:text-headline-5 lg:text-headline-4 text-monochrome-950 mb-6 drop-shadow leading-relaxed">
-            Learntorช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย
+            Learntor ช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย
             โดยพิจารณาจากข้อมูลสำคัญ เครื่องมือคำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ
             มีฟอรั่มในการพูดคุย แลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะและแชตบอตอัจฉริยะ
           </div>
@@ -92,13 +95,18 @@ export default function Page() {
             <div className="flex sm:flex-row gap-4 justify-center md:justify-start">
               <a
                 href="/login"
-                className="border border-primary-600 text-primary-600 py-3 px-6 rounded-lg text-big-button hover:bg-monochrome-100 transition duration-150"
+                className="border border-primary-600 text-primary-600 py-3 px-6 rounded-lg text-big-button hover:bg-primary-600 hover:text-white hover:border-whitetransition duration-150"
               >
                 Login
               </a>
               <a
                 href="/register"
-                className="bg-primary-600 text-monochrome-50 py-3 px-6 rounded-lg text-big-button hover:bg-primary-700 transition duration-150"
+                className="
+                  bg-primary-600 text-monochrome-50 border border-primary-600 
+                  py-3 px-6 rounded-lg text-big-button 
+                  transition duration-150 
+                  hover:bg-monochrome-50 hover:text-primary-600 hover:border-primary-600 
+                "
               >
                 Sign Up
               </a>
