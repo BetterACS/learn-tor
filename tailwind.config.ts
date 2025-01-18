@@ -128,9 +128,14 @@ export default {
           '50%': { transform: 'translateY(-30px)' },
           '100%': { transform: 'translateY(0)' },
         },
+        slideInFromLeft: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
       },
       animation: {
         floatsImage: 'floatsImage 3s ease-in-out infinite',
+        'slide-in': 'slideInFromLeft 0.5s ease-out forwards',
       },
     },
   },
