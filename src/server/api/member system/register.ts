@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import jwt from "jsonwebtoken";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 
 export default function register() {
 	return {
@@ -41,7 +43,7 @@ export default function register() {
 					// create token
 					const token = jwt.sign(
 						{ user_id: newUser._id, email },
-						process.env.NEXT_PUBLIC_JWT_SECRET as string,
+						process.env.NEXT_PUBLIC_NEXTAUTH_SECRET as string,
 						{
 							expiresIn: '1h',
 						}

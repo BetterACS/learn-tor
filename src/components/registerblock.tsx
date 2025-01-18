@@ -13,7 +13,10 @@ const RegisterBlock = () => {
     email: "",
     password: "",
     confirmPassword: "",
-});
+  });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const newFormValues = {
@@ -39,6 +42,7 @@ const RegisterBlock = () => {
       }
       const data = await response.json();
       console.log('Success:', data);
+      window.location.href = '/login';
     } catch (error) {
       console.error('Error:', error);
     }
