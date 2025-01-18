@@ -122,6 +122,16 @@ export default {
         'regis-image': "url('https://t4.ftcdn.net/jpg/06/30/03/29/360_F_630032996_e9ani5VblvtTjKYYprfStjPwRgyhi6H7.jpg')",
         'regis-block': "url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/bfecda6c-9d92-43b7-9298-1adce731f786/d1yu2e4-f581f411-6fa7-46e6-886a-15ee8d88b27a.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcL2JmZWNkYTZjLTlkOTItNDNiNy05Mjk4LTFhZGNlNzMxZjc4NlwvZDF5dTJlNC1mNTgxZjQxMS02ZmE3LTQ2ZTYtODg2YS0xNWVlOGQ4OGIyN2EuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.OsxNbHItcRmtueW7j4ua8k46JC8yvT-lF1RtrKkEDB4')"
       },
+      keyframes: {
+        floatsImage: {
+          '0%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-30px)' },
+          '100%': { transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        floatsImage: 'floatsImage 3s ease-in-out infinite',
+      },
     },
   },
   plugins: [

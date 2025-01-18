@@ -42,7 +42,7 @@ const Footer: React.FC = () => {
           {/* Logo Section */}
           <div className="flex justify-center md:justify-start">
             <img
-              src="/images/logofooter.png"
+              src="/images/Learntorbgg.png"
               alt="Learntor Logo Footer"
               className="max-h-[10rem] sm:max-h-[14rem] md:max-h-[36rem] lg:max-h-[40rem] w-auto"
             />
@@ -52,11 +52,14 @@ const Footer: React.FC = () => {
           <div className="flex justify-between w-full px-28 lg:px-60 gap-16">
             {/* Learntor Section */}
             <div>
-              <div className="font-semibold text-headline-6 mb-4 sm:text-headline-5 lg:text-headline-4 lg:mb-8 lg:mt-8">Learntor</div>
-              <ul className="space-y-2 text-body-small sm:text-body-large lg:text-headline-5">
+            <div className="font-semibold text-headline-6 mb-4 sm:text-headline-5 lg:text-headline-4 lg:mb-8 lg:mt-8 relative">
+              Learntor
+              <div className="absolute left-0 bottom-[-10px] bg-monochrome-200 h-[3px] w-[60px]"></div>
+            </div>
+              <ul className="mt-8 space-y-2 text-body-small sm:text-body-large lg:text-headline-5 text-monochrome-200">
                 {linkItems[0].links.map(({ name, href }) => (
-                  <li key={name}>
-                    <Link href={href} className="hover:underline">
+                  <li key={name} className="hover:pl-3 transition-all duration-300 ease-in-out">
+                    <Link href={href} className="hover:text-monochrome-50">
                       {name}
                     </Link>
                   </li>
@@ -66,28 +69,34 @@ const Footer: React.FC = () => {
 
             {/* Link for Function Section */}
             <div>
-              <div className="font-semibold text-headline-6 mb-4 sm:text-headline-5 lg:text-headline-4 lg:mb-8 lg:mt-8">Link for Function</div>
-              <ul className="space-y-2 text-body-small sm:text-body-large lg:text-headline-5">
-                {linkItems[1].links.map(({ name, href }) => (
-                  <li key={name}>
-                    <Link href={href} className="hover:underline">
-                      {name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <div className="font-semibold text-headline-6 mb-4 sm:text-headline-5 lg:text-headline-4 lg:mb-8 lg:mt-8 relative">
+                Link For Function
+                <div className="absolute left-0 bottom-[-10px] bg-monochrome-200 h-[3px] w-[160px]"></div>
+              </div>
+                <ul className="space-y-2 text-body-small sm:text-body-large lg:text-headline-5 text-monochrome-200">
+                  {linkItems[1].links.map(({ name, href }) => (
+                    <li key={name} className="hover:pl-3 transition-all duration-300 ease-in-out">
+                      <Link href={href} className="hover:text-monochrome-50">
+                        {name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
 
           {/* Contact Us Section */}
           <div className="flex flex-col items-center md:items-start lg:mr-6">
-            <div className="font-semibold text-headline-6 mb-4 sm:text-headline-5 lg:text-headline-4 lg:mb-8 lg:mt-8">Contact Us</div>
+              <div className="font-semibold text-headline-6 mb-4 sm:text-headline-5 lg:text-headline-4 lg:mb-8 lg:mt-8 relative">
+                Contact Us
+                <div className="absolute left-0 bottom-[-10px] bg-monochrome-200 h-[3px] w-[100px]"></div>
+              </div>
             <div className="flex space-x-4">
               {socialLinks.map(({ href, imgSrc, alt, ariaLabel }) => (
                 <Link
                   key={ariaLabel}
                   href={href}
-                  className="bg-monochrome-200 rounded-full flex items-center justify-center h-12 w-12"
+                  className="bg-monochrome-200 rounded-full flex items-center justify-center h-12 w-12 opacity-50 hover:opacity-100 transition-opacity duration-300"
                   aria-label={ariaLabel}
                 >
                   <img
