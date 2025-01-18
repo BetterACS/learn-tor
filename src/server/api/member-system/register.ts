@@ -4,9 +4,7 @@ import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
 import jwt from "jsonwebtoken";
-import { NextApiRequest, NextApiResponse } from 'next';
-import { NextResponse } from 'next/server';
-
+import logError from '@/utils/logError';
 export default function register() {
 	return {
 		register: publicProcedure
@@ -22,13 +20,13 @@ export default function register() {
 				try {
 					await connectDB();
 					const existingUser = await UserModel.findOne({
-						$or: [{ email }, { username }],
+						$or: [{ email }],
 					});
 					if (existingUser) {
 						return {
 							status: 400,
 							data: {
-								message: 'Email or username already exists.',
+								message: 'Email already exists.',
 							},
 						};
 					}
@@ -40,7 +38,6 @@ export default function register() {
 						token: '',
 					});
 
-					// create token
 					const token = jwt.sign(
 						{ user_id: newUser._id, email },
 						process.env.NEXT_PUBLIC_NEXTAUTH_SECRET as string,
@@ -60,9 +57,10 @@ export default function register() {
 					  
 				} catch (error) {
 					console.error('Error creating user:', error);
+					logError(error as Error);
 					return {
 						status: 500,
-						data: { message: 'Fail to create user' },
+						data: { message: 'Fail to create user please report to website' },
 					};
 				}
 			}),
