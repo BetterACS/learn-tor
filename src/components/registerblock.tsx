@@ -54,7 +54,7 @@ const RegisterBlock = () => {
                   setError(data.data.message);
               } else if (data.status === 200) {
                   console.log("Mutation Successful:", data);
-                  window.location.href = '/login'
+                  window.location.href = '/login';
                   // alert(data.data.message);
               }
           },

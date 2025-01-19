@@ -9,9 +9,10 @@ interface User extends Document {
   lesson_plan?: string;
   password: string;
   avatar: string;
-  reset_token?: string;
-  reset_token_expire?: Date;
+  token?: string;
+  token_expire?: Date;
   score_id?: mongoose.Types.ObjectId;
+  verified?: boolean;
 }
 
 const UserSchema: Schema<User> = new Schema({
@@ -22,9 +23,10 @@ const UserSchema: Schema<User> = new Schema({
   lesson_plan: { type: String },
   password: { type: String, required: true },
   avatar: { type: String, default: 'https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar.jpg'},
-  reset_token: { type: String },
-  reset_token_expire: { type: Date },
+  token: { type: String },
+  token_expire: { type: Date },
   score_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Score' },
+  verified: { type: Boolean, default: false },
 });
 
 

@@ -33,7 +33,6 @@ const authOptions: NextAuthOptions = {
         throw new Error(String(error));
       }
     }
-    
     }),
   ],
   pages: {

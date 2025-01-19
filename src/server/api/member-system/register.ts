@@ -3,7 +3,7 @@ import { connectDB } from '@/server/db';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
-import jwt from "jsonwebtoken";
+import {sendToken,generateToken} from '@/utils/mailer';
 import logError from '@/utils/logError';
 export default function register() {
 	return {
@@ -30,14 +30,19 @@ export default function register() {
 							},
 						};
 					}
+					
+					const token = generateToken();
 					const hashedPassword = await bcrypt.hash(password, 12);
 					const newUser = await UserModel.create({
 						email: email,
 						password: hashedPassword,
 						username: username,
+						token: token ,
+						token_expire: new Date(Date.now() + 15 * 60 * 1000),
 					});
 
 					await newUser.save();
+					sendToken(email, token, 'Verify your email',true);
 					return {
 						status: 200,
 						data: {

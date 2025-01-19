@@ -1,0 +1,64 @@
+[2025-01-19T14:16:02.767Z] Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-72dab8458e0sm5154907b3a.74 - gsmtp
+Error: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-72dab8458e0sm5154907b3a.74 - gsmtp
+    at SMTPConnection._formatError (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27206:19)
+    at SMTPConnection._actionAUTHComplete (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27820:34)
+    at SMTPConnection.<anonymous> (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27014:26)
+    at SMTPConnection._processResponse (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27347:20)
+    at SMTPConnection._onData (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27179:14)
+    at SMTPConnection._onSocketData (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:26726:48)
+    at TLSSocket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23)
+    at TLSWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+[2025-01-19T14:29:08.294Z] NEXT_REDIRECT
+Error: NEXT_REDIRECT
+    at getRedirectError (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_next_dist_1eb37a._.js:5637:19)
+    at redirect (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_next_dist_1eb37a._.js:5644:11)
+    at C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\[root of the server]__2df6c9._.js:689:221
+    at async resolveMiddleware (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_@trpc_server_dist_d55b76._.js:1236:30)
+    at async callRecursive (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_@trpc_server_dist_d55b76._.js:1277:24)
+    at async callRecursive (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_@trpc_server_dist_d55b76._.js:1277:24)
+    at async procedure (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_@trpc_server_dist_d55b76._.js:1310:24)
+    at async C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_@trpc_server_dist_d55b76._.js:4053:30
+    at async resolveResponse (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_@trpc_server_dist_d55b76._.js:4086:37)
+    at async fetchRequestHandler (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_@trpc_server_dist_d55b76._.js:4417:12)
+    at async AppRouteRouteModule.do (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:10:32804)
+    at async AppRouteRouteModule.handle (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:10:39825)
+    at async doRender (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\base-server.js:1452:42)
+    at async responseGenerator (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\base-server.js:1822:28)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\base-server.js:1832:28)
+    at async DevServer.renderPageComponent (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\base-server.js:2259:24)
+    at async DevServer.renderToResponseImpl (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\base-server.js:2297:32)
+    at async DevServer.pipeImpl (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\base-server.js:959:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\next-server.js:281:17)
+    at async DevServer.handleRequestImpl (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\base-server.js:853:17)
+    at async C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\dev\next-dev-server.js:371:20
+    at async Span.traceAsyncFn (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\trace\trace.js:153:20)
+    at async DevServer.handleRequest (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\dev\next-dev-server.js:368:24)
+    at async invokeRender (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\lib\router-server.js:230:21)
+    at async handleRequest (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\lib\router-server.js:408:24)
+    at async requestHandlerImpl (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\lib\router-server.js:432:13)
+    at async Server.requestListener (C:\Users\jackk\Documents\work\code\learn-tor\node_modules\next\dist\server\lib\start-server.js:146:13)
+
+[2025-01-19T14:31:29.651Z] Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-a9bce3a6157sm5028313a12.39 - gsmtp
+Error: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-a9bce3a6157sm5028313a12.39 - gsmtp
+    at SMTPConnection._formatError (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27206:19)
+    at SMTPConnection._actionAUTHComplete (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27820:34)
+    at SMTPConnection.<anonymous> (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27014:26)
+    at SMTPConnection._processResponse (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27347:20)
+    at SMTPConnection._onData (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:27179:14)
+    at SMTPConnection._onSocketData (C:\Users\jackk\Documents\work\code\learn-tor\.next\server\chunks\node_modules_0ca272._.js:26726:48)
+    at TLSSocket.emit (node:events:513:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23)
+    at TLSWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+

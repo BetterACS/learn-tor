@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-
+import { signOut } from "next-auth/react";
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -29,6 +29,11 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    signOut({ callbackUrl: '/login' }); 
+  };
 
   return (
     <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-10 text-big-button">
@@ -87,7 +92,7 @@ export default function Navbar() {
               <Link href="/profile" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
                 Profile
               </Link>
-              <Link href="/home" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
+              <Link href="#" onClick={handleSignOut} className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
                 Log out
               </Link>
             </div>
