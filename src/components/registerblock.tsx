@@ -2,7 +2,6 @@
 import React, {useState, useEffect} from 'react';
 import Link from 'next/link';
 import { trpc } from '@/app/_trpc/client';
-import { set } from 'mongoose';
 
 const RegisterBlock = () => {
   const [formValues, setFormValues] = useState({
@@ -50,7 +49,7 @@ const RegisterBlock = () => {
       { email: formValues.email, password: formValues.password, username: formValues.username },
       {
           onSuccess: (data) => {
-              if (data.status === 400) {
+              if (data.status !== 200) {
                   console.warn("Validation Error:", data.data.message);
                   setError(data.data.message);
               } else if (data.status === 200) {
@@ -64,27 +63,7 @@ const RegisterBlock = () => {
               setError(error.message);
           },
       }
-  );
-  
-    // try {
-    //   const response = await fetch(`${process.env.NEXT_PUBLIC_PORT}api/trpc/register`, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(formValues),
-    //   });
-
-    //   if (!response.ok) {
-    //     throw new Error('Network response was not ok');
-    //   }
-    //   const data = await response.json();
-    //   console.log('Success:', data);
-    //   window.location.href = '/login';
-    // } catch (error) {
-    //   console.error('Error:', error);
-    // }
-    
+  );    
   };
   
   return (

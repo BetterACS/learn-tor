@@ -3,8 +3,7 @@ import { connectDB } from "@/server/db";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
 import bcrypt from 'bcrypt';
-import jwt from "jsonwebtoken";
-
+import logError from '@/utils/logError';
 export default function login() {
     return {
         login: publicProcedure
@@ -33,23 +32,15 @@ export default function login() {
                             data: { message: "Password incorrect" },
                         };
                     }
-                    if (user && isPasswordCorrect) {
-                        const token = jwt.sign(
-                            { email: user.email, user_id: user._id },
-                            process.env.NEXT_PUBLIC_JWT_SECRET as string,
-                            { expiresIn: "1h" }
-                        );
+                    else {
                         return {
                             status: 200,
-                            data: { token },
+                            data: { message: "Login successful", user: user},
                         };
                     }
-                    return {
-                        status: 200,
-                        data: { message: "Login successful" },
-                    };
                     } catch (error) {
                     console.error("Error logging in:", error);
+                    logError(error as Error);
                     return {
                         status: 500,
                         data: { message: "Fail to login" },

@@ -35,19 +35,9 @@ export default function register() {
 						email: email,
 						password: hashedPassword,
 						username: username,
-						token: '',
 					});
 
-					const token = jwt.sign(
-						{ user_id: newUser._id, email },
-						process.env.NEXT_PUBLIC_NEXTAUTH_SECRET as string,
-						{
-							expiresIn: '1h',
-						}
-					);
-					newUser.token = token;
 					await newUser.save();
-					console.log(token);
 					return {
 						status: 200,
 						data: {
