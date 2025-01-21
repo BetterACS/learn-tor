@@ -54,12 +54,12 @@ const AlertBox: React.FC<AlertBoxProps> = ({ alertType, title, message }) => {
 
   return (
     <div
-      className={`fixed bottom-4 left-4 w-1/4 flex items-center p-4 mb-4 rounded-lg ${selectedAlert.bg} ${selectedAlert.border} border-l-4 animate-slide-in z-50`}
+      className={`fixed bottom-4 left-4 sm:1/1 md:1/2 lg:w-1/4 flex items-center p-4 mb-4 rounded-lg ${selectedAlert.bg} ${selectedAlert.border} border-l-4 animate-slide-in z-50`}
     >
       <img
         src={selectedAlert.img}
         alt="alert icon"
-        className="w-8 h-8 mr-4"
+        className="w-[55px] h-[55px] mr-4"
       />
       
       <div>
