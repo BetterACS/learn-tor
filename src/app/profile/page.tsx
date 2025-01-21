@@ -182,19 +182,19 @@ const UserProfile = () => {
         </div>
         <EditButtons isEditing={isEditing} onEditClick={handleEditClick} onCancelClick={handleCancelClick} onSaveClick={handleSaveClick} />
         <div className="mt-6 flex justify-start gap-4 w-full">
-          <Link href="/forget" passHref>
+          <Link href="/verification" passHref>
             <button className="w-full sm:w-full md:w-[315px] lg:w-[400px] text-big-button border border-primary-600 bg-monochrome-50 text-primary-600 py-3 px-6 rounded-lg hover:bg-monochrome-100">
               เปลี่ยนรหัสผ่าน
             </button>
           </Link>
         </div>
-        <div className="mt-6 flex justify-start gap-4 w-full">
+        {/* <div className="mt-6 flex justify-start gap-4 w-full">
           <Link href="/login" passHref>
             <button className="w-full sm:w-full md:w-[315px] lg:w-[400px] text-big-button bg-red-800 text-monochrome-50 py-3 px-6 rounded-lg hover:bg-red-700">
               ออกจากระบบ
             </button>
           </Link>
-        </div>
+        </div> */}
       </div>
       <Footer />
     </div>
