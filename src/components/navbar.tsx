@@ -34,13 +34,13 @@ export default function Navbar() {
     <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-10 text-big-button">
 
       <Link href="/home" className="h-full w-[4rem] min-w-[4rem]">
-        <img src='/images/logo.png' alt="Logo" />
+        <img src='/images/logo.avif' alt="Logo" />
       </Link>
 
       <div className="md:hidden flex items-center mr-6">
         <button onClick={() => setMenuOpen(!menuOpen)}>
           <img
-            src={menuOpen ? '/images/close.png' : '/images/burger-bar.png'}
+            src={menuOpen ? '/images/close.avif' : '/images/burger-bar.avif'}
             className={menuOpen ? 'w-[1.5rem] h-[1.5rem]' : 'w-[2rem] h-[2rem]'}
             alt="Menu"
           />
@@ -80,7 +80,7 @@ export default function Navbar() {
 
         <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
           <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-            <img src='/images/profile.png' alt="Profile" />
+            <img src='/images/profile.avif' alt="Profile" />
           </button>
           {profileDropdownOpen && (
             <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
@@ -102,7 +102,7 @@ export default function Navbar() {
               <div className="text-center px-5">
                 <Link href="/profile">
                   <div className="flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
-                    <img src='/images/profile.png' className="w-[3.5rem] h-[3.5rem] rounded-full" />
+                    <img src='/images/profile.avif' className="w-[3.5rem] h-[3.5rem] rounded-full" />
                     <span className="text-monochrome-50">Username</span>
                   </div>
                 </Link>
