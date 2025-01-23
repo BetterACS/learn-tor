@@ -1,5 +1,5 @@
 'use client';
-import { Post } from '@/components/index';
+import { Post, SortBy } from '@/components/index';
 import { useState, useRef, useEffect } from 'react';
 
 export default function PostSection() {
@@ -32,10 +32,18 @@ export default function PostSection() {
   ]
 
   return (
-    <div className="h-fit w-full px-[14vw] flex flex-col gap-6">
-      {posts.map((post) => (
-        <Post key={post.id} post={post} />
-      ))}
+    <div className="h-fit w-full flex flex-col gap-6">
+      <div className="flex w-fit gap-2 items-center">
+        <p className="text-monochrome-500 text-subtitle-large">
+          Sort by: 
+        </p>
+        <SortBy filters={["Newest", "Oldest", "Popular"]} />
+      </div>
+      <div className="h-fit w-full px-[14vw] flex flex-col gap-6">
+        {posts.map((post) => (
+          <Post key={post.id} post={post} />
+        ))}
+      </div>
     </div>
   )
 }
