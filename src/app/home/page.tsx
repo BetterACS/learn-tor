@@ -84,7 +84,7 @@ export default function Page() {
         </div>
         <div className="w-full md:w-1/2 text-center md:text-left order-2 md:order-1">
           <div className="text-headline-4 md:text-headline-2 font-bold text-primary-600 mb-4 drop-shadow">
-            ยินดีต้อนรับเข้าสู่ LearnTor
+            <strong>ยินดีต้อนรับเข้าสู่ LearnTor</strong>
           </div>
           <div className="sm:text-body-large md:text-headline-5 lg:text-headline-4 text-monochrome-950 mb-6 drop-shadow leading-relaxed">
             Learntor ช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย
