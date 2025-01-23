@@ -2,6 +2,7 @@
 import {trpc} from '@/app/_trpc/client'
 import { useRouter } from "next/navigation";
 import { useState } from 'react';
+import { AlertBox } from '@/components/index';
 const ResetBlock = () => {
   const [email, setEmail] = useState('');
   const router = useRouter();
@@ -35,12 +36,16 @@ const ResetBlock = () => {
     <div className="flex items-center justify-center min-h-screen ">
       <div className="flex bg-white rounded-[25px] shadow-lg overflow-hidden w-[1200px] h-[600px]">
         <div className="w-[55%] bg-primary-600 flex flex-col justify-center items-center text-white p-8">
-        <img src='/images/Learntorbgg.png' className="w-full h-full object-contain" alt="Learntor Logo"/>
+        <img src='/images/Learntorbgg.avif' className="w-full h-full object-contain" alt="Learntor Logo"/>
         </div>
         {/* Right Section */}
         <div className="w-[45%] flex flex-col justify-center py-20 px-24">
          <h2 className="text-headline-3 font-bold mb-4 text-monochrome-800">Reset Password</h2>
-         {error && <p className="text-red-500 mb-4">{error}</p>}
+         {error && <AlertBox
+                       alertType="error"
+                       title="Error"
+                       message={error}
+                     />}
           <p className="text-monochrome-500 mb-9">
              We will send you an email with instructions to reset it.  
           </p>

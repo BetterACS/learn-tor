@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -10,6 +11,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -82,7 +84,7 @@ export default function Navbar() {
         <Link href="/forum" className="block px-5 py-4 transition duration-150">Forum</Link>
         <Link href="/" className="block px-5 py-4 transition duration-150">TCAS Calculate</Link>
         <Link href="/" className="block px-5 py-4 transition duration-150">Chatbot</Link>
-
+        {status === "authenticated"  && (
         <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
           <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
             <img src='/images/profile.avif' alt="Profile" />
@@ -97,7 +99,7 @@ export default function Navbar() {
               </Link>
             </div>
           )}
-        </div>
+        </div>)}
       </div>
 
       {menuOpen && (

@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import Link from 'next/link';
 import { trpc } from '@/app/_trpc/client';
-
+import { AlertBox } from '@/components/index';
 const RegisterBlock = () => {
   const [formValues, setFormValues] = useState({
     username:"",
@@ -54,8 +54,7 @@ const RegisterBlock = () => {
                   setError(data.data.message);
               } else if (data.status === 200) {
                   console.log("Mutation Successful:", data);
-                  window.location.href = '/login';
-                  // alert(data.data.message);
+                  window.location.href = '/login?need-verify=true'; 
               }
           },
           onError: (error) => {
@@ -70,7 +69,7 @@ const RegisterBlock = () => {
     <div className="flex items-center justify-center min-h-screen ">
       <div className="flex bg-monochrome-50 rounded-[25px] shadow-lg overflow-hidden w-[1200px] h-[600px]">
         <div className="w-[55%] bg-primary-600 flex flex-col justify-center items-center text-monochrome-50 p-8">
-        <img src='/images/Learntorbgg.png' className="w-full h-full object-contain" alt="Learntor Logo"/>
+        <img src='/images/Learntorbgg.avif' className="w-full h-full object-contain" alt="Learntor Logo"/>
         </div>
         {/* Right Section */}
         <div className="w-[45%] py-20 px-24">
@@ -79,8 +78,11 @@ const RegisterBlock = () => {
             Create your account in seconds 
           </p>
           <form onSubmit={handleSubmit} action="#">
-            {/* Error Message แก้ตรงนี้นะ*/}
-            {error && <div className="text-red-500 mb-8">{error}</div>}
+            {error && <AlertBox
+              alertType="error"
+              title="Error"
+              message={error}
+            />}
             {/* Username */}
             <div className="mb-8">
               <input

@@ -1,5 +1,5 @@
 'use client';
-import { Navbar, Footer, AlertBox } from '@/components/index';
+import { Navbar, Footer,  AlertBox } from '@/components/index';
 
 export default function Page() {
   return (

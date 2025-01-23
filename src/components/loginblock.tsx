@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
-
+import {AlertBox} from '@/components/index';
 const LoginBlock = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,6 +12,8 @@ const LoginBlock = () => {
   const router = useRouter();
   const [error, setError] = useState('');
   const callbackUrl = searchParams.get('callbackUrl') || '/home';
+  const [needVerify,setNeedVerify] = useState(searchParams.get('need-verify')||false);
+  const [updated,setUpdated] = useState(searchParams.get('updated')||false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,11 +36,25 @@ const LoginBlock = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
+      {updated && (
+        <AlertBox
+          alertType="success"
+          title="Password Updated"
+          message="Your password has been updated successfully"
+        />
+      )}
+      {needVerify && (
+        <AlertBox
+        alertType="info"
+        title="you need to verify your email"
+        message="Please check your email to verify your account"
+      />
+      )}
       <div className="flex bg-white rounded-[25px] shadow-lg overflow-hidden w-[1200px] h-[600px]">
         {/* Left Section */}
         <div className="w-[55%] bg-primary-600 flex flex-col justify-center items-center text-white p-8">
           <img
-            src="/images/Learntorbgg.png"
+            src="/images/Learntorbgg.avif"
             className="w-full h-full object-contain"
             alt="Learntor Logo"
           />
@@ -49,7 +65,13 @@ const LoginBlock = () => {
           <p className="text-monochrome-500 mb-9">
             Please enter your login details to sign in
           </p>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && 
+            <AlertBox
+              alertType="error"
+              title="Error"
+              message={error}
+            />
+          }
           <form onSubmit={handleSubmit}>
             {/* Email Input */}
             <div className="mb-8">

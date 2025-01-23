@@ -45,12 +45,8 @@
     "@types/json-schema": "^7.0.15",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20.17.14",
-<<<<<<< HEAD
-    "@types/react": "^19.0.7",
-=======
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
->>>>>>> 7ba194f27e5fcef135b2eb00bbb0dbd3b6d484b8
     "@types/react-dom": "^19",
     "@types/react-slick": "^0.23.13",
     "eslint": "^9",

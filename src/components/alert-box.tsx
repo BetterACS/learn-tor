@@ -46,7 +46,7 @@ const AlertBox: React.FC<AlertBoxProps> = ({ alertType, title, message }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-    }, 3000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -55,7 +55,7 @@ const AlertBox: React.FC<AlertBoxProps> = ({ alertType, title, message }) => {
 
   return (
     <div
-      className={`fixed bottom-4 left-4 sm:1/1 md:1/2 lg:w-1/4 flex items-center p-4 mb-4 rounded-lg ${selectedAlert.bg} ${selectedAlert.border} border-l-4 animate-slide-in z-50`}
+      className={`fixed bottom-4 right-4 sm:1/1 md:1/2 lg:w-1/4 flex items-center p-4 mb-4 rounded-lg ${selectedAlert.bg} ${selectedAlert.border} border-l-4 animate-slide-in z-50`} 
     >
       <img
         src={selectedAlert.img}

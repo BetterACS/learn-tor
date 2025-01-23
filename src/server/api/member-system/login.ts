@@ -36,7 +36,7 @@ export default function login() {
                     else if (!user.verified) {
                         return {
                             status: 400,
-                            data: { message: "User not verified" },
+                            data: { message: "User not verified. Please check you email." },
                         };
                     }
                     else {

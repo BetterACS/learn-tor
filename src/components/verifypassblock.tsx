@@ -2,7 +2,7 @@
 import { trpc } from '@/app/_trpc/client';
 import React, { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-
+import { AlertBox } from '@/components/index';
 const VerificationBlock: React.FC = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const email = useSearchParams().get('email') || '';
@@ -11,6 +11,8 @@ const VerificationBlock: React.FC = () => {
   const reset = trpc.resetVerificationToken.useMutation();
   const token = trpc.getJWT.useMutation();
   const [error, setError] = useState('');
+  const [resend, setResend] = useState(false);
+
   const handleClick = async (e:React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -28,6 +30,7 @@ const VerificationBlock: React.FC = () => {
             setError(data.data.message);
           } else if (data.status === 200) {
             console.log('Verification Success:', data.data.message);
+            setResend(true);
           }
         },
         onError: (error) => {
@@ -98,11 +101,12 @@ const VerificationBlock: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
+
       <div className="flex bg-white rounded-[25px] shadow-lg overflow-hidden w-[1200px] h-[600px]">
         {/* Left Section */}
         <div className="w-[55%] bg-primary-600 flex flex-col justify-center items-center text-white p-8">
           <img
-            src="/images/Learntorbgg.png"
+            src="/images/Learntorbgg.avif"
             className="w-full h-full object-contain"
             alt="Learntor Logo"
           />
@@ -114,7 +118,15 @@ const VerificationBlock: React.FC = () => {
             Verification
           </div>
           <p className="text-monochrome-500 mb-9">Enter your verification code</p>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && <AlertBox
+                        alertType="error"
+                        title="Error"
+                        message={error}
+                      />}
+          {resend && <AlertBox
+                        alertType="info"
+                        title="Info"
+                        message="Verification code has been resent"></AlertBox>}
           <form action="#" onSubmit={handleSubmit}>
             {/* Verification Code Input + Resend Button */}
             <div className="mb-8 flex items-center gap-5">

@@ -41,7 +41,7 @@ export default function verified() {
                         sendToken(email, newToken, 'Verify your email',false);
                         return {
                             status: 400,
-                            data: { message: "Token expired" },
+                            data: { message: "Token expired. Please check new token in your email." },
                         };}
                     
                     user.verified = true;

@@ -23,7 +23,7 @@ const CommentComponent = ({ comment }: CommentProps) => {
     <div className="h-fit w-full flex flex-col item-start">
       <div className="flex content-center items-center gap-2">
         <div className="w-10 min-w-10">
-          <img src='/images/profile.png' className="w-full h-full object-cover rounded-full"/>
+          <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
         </div>
         <p className="text-headline-6 font-bold">
           {comment.username}
