@@ -1,4 +1,4 @@
-import Test from '@/components/test';
+import Test from '@/components/example';
 import TestMutation from '@/components/TestMutation';
 import Navbar from '@/components/navbar';
 import Sidebar from '@/components/sidebar';

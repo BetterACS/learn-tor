@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Navbar, Footer, EditButtons, InputField, ScoreInput } from '@/components/index';
 import Link from 'next/link';
-
+import { useSession } from "next-auth/react";
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -109,7 +109,7 @@ const UserProfile = () => {
     setIsEditing(false);
     console.log('ข้อมูลได้รับการบันทึก:', formData);
   };
-
+  const { data: session, status } = useSession();
   return (
     <div>
       <Navbar />
@@ -182,7 +182,7 @@ const UserProfile = () => {
         </div>
         <EditButtons isEditing={isEditing} onEditClick={handleEditClick} onCancelClick={handleCancelClick} onSaveClick={handleSaveClick} />
         <div className="mt-6 flex justify-start gap-4 w-full">
-          <Link href="/verification" passHref>
+            <Link href={`/verification?email=${session?.user?.email}`} passHref>
             <button className="w-full sm:w-full md:w-[315px] lg:w-[400px] text-big-button border border-primary-600 bg-monochrome-50 text-primary-600 py-3 px-6 rounded-lg hover:bg-monochrome-100">
               เปลี่ยนรหัสผ่าน
             </button>

@@ -1,5 +1,5 @@
 'use client';
-import Test from '@/components/test';
+import Test from '@/components/example';
 import TestMutationComponent from '@/components/TestMutation';
 
 export default function Page() {
