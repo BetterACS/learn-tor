@@ -2,6 +2,7 @@
 import { trpc } from '@/app/_trpc/client';
 import React, { useState } from 'react';
 import { useSearchParams,useRouter } from 'next/navigation';
+import { AlertBox } from '@/components/index';
 const UpdateBlock = () => {
   const [error, setError] = useState('');
   const mutation = trpc.editUser.useMutation();
@@ -54,7 +55,7 @@ const UpdateBlock = () => {
             setError(data.data.message);
           } else if (data.status === 200) {
             console.log('verification Success:', data.data.message);
-            router.push('/login');
+            router.push('/login?updated=true');
           }
         },
         onError: (error) => {
@@ -70,12 +71,12 @@ const UpdateBlock = () => {
     <div className="flex items-center justify-center min-h-screen ">
       <div className="flex bg-white rounded-[25px] shadow-lg overflow-hidden w-[1200px] h-[600px]">
         <div className="w-[55%] bg-primary-600 flex flex-col justify-center items-center text-white p-8">
-        <img src='/images/Learntorbgg.png' className="w-full h-full object-contain" alt="Learntor Logo"/>
+        <img src='/images/Learntorbgg.avif' className="w-full h-full object-contain" alt="Learntor Logo"/>
         </div>
         {/* Right Section */}
         <div className="w-[45%] flex flex-col justify-center py-20 px-24">
          <div className="text-headline-3 font-bold mb-4 text-monochrome-800">Update Password</div>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && <AlertBox alertType="error" title="Error" message={error} />}
           <p className="text-monochrome-500 mb-9">
             Enter new password
           </p>

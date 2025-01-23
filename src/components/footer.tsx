@@ -3,10 +3,10 @@ import Link from "next/link";
 
 const Footer: React.FC = () => {
   const socialLinks = [
-    { href: "https://www.instagram.com", imgSrc: "/images/contact/instagram-logo.png", alt: "Instagram", ariaLabel: "Instagram" },
-    { href: "https://www.facebook.com", imgSrc: "/images/contact/facebook-logo.png", alt: "Facebook", ariaLabel: "Facebook" },
-    { href: "https://www.twitter.com", imgSrc: "/images/contact/twitter-logo.png", alt: "Twitter", ariaLabel: "Twitter" },
-    { href: "https://www.linkedin.com", imgSrc: "/images/contact/linkedIn-logo.png", alt: "LinkedIn", ariaLabel: "LinkedIn" },
+    { href: "https://www.instagram.com", imgSrc: "/images/contact/instagram-logo.avif", alt: "Instagram", ariaLabel: "Instagram" },
+    { href: "https://www.facebook.com", imgSrc: "/images/contact/facebook-logo.avif", alt: "Facebook", ariaLabel: "Facebook" },
+    { href: "https://www.twitter.com", imgSrc: "/images/contact/twitter-logo.avif", alt: "Twitter", ariaLabel: "Twitter" },
+    { href: "https://www.linkedin.com", imgSrc: "/images/contact/linkedIn-logo.avif", alt: "LinkedIn", ariaLabel: "LinkedIn" },
   ];
 
   const linkItems = [
@@ -42,7 +42,7 @@ const Footer: React.FC = () => {
           {/* Logo Section */}
           <div className="flex justify-center md:justify-start">
             <img
-              src="/images/Learntorbgg.png"
+              src="/images/Learntorbgg.avif"
               alt="Learntor Logo Footer"
               className="max-h-[10rem] sm:max-h-[14rem] md:max-h-[36rem] lg:max-h-[40rem] w-auto"
             />

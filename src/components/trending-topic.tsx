@@ -44,7 +44,7 @@ export default function TrendingTopic() {
             <div className="w-full h-full flex flex-col gap-2">
               <div className="flex content-center items-center gap-2">
                 <div className="size-10">
-                  <img src='/images/profile.png' className="w-full h-full object-cover rounded-full"/>
+                  <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
                 </div>
                 <p className="text-body-large">
                   {item.username}

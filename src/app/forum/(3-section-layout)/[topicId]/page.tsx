@@ -64,7 +64,7 @@ export default function Topic() {
         {/* Post username section */}
         <div className="flex content-center items-center gap-2">
           <div className="size-10">
-            <img src='/images/profile.png' className="w-full h-full object-cover rounded-full"/>
+            <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
           </div>
           <p className="text-headline-6 font-bold">
             Username
