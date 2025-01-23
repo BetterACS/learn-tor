@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { Carousel, PostSection } from '@/components/index';
+import { Carousel, PostSection, SearchBar } from '@/components/index';
 
 export default function Home() {
 
@@ -73,18 +73,13 @@ export default function Home() {
   ]
 
   return (
-    <div className="h-full w-full flex flex-col items-center text-center gap-10">
-      <div className="flex flex-col w-[90%] gap-6">
+    <div className="h-full w-full flex flex-col items-center text-center gap-12">
+      {/* <div className="flex flex-col w-[90%] gap-6">
         <p className="text-headline-4 text-primary-600 font-bold text-balance">
           ค้นหาหัวข้อการพูดคุยที่คุณสนใจได้ที่นี่เลย!!
         </p>
-        <div className="h-fit w-[80%] flex self-center py-2 px-3 bg-monochrome-100 rounded-md divide-x divide-monochrome-600">
-          <input type="text" className="w-full bg-transparent outline-none text-body-large text-monochrome-950 placeholder-monochrome-600 caret-monochrome-600 mr-2 flex-1" placeholder="Search here" />
-          <button className="w-auto pl-2">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="18px"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" className="fill-monochrome-600"/></svg>
-          </button>
-        </div>    
-      </div>
+        <SearchBar />
+      </div> */}
       <div className="w-full self-start flex flex-col gap-4">
         <div className="w-fit border-b-4 border-primary-600">
           <p className="text-headline-4 text-primary-600 py-1">

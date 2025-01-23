@@ -12,6 +12,8 @@ import PostSection from '@/components/post-section';
 import Post from '@/components/post';
 import PostInteractionBar from '@/components/post-interaction-bar';
 import SortBy from '@/components/sortby';
+import SearchBar from '@/components/search-bar';
+import SearchPopup from '@/components/search-popup';
 
 
 
@@ -30,4 +32,6 @@ export {
   Post,
   PostInteractionBar,
   SortBy,
+  SearchBar,
+  SearchPopup,
 }

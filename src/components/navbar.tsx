@@ -20,7 +20,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-10 text-big-button">
+    <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-20 text-big-button">
       <Link href="/" className="h-full w-[4rem] min-w-[4rem]">
         <img src='/images/logo.png' />
       </Link>
