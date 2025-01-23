@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { Carousel } from '@/components/index';
+import { Carousel, PostSection } from '@/components/index';
 
 export default function Home() {
 
@@ -49,22 +49,26 @@ export default function Home() {
     {
       id: 1,
       img: "http://i.ibb.co/ncrXc2V/1.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 1"
+      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 1",
+      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
     },
     {
       id: 2,
       img: "http://i.ibb.co/B3s7v4h/2.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 2"
+      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 2",
+      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
     },
     {
       id: 3,
       img: "http://i.ibb.co/XXR8kzF/3.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 3"
+      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 3",
+      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
     },
     {
       id: 4,
       img: "http://i.ibb.co/yg7BSdM/4.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 4"
+      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 4",
+      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
     },
   ]
 
@@ -132,6 +136,9 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </div>
+      <div className="w-full h-full">
+        <PostSection />
       </div>
     </div>
   )

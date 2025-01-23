@@ -8,6 +8,10 @@ import Button from '@/components/button';
 import Registerblock from '@/components/registerblock';
 import CommentSection from '@/components/comment-section';
 import CommentInput from '@/components/comment-input';
+import PostSection from '@/components/post-section';
+import Post from '@/components/post';
+import PostInteractionBar from '@/components/post-interaction-bar';
+
 
 
 export {
@@ -21,4 +25,7 @@ export {
   Registerblock,
   CommentSection,
   CommentInput,
+  PostSection,
+  Post,
+  PostInteractionBar,
 }
