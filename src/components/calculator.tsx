@@ -6,7 +6,7 @@ const calculator = () => {
       <div className="flex flex-col items-center bg-gray-50 py-10 px-4 rounded-lg shadow-md w-full">
         <div className="flex items-center gap-6 mb-8">
           <div className="logo w-64">
-            <img src="/images/logofooter.png" alt="Learntor Logo" className="" />
+            <img src="/images/logofooter.avif" alt="Learntor Logo" className="" />
           </div>
           <div className="text-left" style={{ lineHeight: '1.8' }}>
             <h1 className="text-headline-2 font-bold text-gray-800">การคำนวณคะแนน Tcas</h1>
