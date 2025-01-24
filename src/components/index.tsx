@@ -20,6 +20,13 @@ import UniLogo from '@/components/uni-logo';
 import FeatureSection from '@/components/FeatureSection';
 import AlertBox from '@/components/alert-box';
 import Calculator from '@/components/calculator';
+import PostSection from '@/components/post-section';
+import Post from '@/components/post';
+import PostInteractionBar from '@/components/post-interaction-bar';
+import SortBy from '@/components/sortby';
+import SearchBar from '@/components/search-bar';
+import SearchPopup from '@/components/search-popup';
+
 
 export {
   Test,
@@ -44,4 +51,10 @@ export {
   FeatureSection,
   AlertBox,
   Calculator,
+  PostSection,
+  Post,
+  PostInteractionBar,
+  SortBy,
+  SearchBar,
+  SearchPopup,
 }

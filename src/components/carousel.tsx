@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 interface CarouselProps {
-  carousel_items: { id: number, img: string; title: string }[];
+  carousel_items: { id: number, img: string; title: string, body: string }[];
 }
 
 interface ArrowProps {

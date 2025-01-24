@@ -1,23 +1,35 @@
 'use client';
 
 import mongoose from "mongoose";
-import { useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 // In reality topic_id will not be null (null just for testing only)
 interface Comment {
   topic_id: mongoose.Types.ObjectId | null;
   parent_id?: mongoose.Types.ObjectId | null;
+  isCommentClicked?: boolean | null;
   setIsCommentClicked?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function CommentInput({ topic_id, parent_id, setIsCommentClicked }: Comment) {
-  const [isCommentExpanded, setIsCommentExpanded] = useState<Boolean>(false);
+export default function CommentInput({ topic_id, parent_id, isCommentClicked, setIsCommentClicked }: Comment) {
+  const [isCommentExpanded, setIsCommentExpanded] = useState<boolean>(false);
   const [comment, setComment] = useState<string>('');
   const [rows, setRows] = useState<number>(1);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // for reply
+  useEffect(() => {
+    if (isCommentClicked) {
+      handleExpand();
+    }
+  }, [isCommentClicked])
 
   const handleExpand = () => {
     setIsCommentExpanded(true);
     setRows(3);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   }
 
   const handleCancel = () => {
@@ -42,6 +54,7 @@ export default function CommentInput({ topic_id, parent_id, setIsCommentClicked 
         placeholder="Add a comment"
         rows={rows}
         onChange={(e) => setComment(e.target.value)}
+        ref={inputRef}
         className={`w-full text-body-large text-monochrome-950 placeholder-monochrome-600 resize-none outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-100 caret-monochrome-600`}
       ></textarea>
       {isCommentExpanded && (

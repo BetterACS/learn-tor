@@ -105,7 +105,12 @@ export default function CreateTopic() {
         </div>
 
         {/* Image upload area */}
-        <div className="w-full h-[10rem] flex flex-col justify-center items-center gap-1 border-2 border-dashed border-monochrome-400 bg-monochrome-100 rounded-md">
+        <div className="w-full h-[15rem] flex flex-col justify-center items-center gap-1 border-2 border-dashed border-monochrome-400 bg-monochrome-100 rounded-md">
+          {postData.img ?
+          <div className="flex w-fit h-full self-center">
+            <img src={postData.img ?? undefined} alt="" className="w-full h-full object-cover" />
+          </div>
+          :
           <label
             htmlFor="dropzone-file"
             className="w-full h-full flex justify-center items-center hover:cursor-pointer"
@@ -129,15 +134,15 @@ export default function CreateTopic() {
               className="hidden"
               onChange={(e) => handleFiles(Array.from(e.target.files || []))}
             />
-          </label>
+          </label>}
         </div>
 
         {/* Image display */}
-        {postData.img &&
+        {/* {postData.img &&
         <div className="flex w-fit h-[12rem] self-center">
           <img src={postData.img ?? undefined} alt="" className="w-full h-full object-cover" />
         </div>
-        }
+        } */}
 
         <div className="w-full flex justify-between">
           <Button button_name="Add tags" variant="secondary" onClick={handleOnClickAddTags} />
