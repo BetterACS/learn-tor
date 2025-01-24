@@ -31,6 +31,10 @@ const VerificationBlock: React.FC = () => {
           } else if (data.status === 200) {
             console.log('Verification Success:', data.data.message);
             setResend(true);
+
+            setTimeout(() => {
+              setResend(false);
+            }, 1000);
           }
         },
         onError: (error) => {
