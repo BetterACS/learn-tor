@@ -1,4 +1,4 @@
-import apiTest from './api/test';
+import apiTest from './api/example';
 import register from './api/member-system/register';
 import login from './api/member-system/login';
 import verified from './api/member-system/verified';
