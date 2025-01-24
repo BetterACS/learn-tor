@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-
+import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -10,6 +11,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -30,17 +32,22 @@ export default function Navbar() {
     };
   }, []);
 
+  const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    signOut({ callbackUrl: '/login' }); 
+  };
+
   return (
     <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-10 text-big-button">
 
       <Link href="/home" className="h-full w-[4rem] min-w-[4rem]">
-        <img src='/images/logo.png' alt="Logo" />
+        <img src='/images/logo.avif' alt="Logo" />
       </Link>
 
       <div className="md:hidden flex items-center mr-6">
         <button onClick={() => setMenuOpen(!menuOpen)}>
           <img
-            src={menuOpen ? '/images/close.png' : '/images/burger-bar.png'}
+            src={menuOpen ? '/images/close.avif' : '/images/burger-bar.avif'}
             className={menuOpen ? 'w-[1.5rem] h-[1.5rem]' : 'w-[2rem] h-[2rem]'}
             alt="Menu"
           />
@@ -77,22 +84,22 @@ export default function Navbar() {
         <Link href="/forum" className="block px-5 py-4 transition duration-150">Forum</Link>
         <Link href="/tcascalculator" className="block px-5 py-4 transition duration-150">TCAS Calculate</Link>
         <Link href="/" className="block px-5 py-4 transition duration-150">Chatbot</Link>
-
+        {status === "authenticated"  && (
         <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
           <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-            <img src='/images/profile.png' alt="Profile" />
+            <img src='/images/profile.avif' alt="Profile" />
           </button>
           {profileDropdownOpen && (
             <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
               <Link href="/profile" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
                 Profile
               </Link>
-              <Link href="/home" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
+              <Link href="#" onClick={handleSignOut} className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
                 Log out
               </Link>
             </div>
           )}
-        </div>
+        </div>)}
       </div>
 
       {menuOpen && (
@@ -102,7 +109,7 @@ export default function Navbar() {
               <div className="text-center px-5">
                 <Link href="/profile">
                   <div className="flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
-                    <img src='/images/profile.png' className="w-[3.5rem] h-[3.5rem] rounded-full" />
+                    <img src='/images/profile.avif' className="w-[3.5rem] h-[3.5rem] rounded-full" />
                     <span className="text-monochrome-50">Username</span>
                   </div>
                 </Link>

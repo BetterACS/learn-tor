@@ -1,12 +1,19 @@
 import apiTest from './api/test';
-import register from './api/auth/register';
-import login from  './api/auth/login';
-
+import register from './api/member-system/register';
+import login from './api/member-system/login';
+import verified from './api/member-system/verified';
+import editUser from './api/member-system/editUser';
+import resetVerificationToken from './api/member-system/resetVerificationToken';
+import getJWT from './api/getJWT';
 import { createCallerFactory, router } from './trpc';
 export const appRouter = router({
 	...apiTest(),
     ...register(),
     ...login(),
+    ...verified(),
+    ...editUser(),
+    ...resetVerificationToken(),
+    ...getJWT()
 });
 const createCaller = createCallerFactory(appRouter);
 

@@ -4,15 +4,15 @@ import { Navbar, Footer, UniLogo, FeatureSection } from '@/components/index';
 
 const Section4 = () => {
   const cards = [
-    { title: 'วิศวกรรมศาสตร์', imageUrl: '/images/career/eng.png' },
-    { title: 'แพทยศาสตร์', imageUrl: '/images/career/med.png' },
-    { title: 'บริหารธุรกิจ', imageUrl: '/images/career/business.png' },
-    { title: 'วิทยาศาสตร์', imageUrl: '/images/career/science.png' },
-    { title: 'เภสัชศาสตร์', imageUrl: '/images/career/pharmacy.png' },
-    { title: 'ครุศาสตร์', imageUrl: '/images/career/education.png' },
-    { title: 'เทคโนโลยีสารสนเทศ', imageUrl: '/images/career/it.jpg' },
-    { title: 'นิเทศศาสตร์', imageUrl: '/images/career/comart2.jpg' },
-    { title: 'นิติศาสตร์', imageUrl: '/images/career/law-4.jpg' },
+    { title: 'วิศวกรรมศาสตร์', imageUrl: '/images/career/eng.avif' },
+    { title: 'แพทยศาสตร์', imageUrl: '/images/career/med.avif' },
+    { title: 'บริหารธุรกิจ', imageUrl: '/images/career/business.avif' },
+    { title: 'วิทยาศาสตร์', imageUrl: '/images/career/science.avif' },
+    { title: 'เภสัชศาสตร์', imageUrl: '/images/career/pharmacy.avif' },
+    { title: 'ครุศาสตร์', imageUrl: '/images/career/education.avif' },
+    { title: 'เทคโนโลยีสารสนเทศ', imageUrl: '/images/career/it.avif' },
+    { title: 'นิเทศศาสตร์', imageUrl: '/images/career/comart2.avif' },
+    { title: 'นิติศาสตร์', imageUrl: '/images/career/law-4.avif' },
   ];
 
   interface CardProps {
@@ -51,24 +51,24 @@ export default function Page() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const logos = [
-    { src: '/images/uni-pic/cu.png', alt: 'University 1' },
-    { src: '/images/uni-pic/tu.png', alt: 'University 2' },
-    { src: '/images/uni-pic/ku.png', alt: 'University 3' },
-    { src: '/images/uni-pic/mu.png', alt: 'University 4' },
-    { src: '/images/uni-pic/su.png', alt: 'University 5' },
-    { src: '/images/uni-pic/swu.png', alt: 'University 6' },
-    { src: '/images/uni-pic/cmu.png', alt: 'University 7' },
-    { src: '/images/uni-pic/kmitl.png', alt: 'University 8' },
-    { src: '/images/uni-pic/kmutnb.png', alt: 'University 9' },
-    { src: '/images/uni-pic/kmutt.png', alt: 'University 10' },
-    { src: '/images/uni-pic/buu.png', alt: 'University 11' },
-    { src: '/images/uni-pic/nmu.png', alt: 'University 12' },
-    { src: '/images/uni-pic/sut.png', alt: 'University 13' },
-    { src: '/images/uni-pic/nu.png', alt: 'University 14' },
-    { src: '/images/uni-pic/mfu.png', alt: 'University 15' },
-    { src: '/images/uni-pic/mju.png', alt: 'University 16' },
-    { src: '/images/uni-pic/up.png', alt: 'University 17' },
-    { src: '/images/uni-pic/kku.png', alt: 'University 18' },
+    { src: '/images/uni-pic/cu.avif', alt: 'University 1' },
+    { src: '/images/uni-pic/tu.avif', alt: 'University 2' },
+    { src: '/images/uni-pic/ku.avif', alt: 'University 3' },
+    { src: '/images/uni-pic/mu.avif', alt: 'University 4' },
+    { src: '/images/uni-pic/su.avif', alt: 'University 5' },
+    { src: '/images/uni-pic/swu.avif', alt: 'University 6' },
+    { src: '/images/uni-pic/cmu.avif', alt: 'University 7' },
+    { src: '/images/uni-pic/kmitl.avif', alt: 'University 8' },
+    { src: '/images/uni-pic/kmutnb.avif', alt: 'University 9' },
+    { src: '/images/uni-pic/kmutt.avif', alt: 'University 10' },
+    { src: '/images/uni-pic/buu.avif', alt: 'University 11' },
+    { src: '/images/uni-pic/nmu.avif', alt: 'University 12' },
+    { src: '/images/uni-pic/sut.avif', alt: 'University 13' },
+    { src: '/images/uni-pic/nu.avif', alt: 'University 14' },
+    { src: '/images/uni-pic/mfu.avif', alt: 'University 15' },
+    { src: '/images/uni-pic/mju.avif', alt: 'University 16' },
+    { src: '/images/uni-pic/up.avif', alt: 'University 17' },
+    { src: '/images/uni-pic/kku.avif', alt: 'University 18' },
   ];
 
   return (
@@ -77,7 +77,7 @@ export default function Page() {
       <div className="flex flex-col md:flex-row items-center justify-center md:justify-between px-6 sm:px-12 md:px-16 lg:px-32 py-16 sm:py-24 lg:py-32 bg-monochrome-50">
         <div className="w-full md:w-1/2 flex justify-center order-1 md:order-2 mb-8 md:mb-0">
           <img
-            src="/images/logofooter.png"
+            src="/images/logofooter.avif"
             alt="LearnTor Logo"
             className="w-3/5 sm:w-4/5 md:w-3/4 lg:max-w-[600px] h-auto animate-floatsImage"
           />
@@ -126,7 +126,7 @@ export default function Page() {
             <FeatureSection
               title="Compare Courses"
               description="ช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย โดยพิจารณาจากข้อมูลสำคัญ"
-              img="/images/feature/compare.png"
+              img="/images/feature/compare.avif"
               link="/"
             />
           </div>
@@ -134,7 +134,7 @@ export default function Page() {
             <FeatureSection
               title="Chatbot"
               description="แชตบอตที่จะสามารถตอบข้อมูลเกี่ยวกับการเรียนต่อที่คุณต้องการได้อย่างรวดเร็วและทันใจ"
-              img="/images/feature/chatbot.png"
+              img="/images/feature/chatbot.avif"
               link="/"
             />
           </div>
@@ -142,7 +142,7 @@ export default function Page() {
             <FeatureSection
               title="TCAS Calculate"
               description="คำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ"
-              img="/images/feature/calculate.png"
+              img="/images/feature/calculate.avif"
               link="/"
             />
           </div>
@@ -150,7 +150,7 @@ export default function Page() {
             <FeatureSection
               title="Forum"
               description="ฟอรั่มในการพูดคุยแลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะ"
-              img="/images/feature/forum.png"
+              img="/images/feature/forum.avif"
               link="/forum"
             />
           </div>

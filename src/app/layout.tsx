@@ -4,7 +4,7 @@ import "./globals.css";
 import Provider from '@/app/_trpc/Provider';
 import { CookiesProvider } from 'next-client-cookies/server';
 import { cn } from '@/utils/utils';
-
+import AuthProvider from "./AuthProvider";
 // ใส่ font ที่เราต้องการใช้งาน
 const notoSansThai = Noto_Sans_Thai({
   variable: "--font-noto-sans-thai",
@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		<html lang="en">
 			<body className={cn('min-h-screen bg-background font-noto-sans-thai antialiased', notoSansThai.variable)}>
 				<CookiesProvider>
-					<Provider>{children}</Provider>
+					<AuthProvider><Provider>{children}</Provider></AuthProvider>
 				</CookiesProvider>
 			</body>
 		</html>

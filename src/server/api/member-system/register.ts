@@ -3,8 +3,8 @@ import { connectDB } from '@/server/db';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { publicProcedure } from '../../trpc';
-import jwt from "jsonwebtoken";
-
+import {sendToken,generateToken} from '@/utils/mailer';
+import logError from '@/utils/logError';
 export default function register() {
 	return {
 		register: publicProcedure
@@ -20,35 +20,29 @@ export default function register() {
 				try {
 					await connectDB();
 					const existingUser = await UserModel.findOne({
-						$or: [{ email }, { username }],
+						$or: [{ email }],
 					});
 					if (existingUser) {
 						return {
 							status: 400,
 							data: {
-								message: 'Email or username already exists.',
+								message: 'Email already exists.',
 							},
 						};
 					}
+					
+					const token = generateToken();
 					const hashedPassword = await bcrypt.hash(password, 12);
 					const newUser = await UserModel.create({
 						email: email,
 						password: hashedPassword,
 						username: username,
-						token: '',
+						token: token ,
+						token_expire: new Date(Date.now() + 15 * 60 * 1000),
 					});
 
-					// create token
-					const token = jwt.sign(
-						{ user_id: newUser._id, email },
-						process.env.NEXT_PUBLIC_JWT_SECRET as string,
-						{
-							expiresIn: '1h',
-						}
-					);
-					newUser.token = token;
 					await newUser.save();
-					console.log(token);
+					sendToken(email, token, 'Verify your email',true);
 					return {
 						status: 200,
 						data: {
@@ -58,9 +52,10 @@ export default function register() {
 					  
 				} catch (error) {
 					console.error('Error creating user:', error);
+					logError(error as Error);
 					return {
 						status: 500,
-						data: { message: 'Fail to create user' },
+						data: { message: 'Fail to create user please report to website' },
 					};
 				}
 			}),
