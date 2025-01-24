@@ -82,7 +82,7 @@ export default function Navbar() {
         </div>
 
         <Link href="/forum" className="block px-5 py-4 transition duration-150">Forum</Link>
-        <Link href="/" className="block px-5 py-4 transition duration-150">TCAS Calculate</Link>
+        <Link href="/tcascalculator" className="block px-5 py-4 transition duration-150">TCAS Calculate</Link>
         <Link href="/" className="block px-5 py-4 transition duration-150">Chatbot</Link>
         {status === "authenticated"  && (
         <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
@@ -124,7 +124,7 @@ export default function Navbar() {
                 <Link href="/forum" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
                   Forum
                 </Link>
-                <Link href="/" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
+                <Link href="/tcascalculator" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
                   TCAS Calculate
                 </Link>
                 <Link href="/" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
