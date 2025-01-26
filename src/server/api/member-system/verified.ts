@@ -38,7 +38,7 @@ export default function verified() {
                         user.token = newToken;
                         user.token_expire = new Date(Date.now() + 15 * 60 * 1000);
                         await user.save();
-                        sendToken(email, newToken, 'Verify your email',false);
+                        sendToken(email, newToken, 'Verify your email',true);   
                         return {
                             status: 400,
                             data: { message: "Token expired. Please check new token in your email." },
@@ -90,10 +90,10 @@ export default function verified() {
                         user.token = newToken;
                         user.token_expire = new Date(Date.now() + 15 * 60 * 1000);
                         await user.save();
-                        sendToken(email, newToken, 'Verify your email',true);
+                        sendToken(email, newToken, 'Reset Password',false);
                         return {
                             status: 400,
-                            data: { message: "Token expired" },
+                            data: { message: "Token expired already sent a new token" },
                         };}
                     
                     user.verified = true;
