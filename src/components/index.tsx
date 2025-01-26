@@ -26,6 +26,7 @@ import PostInteractionBar from '@/components/post-interaction-bar';
 import SortBy from '@/components/sortby';
 import SearchBar from '@/components/search-bar';
 import SearchPopup from '@/components/search-popup';
+import Questionbox from '@/components/question';
 
 
 export {
@@ -57,4 +58,5 @@ export {
   SortBy,
   SearchBar,
   SearchPopup,
+  Questionbox,
 }
