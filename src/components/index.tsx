@@ -26,7 +26,9 @@ import PostInteractionBar from '@/components/post-interaction-bar';
 import SortBy from '@/components/sortby';
 import SearchBar from '@/components/search-bar';
 import SearchPopup from '@/components/search-popup';
-
+import CompareSidebar from '@/components/compare-sidebar';
+import InfoCard from '@/components/info-card';
+import ChatbotSidebar from '@/components/chatbot-sidebar';
 
 export {
   Test,
@@ -57,4 +59,7 @@ export {
   SortBy,
   SearchBar,
   SearchPopup,
+  CompareSidebar,
+  InfoCard,
+  ChatbotSidebar,
 }
