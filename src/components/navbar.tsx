@@ -73,7 +73,7 @@ export default function Navbar() {
               <Link href="/tcas-info" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
                 TCAS Info
               </Link>
-              <Link href="/" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
+              <Link href="/compare-courses" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
                 Courses
               </Link>
             </div>
@@ -82,7 +82,7 @@ export default function Navbar() {
 
         <Link href="/forum" className="block px-5 py-4 transition duration-150">Forum</Link>
         <Link href="/tcascalculator" className="block px-5 py-4 transition duration-150">TCAS Calculate</Link>
-        <Link href="/" className="block px-5 py-4 transition duration-150">Chatbot</Link>
+        <Link href="/chatbot" className="block px-5 py-4 transition duration-150">Chatbot</Link>
         {status === "authenticated"  && (
         <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
           <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
@@ -117,7 +117,7 @@ export default function Navbar() {
                 <Link href="/tcas-info" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
                   TCAS Info
                 </Link>
-                <Link href="/" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
+                <Link href="/compare-courses" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
                   Courses
                 </Link>
                 <Link href="/forum" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
@@ -126,7 +126,7 @@ export default function Navbar() {
                 <Link href="/tcascalculator" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
                   TCAS Calculate
                 </Link>
-                <Link href="/" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
+                <Link href="/chatbot" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
                   Chatbot
                 </Link>
                 <Link href="/home" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">

@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
         { name: "TCAS Info", href: "/tcas-info" },
         { name: "Compare Courses", href: "/compare-courses" },
         { name: "Forum", href: "/forum" },
-        { name: "TCAS Calculate", href: "/" },
+        { name: "TCAS Calculate", href: "/tcascalculator" },
         { name: "Chatbot", href: "/chatbot" },
       ],
     },
