@@ -1,9 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { Carousel, PostSection, SearchBar } from '@/components/index';
+import { useRouter } from  'next/navigation';
 
 export default function Home() {
-
+  const router = useRouter();
   const mockup_faculty = [
     "แพทยฯ",
     "เภสัชฯ",
@@ -72,6 +73,11 @@ export default function Home() {
     },
   ]
 
+  const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const buttonName = event.currentTarget.name;
+    router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
+  };
+
   return (
     <div className="h-full w-full flex flex-col items-center text-center gap-12">
       {/* <div className="flex flex-col w-[90%] gap-6">
@@ -105,7 +111,7 @@ export default function Home() {
 
           <div className="w-full h-fit flex flex-wrap gap-2">
             {mockup_faculty.map((key) => (
-              <button key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
+              <button name={key} onClick={handleTagClicked} key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
                 <p className="text-monochrome-600 group-hover:text-monochrome-50">{key}</p>
               </button>
             ))}
@@ -125,7 +131,7 @@ export default function Home() {
 
           <div className="w-full h-fit flex flex-wrap gap-2">
             {mockup_universities.map((key) => (
-              <button key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
+              <button name={key} onClick={handleTagClicked} key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
                 <p className="text-monochrome-600 group-hover:text-monochrome-50">{key}</p>
               </button>
             ))}

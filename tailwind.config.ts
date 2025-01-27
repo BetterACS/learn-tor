@@ -132,10 +132,21 @@ export default {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(0)' },
         },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideInfromleft: {
+          '0%': { transform: 'translateX(-200px)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
       },
       animation: {
         floatsImage: 'floatsImage 3s ease-in-out infinite',
         'slide-in': 'slideInFromLeft 0.5s ease-out forwards',
+        fadeInAndFloat: 'fadeIn 1s ease-in-out forwards, floatsImage 3s ease-in-out infinite',
+        slideInfromleft: 'slideInfromleft 0.8s ease-out',
+        slideInfromlate: 'slideInfromleft 1.3s ease-out',
       },
     },
   },

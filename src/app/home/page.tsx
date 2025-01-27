@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import { Navbar, Footer, UniLogo, FeatureSection } from '@/components/index';
 
 const Section4 = () => {
@@ -31,13 +31,42 @@ const Section4 = () => {
     </div>
   );
 
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [isGridVisible, setIsGridVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsGridVisible(true);
+        }
+      },
+      { threshold: 0.2 } // เริ่มทำงานเมื่อ 20% ของ grid ปรากฏบนหน้าจอ
+    );
+
+    if (gridRef.current) {
+      observer.observe(gridRef.current);
+    }
+
+    return () => {
+      if (gridRef.current) {
+        observer.unobserve(gridRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="bg-primary-600 py-12">
       <div className="container mx-auto text-center px-4 md:px-8 py-16">
         <div className="text-headline-4 font-bold md:text-headline-3 md:font-bold text-monochrome-50 drop-shadow mb-8">
           มาดูกันซิว่าเรามีคณะอะไรกันบ้าง!!
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 px-6 max-w-full overflow-hidden py-10">
+        <div
+          ref={gridRef}
+          className={`grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 px-6 max-w-full overflow-hidden py-10 transition-all duration-1000 ${
+            isGridVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+          }`}
+        >
           {cards.map((card, index) => (
             <Card key={index} title={card.title} imageUrl={card.imageUrl} />
           ))}
@@ -79,14 +108,14 @@ export default function Page() {
           <img
             src="/images/logofooter.avif"
             alt="LearnTor Logo"
-            className="w-3/5 sm:w-4/5 md:w-3/4 lg:max-w-[600px] h-auto animate-floatsImage"
+            className="w-3/5 sm:w-4/5 md:w-3/4 lg:max-w-[600px] h-auto animate-fadeInAndFloat"
           />
         </div>
         <div className="w-full md:w-1/2 text-center md:text-left order-2 md:order-1">
-          <div className="text-headline-4 md:text-headline-2 font-bold text-primary-600 mb-4 drop-shadow">
+          <div className="text-headline-4 md:text-headline-2 font-bold text-primary-600 mb-4 drop-shadow animate-slideInfromleft">
             <strong>ยินดีต้อนรับเข้าสู่ LearnTor</strong>
           </div>
-          <div className="sm:text-body-large md:text-headline-5 lg:text-headline-4 text-monochrome-950 mb-6 drop-shadow leading-relaxed">
+          <div className="sm:text-body-large md:text-headline-5 lg:text-headline-4 text-monochrome-950 mb-6 drop-shadow leading-relaxed animate-slideInfromlate">
             Learntor ช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย
             โดยพิจารณาจากข้อมูลสำคัญ เครื่องมือคำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ
             มีฟอรั่มในการพูดคุย แลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะและแชตบอตอัจฉริยะ
@@ -160,7 +189,7 @@ export default function Page() {
       <div className="bg-monochrome-50 py-12">
         <div className="container mx-auto text-center px-4 md:px-8 py-16">
           <div className="text-headline-4 font-bold md:text-headline-3 md:font-bold text-primary-600 drop-shadow">
-            พวกเราข้อมีข้อมูลมหาวิทยาลัยชื่อดังทั่วประเทศไทย
+            พวกเรามีข้อมูลมหาวิทยาลัยชื่อดังทั่วประเทศไทย
           </div>
           <UniLogo logos={logos} />
         </div>

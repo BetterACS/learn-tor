@@ -29,6 +29,7 @@ import SearchPopup from '@/components/search-popup';
 import CompareSidebar from '@/components/compare-sidebar';
 import InfoCard from '@/components/info-card';
 import ChatbotSidebar from '@/components/chatbot-sidebar';
+import Questionbox from '@/components/question';
 
 export {
   Test,
@@ -62,4 +63,5 @@ export {
   CompareSidebar,
   InfoCard,
   ChatbotSidebar,
+  Questionbox,
 }
