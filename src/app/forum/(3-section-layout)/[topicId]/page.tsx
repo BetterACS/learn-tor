@@ -77,10 +77,12 @@ export default function Topic() {
         {/* Post details */}
         <div className="w-full h-full flex flex-col items-center gap-2">
           <div className="w-full h-fit text-headline-4">{data.title}</div>
-          {/* <div className="text-body-large">{data.body}</div> */}
+          <div className="text-headline-6 w-full">{data.body}</div>
+          {data.img && 
           <div className="h-[25rem] w-full">
-            <img src={data.img} className="w-full h-full object-cover"/>
+            <img src={data.img || null} className="w-full h-full object-cover"/>
           </div>
+          }
           <div className="flex gap-2 self-start">
             {/* Like */}
             <button type="button" name="like" onClick={handleClick} className={`text-button flex items-center gap-1 bg-monochrome-100 py-2 px-2 rounded-[1.5rem] transition duration-200 ${buttonStates.like.liked ? 'bg-primary-500 text-monochrome-50 hover:text-monochrome-50' : 'bg-monochrome-100 text-monochrome-950 hover:text-primary-500'}`}>

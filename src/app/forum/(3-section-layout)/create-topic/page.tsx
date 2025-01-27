@@ -1,21 +1,22 @@
 'use client';
 import { useState } from 'react';
 import { Button } from '@/components/index';
+import { useRouter } from 'next/navigation';
 
 interface PostData {
-  userID: string;
+  id: number;
   title: string;
   body: string;
-  img: string | null;
+  img: string;
 }
 
 export default function CreateTopic() {
-
+  const router = useRouter();
   const [postData, setPostData] = useState<PostData>({
-    userID: "",
+    id: 1,
     title: "",
     body: "",
-    img: null,
+    img: "",
   });
 
   const handleInputChange = (
@@ -68,9 +69,17 @@ export default function CreateTopic() {
     console.log("Click Add Tags");
   }
 
+  // const handleOnClickPost = () => {
+  //   console.log(postData);
+
+  // }
+
   const handleOnClickPost = () => {
+    // const buttonName = event.currentTarget.name;
     console.log(postData);
-  }
+    const query = JSON.stringify(postData);
+    router.push(`/forum/${postData.id}?${JSON.stringify(postData)}`);
+  };
 
   return (
     <div className="relative h-full w-full">

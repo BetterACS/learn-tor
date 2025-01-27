@@ -12,27 +12,25 @@ export default function Search() {
   const [tags, setTags] = useState<{ [key: string]: string } | undefined>(undefined);
 
   useEffect(() => {
-    // Extract searchTerm from path (Assuming path like /forum/search/term)
-    const pathParts = pathname.split('/');
-    const term = pathParts[pathParts.length - 1];  // Get the search term from the URL path
-
-    setSearchTerm(term);  // Set the search term from the path
-
-    // Extract the query params if available
-    const queryParam = searchParams.get('query');  // Assuming query is passed like ?query=someQuery
+    const queryParam = searchParams.get('query'); // Extract query parameter
     if (queryParam) {
       try {
-        const parsedTags = JSON.parse(decodeURIComponent(queryParam)); // Decode and parse the tags
+        // Attempt to parse as JSON
+        const parsedTags = JSON.parse(decodeURIComponent(queryParam));
         setTags(parsedTags);
-      } catch (error) {
-        console.error('Error parsing query params', error);
+      } catch {
+        // If parsing fails, treat it as a plain string
+        console.warn('Query is not JSON, treating as plain text:', queryParam);
+        setTags({ [queryParam]: 'included' }); // Example: Add the query as a single tag
       }
+    } else {
+      setTags(undefined); // Reset tags if query is missing
     }
-  }, [pathname, searchParams]);
+  }, [searchParams]);
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-headline-3">ผลการค้นหา "<span className="text-primary-500">{searchTerm}</span>"</p>
+      {/* <p className="text-headline-3">ผลการค้นหา "<span className="text-primary-500">{searchTerm}</span>"</p> */}
       <div className="flex gap-2">
       {tags && Object.entries(tags).map(([tag, status]) => (
         <div
