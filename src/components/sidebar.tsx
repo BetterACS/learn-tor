@@ -1,7 +1,9 @@
 'use client';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Sidebar() {
+  const router = useRouter();
   const mockup_forum_name = [
     "Portfolio",
     "TCAS",
@@ -15,6 +17,11 @@ export default function Sidebar() {
     "testststt",
     "testestsseasd",
   ];
+
+  const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const buttonName = event.currentTarget.name;
+    router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
+  };
 
   return (
     <div className="h-[calc(100vh-5.25rem)] w-full bg-monochrome-50 sticky overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-100 top-[5.25rem] flex flex-col divide-y divide-monochrome-200 items-center px-6 py-6 border-r border-monochrome-400">
@@ -48,7 +55,7 @@ export default function Sidebar() {
         </h1>
         <div className="flex flex-col pl-4 gap-4 text-headline-6">
           {mockup_forum_name.map((item) => (
-            <Link href="/" key={item} className="hover:underline w-fit">{item}</Link>
+            <button name={item} onClick={handleTagClicked} key={item} className="hover:underline w-fit text-start">{item}</button>
           ))}
         </div>
       </div>
