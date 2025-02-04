@@ -6,6 +6,7 @@ import editUser from './api/member-system/editUser';
 import resetVerificationToken from './api/member-system/resetVerificationToken';
 import getJWT from './api/getJWT';
 import { createCallerFactory, router } from './trpc';
+import createTopic from './api/forum/createTopic';
 export const appRouter = router({
 	...apiTest(),
     ...register(),
@@ -13,7 +14,8 @@ export const appRouter = router({
     ...verified(),
     ...editUser(),
     ...resetVerificationToken(),
-    ...getJWT()
+    ...getJWT(),
+    ...createTopic(),
 });
 const createCaller = createCallerFactory(appRouter);
 

@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/index';
 import { useRouter } from 'next/navigation';
-
+import { trpc } from '@/app/_trpc/client';
+import { useSession } from 'next-auth/react';
 interface PostData {
   id: number;
   title: string;
@@ -18,6 +19,8 @@ export default function CreateTopic() {
     body: "",
     img: "",
   });
+  const { data: session } = useSession();
+  const [error, setError] = useState('');
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -27,6 +30,7 @@ export default function CreateTopic() {
       ...prev,
       [name]: value,
     }));
+    console.log(postData);
   };
 
   const handleFiles = (files: File[]) => {
@@ -71,14 +75,42 @@ export default function CreateTopic() {
 
   // const handleOnClickPost = () => {
   //   console.log(postData);
-
   // }
-
-  const handleOnClickPost = () => {
+  const mutation = trpc.createTopic.useMutation();
+  const handleOnClickPost = async () => {
+    if (postData.title === "" || postData.body === "") {
+      alert('Please fill in all the fields');
+    } else if (!session) {
+      alert('You must be logged in to create a topic');
+    }else{
+      mutation.mutate(
+        { 
+          title: postData.title,
+          body: postData.body,
+          email: session.user?.email || '',
+        },
+        {
+            onSuccess: (data) => {
+                if (data.status !== 200) {
+                    console.warn("Validation Error:", data.data.message);
+                    setError(data.data.message);
+                } else if (data.status === 200) {
+                    console.log("Mutation Successful:", data);
+                  // ยังไม่ได้ทำตัว ID 
+                    router.push(`/forum/${postData.id}?${JSON.stringify(postData)}`);
+                }
+            },
+            onError: (error) => {
+                console.error("Mutation Failed:", error);
+                setError(error.message);
+            },
+        }
+    );    
+    }
+    
     // const buttonName = event.currentTarget.name;
     console.log(postData);
     const query = JSON.stringify(postData);
-    router.push(`/forum/${postData.id}?${JSON.stringify(postData)}`);
   };
 
   return (
@@ -94,7 +126,8 @@ export default function CreateTopic() {
               type="text"
               name="title"
               placeholder="Title"
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
+              value={postData.title} 
               className="bg-transparent w-full outline-none placeholder-monochrome-600 caret-monochrome-600"/> 
           </div>
         </div>
@@ -108,6 +141,7 @@ export default function CreateTopic() {
               id="" 
               rows={4}
               onChange={handleInputChange}
+              value={postData.body}
               className="w-full resize-none bg-transparent outline-none placeholder-monochrome-600 caret-monochrome-600 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-200"
             ></textarea>
           </div>
