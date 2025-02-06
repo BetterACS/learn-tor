@@ -3,9 +3,13 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PostInteractionBar } from '@/components/index';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 interface PostProps {
-  post: { id: number, img: string, title: string, body: string };
+  post: { id: number, img: string, title: string, body: string, created_at: string, user_id: { username: string } };
 }
 
 
@@ -31,11 +35,11 @@ export default function Post({ post }: PostProps) {
           <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
         </div>
         <p className="text-body-large font-bold">
-          Username
+          {post.user_id.username}
         </p>
         <p className="text-subtitle-small">•</p>
         <p className="text-subtitle-small text-monochrome-400">
-          second ago
+          {dayjs(post.created_at).fromNow()}
         </p>
       </div>
       {/* Body */}

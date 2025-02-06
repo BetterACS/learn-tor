@@ -7,7 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 interface CarouselProps {
-  carousel_items: { id: number, img: string; title: string, body: string }[];
+  carousel_items: { _id: number, img: string; title: string, body: string}[];
 }
 
 interface ArrowProps {
@@ -83,9 +83,9 @@ export default function Carousel({ carousel_items }: CarouselProps) {
     <Slider {...settings}>
       {carousel_items.map((item) => (
         <Link 
-        href={{ pathname: `/forum/${item.id}`,
+        href={{ pathname: `/forum/${item._id}`,
                 query: JSON.stringify(item)}} 
-        key={item.id} 
+        key={item._id} 
         className="w-[15vw] h-full !flex flex-col my-4 gap-2 outline-none group hover:scale-105 transition duration-200 hover:cursor-pointer">
           <img src={item.img} className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md"/>
           <p className="text-headline-6 text-monochrome-950 text-start group-hover:text-primary-600 transition duration-200">{item.title}</p>
