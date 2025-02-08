@@ -121,7 +121,7 @@ const UserProfile = () => {
           <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
+        <div className="md:gap-x-20 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
           <InputField label="ชื่อผู้ใช้" name="username" value={formData.username} disabled={!isEditing} onChange={handleChange} />
           <InputField label="อีเมล" name="email" value={formData.email} disabled={true} onChange={handleChange} />
           <InputField label="สายการเรียน" name="major" value={formData.major} disabled={!isEditing} onChange={handleChange} />
@@ -134,7 +134,7 @@ const UserProfile = () => {
           TGAT ความถนัดทั่วไป
           <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
         </div>
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
+        <div className="md:gap-x-20 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
           <ScoreInput label="TGAT1 การสื่อสารภาษาอังกฤษ" value={formData.TGAT1} onChange={handleChange} isEditing={isEditing} name="TGAT1" />
           <ScoreInput label="TGAT2 การคิดอย่างมีเหตุผล" value={formData.TGAT2} onChange={handleChange} isEditing={isEditing} name="TGAT2" />
           <ScoreInput label="TGAT3 สมรรถนะการทำงานในอนาคต" value={formData.TGAT3} onChange={handleChange} isEditing={isEditing} name="TGAT3" />
@@ -144,7 +144,7 @@ const UserProfile = () => {
           TPAT ความถนัดทางวิชาชีพ
           <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
         </div>
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
+        <div className="md:gap-x-20 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
           <ScoreInput label="TPAT2.1 ความถนัดศิลปกรรมศาสตร์ ทัศนศิลป์" value={formData.TPAT2_1} onChange={handleChange} isEditing={isEditing} name="TPAT2_1" />
           <ScoreInput label="TPAT2.2 ความถนัดศิลปกรรมศาสตร์ ดนตรี" value={formData.TPAT2_2} onChange={handleChange} isEditing={isEditing} name="TGPAT2_2" />
           <ScoreInput label="TPAT2.3 ความถนัดศิลปกรรมศาสตร์ นาฏศิลป์" value={formData.TPAT2_3} onChange={handleChange} isEditing={isEditing} name="TPAT2_3" />
@@ -157,7 +157,7 @@ const UserProfile = () => {
           A - Level
           <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
         </div>
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
+        <div className="md:gap-x-20 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
           <ScoreInput label="A-Level คณิตศาสตร์ประยุกต์ 1" value={formData.A_MATH1} onChange={handleChange} isEditing={isEditing} name="A_MATH1" />
           <ScoreInput label="A-Level คณิตศาสตร์ประยุกต์ 2" value={formData.A_MATH2} onChange={handleChange} isEditing={isEditing} name="A_MATH2" />
           <ScoreInput label="A-Level วิทยาศาสตร์ประยุกต์" value={formData.A_SCIENCE} onChange={handleChange} isEditing={isEditing} name="A_SCIENCE" />

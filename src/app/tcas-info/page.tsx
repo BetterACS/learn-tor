@@ -12,7 +12,7 @@ export default function Page() {
     { label: 'รอบ 4 รับตรงอิสระ', value: 'direct-admission' },
   ];
 
-  const roundDetails: Record<string, JSX.Element> = {
+  const roundDetails:  Record<string, React.ReactNode> = {
     portfolio: (
       <>
         <span className="text-primary-600 font-bold">รอบ Portfolio</span> เป็นการรับนักเรียน โดยเน้นคัดเลือกจากคุณสมบัติของผู้สมัคร และพิจารณาจากแฟ้มสะสมผลงาน (Portfolio), เกรดเฉลี่ย (GPAX) หรือคุณสมบัติอื่นๆ ที่มีความเกี่ยวข้องกับสาขานั้นๆ แต่ละคณะ/มหาวิทยาลัย จะกำหนดลักษณะหรือรูปแบบของแฟ้มสะสมผลงานที่แตกต่างกัน เช่น จำนวนผลงาน, ประเภทของผลงาน, ระดับการแข่งขันของผลงาน ไปจนถึงการเขียนเรียงความ อย่างไรก็ตามใน TCAS67 อาจมีบางแห่งนำคะแนนสอบส่วนกลางมาใช้ด้วย  
