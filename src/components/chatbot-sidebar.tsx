@@ -37,7 +37,7 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
   return (
     <div>
       <div
-        className="absolute top-28 left-10 cursor-pointer z-50 flex items-center"
+        className="absolute top-28 left-10 cursor-pointer z-20 flex"
         onClick={handleToggleSidebar}
       >
         <img src="images/feature/hide.avif" alt="Hide Icon" className="w-10 h-10" />
@@ -54,7 +54,7 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
       <div
         className={`fixed top-20 left-0 ${isSidebarOpen ? 'block' : 'hidden'} w-full sm:w-full md:w-1/4 lg:w-1/5 h-screen bg-monochrome-100 p-4 transition-all duration-300 z-10`}
       >
-        <div className="absolute top-7 right-10 cursor-pointer z-50">
+        <div className="absolute top-7 right-10 cursor-pointer z-20">
           <img
             src="images/feature/new.avif"
             alt="NewChat Icon"
