@@ -8,6 +8,7 @@ interface InfoCardProps {
   logo: string;
   image: string;
   rounds: { name: string; quota: string }[];
+  onAddToCompare: (item: any) => void;
 }
 
 export default function InfoCard({
@@ -17,7 +18,12 @@ export default function InfoCard({
   logo,
   image,
   rounds,
+  onAddToCompare,
 }: InfoCardProps) {
+  const handleAddClick = () => {
+    onAddToCompare({ logo, major });
+  };
+
   return (
     <div className="relative flex flex-col w-full bg-monochrome-50 shadow-lg rounded-lg overflow-hidden">
       <div className="relative flex items-center">
@@ -56,6 +62,7 @@ export default function InfoCard({
       <div className="absolute bottom-4 right-4">
         <button
           className={clsx("p-2 bg-monochrome-50 rounded-md", "hover:bg-monochrome-100 transition")}
+          onClick={handleAddClick}
         >
           <Image
             src="/images/uni-pic/add.avif"
