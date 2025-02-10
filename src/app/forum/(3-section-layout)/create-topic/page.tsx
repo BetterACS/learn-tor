@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { Button } from '@/components/index';
+import { useEffect, useState } from 'react';
+import { Button, AddTagPopup } from '@/components/index';
 import { useRouter } from 'next/navigation';
 
 interface PostData {
@@ -8,6 +8,7 @@ interface PostData {
   title: string;
   body: string;
   img: string;
+  tags: string[]
 }
 
 export default function CreateTopic() {
@@ -17,7 +18,18 @@ export default function CreateTopic() {
     title: "",
     body: "",
     img: "",
+    tags: [],
   });
+
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const [tags, setTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    setPostData((prev) => ({
+      ...prev,
+      tags: tags
+    }));
+  }, [isPopupOpen]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -64,9 +76,8 @@ export default function CreateTopic() {
     e.preventDefault();
   };
 
-  // test if button work
   const handleOnClickAddTags = () => {
-    console.log("Click Add Tags");
+    setIsPopupOpen(true);
   }
 
   // const handleOnClickPost = () => {
@@ -87,6 +98,24 @@ export default function CreateTopic() {
         Create Topic
       </p>
       <div className="flex flex-col gap-6">
+        {/* Display selected tags */}
+        {tags.length > 0 &&
+        <div className="flex gap-2 items-center">
+          <p className="text-headline-6">Selected Tags:</p>
+          <div className="flex gap-2">
+            {tags.map((tag) => (
+              <div
+                key={tag}
+                className={`text-body-1 border border-green-600
+                rounded-[1rem] px-3 py-2`}
+              >
+                {tag}
+              </div>
+            ))}
+          </div>
+        </div>
+        }
+
         <div className="flex flex-col gap-2 text-headline-5">
           <p>Title</p>
           <div className="w-full h-fit bg-monochrome-100 py-3 px-4 rounded-md">
@@ -157,6 +186,10 @@ export default function CreateTopic() {
           <Button button_name="Add tags" variant="secondary" onClick={handleOnClickAddTags} />
           <Button button_name="Post" variant="primary" onClick={handleOnClickPost} />
         </div>
+
+        {isPopupOpen && 
+          <AddTagPopup isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} tags={tags} setTags={setTags}/>
+        }
       </div>
     </div>
   )
