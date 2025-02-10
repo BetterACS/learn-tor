@@ -1,13 +1,20 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { Navbar, ChatbotSidebar } from '@/components/index';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Navbar, ChatbotSidebar, AlertBox } from '@/components/index';
 import clsx from 'clsx';
 
 export default function Page() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const isLoggedIn = !!session;
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; text: string }[]>([]);
   const [input, setInput] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -59,6 +66,12 @@ export default function Page() {
   };
 
   const handleSendMessage = () => {
+    if (!isLoggedIn) {
+      router.push('/login');
+      setShowAlert(true);
+      return;
+    }
+
     if (input.trim() === '' || isBotTyping) return;
 
     setMessages((prevMessages) => [...prevMessages, { sender: 'user', text: input }]);
@@ -129,6 +142,11 @@ export default function Page() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={() => {
+              if (!isLoggedIn) {
+                setShowAlert(true);
+              }
+            }}
             className="h-[90px] p-3 bg-monochrome-100 border border-monochrome-100 rounded-xl text-monochrome-950
                        placeholder:text-monochrome-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600
                        resize-none box-border mr-4"
@@ -137,7 +155,7 @@ export default function Page() {
             type="button"
             onClick={handleSendMessage}
             disabled={isBotTyping || input.trim() === ''}
-            className="absolute top-3 right-12 w-8 h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
+            className="absolute top-3 right-9 w-8 h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
           >
             <img src="images/feature/send.avif" alt="Send Icon" className="w-full h-full" />
           </button>
@@ -147,6 +165,13 @@ export default function Page() {
           Learntor อาจมีข้อผิดพลาด ควรตรวจสอบข้อมูลสำคัญ
         </div>
       </div>
+      {showAlert && (
+        <AlertBox
+          alertType="warning"
+          title="Warning"
+          message="Please log in before using."
+        />
+      )}
     </div>
   );
 }

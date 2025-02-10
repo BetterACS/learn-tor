@@ -90,6 +90,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
     };
   }, []);
 
+  // ปัจจุบันยังไม่มีส่วนที่ render หัวข้อเรื่องตามวันจริงที่พิมพ์ไป
   return (
     <div>
       <div
