@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 import { Navbar, Footer, UniLogo, FeatureSection } from '@/components/index';
 
 const Section4 = () => {
@@ -77,8 +78,7 @@ const Section4 = () => {
 };
 
 export default function Page() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const { data: session } = useSession();
   const logos = [
     { src: '/images/uni-pic/cu.avif', alt: 'University 1' },
     { src: '/images/uni-pic/tu.avif', alt: 'University 2' },
@@ -120,7 +120,7 @@ export default function Page() {
             โดยพิจารณาจากข้อมูลสำคัญ เครื่องมือคำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ
             มีฟอรั่มในการพูดคุย แลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะและแชตบอตอัจฉริยะ
           </div>
-          {!isLoggedIn && (
+          {!session ? (
             <div className="flex sm:flex-row gap-4 justify-center md:justify-start">
               <a
                 href="/login"
@@ -131,16 +131,16 @@ export default function Page() {
               <a
                 href="/register"
                 className="
-                  bg-primary-600 text-monochrome-50 border border-primary-600 
-                  py-3 px-6 rounded-lg text-big-button 
-                  transition duration-150 
-                  hover:bg-monochrome-50 hover:text-primary-600 hover:border-primary-600 
+                  bg-primary-600 text-monochrome-50 border border-primary-600
+                  py-3 px-6 rounded-lg text-big-button
+                  transition duration-150
+                  hover:bg-monochrome-50 hover:text-primary-600 hover:border-primary-600
                 "
               >
                 Sign Up
               </a>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -156,7 +156,7 @@ export default function Page() {
               title="Compare Courses"
               description="ช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย โดยพิจารณาจากข้อมูลสำคัญ"
               img="/images/feature/compare.avif"
-              link="/"
+              link="/compare-courses"
             />
           </div>
           <div className="border-l-2 border-monochrome-50 p-4">
@@ -164,7 +164,7 @@ export default function Page() {
               title="Chatbot"
               description="แชตบอตที่จะสามารถตอบข้อมูลเกี่ยวกับการเรียนต่อที่คุณต้องการได้อย่างรวดเร็วและทันใจ"
               img="/images/feature/chatbot.avif"
-              link="/"
+              link="/chatbot"
             />
           </div>
           <div className="border-0 md:border-l-2 border-monochrome-50 p-4">
@@ -172,7 +172,7 @@ export default function Page() {
               title="TCAS Calculate"
               description="คำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ"
               img="/images/feature/calculate.avif"
-              link="/"
+              link="/tcascalculator"
             />
           </div>
           <div className="border-l-2 border-monochrome-50 p-4">
