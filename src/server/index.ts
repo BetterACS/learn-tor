@@ -8,6 +8,9 @@ import getJWT from './api/getJWT';
 import { createCallerFactory, router } from './trpc';
 import createTopic from './api/forum/createTopic';
 import queryTopic from './api/forum/queryTopic';
+import likeTopic from './api/forum/likeTopic';
+import checkLike from './api/forum/checkLike';
+
 export const appRouter = router({
 	...apiTest(),
     ...register(),
@@ -18,6 +21,8 @@ export const appRouter = router({
     ...getJWT(),
     ...createTopic(),
     ...queryTopic,
+    ...likeTopic(),
+    ...checkLike(),
 });
 const createCaller = createCallerFactory(appRouter);
 
