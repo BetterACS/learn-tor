@@ -5,6 +5,7 @@ import verified from './api/member-system/verified';
 import editUser from './api/member-system/editUser';
 import resetVerificationToken from './api/member-system/resetVerificationToken';
 import getJWT from './api/getJWT';
+import universityQueries from './api/university'
 import { createCallerFactory, router } from './trpc';
 export const appRouter = router({
 	...apiTest(),
@@ -13,7 +14,8 @@ export const appRouter = router({
     ...verified(),
     ...editUser(),
     ...resetVerificationToken(),
-    ...getJWT()
+    ...getJWT(),
+    ...universityQueries()
 });
 const createCaller = createCallerFactory(appRouter);
 
