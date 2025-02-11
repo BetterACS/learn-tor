@@ -14,7 +14,8 @@ export default function Page() {
   const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; text: string }[]>([]);
   const [input, setInput] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
+  const [showAlert, setShowAlert] = useState(false); // <-- เพิ่ม state สำหรับ AlertBox
+
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -71,7 +72,6 @@ export default function Page() {
       setShowAlert(true);
       return;
     }
-
     if (input.trim() === '' || isBotTyping) return;
 
     setMessages((prevMessages) => [...prevMessages, { sender: 'user', text: input }]);

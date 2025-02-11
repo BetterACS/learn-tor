@@ -1,6 +1,6 @@
 'use client';
 import { Navbar, CompareSidebar, InfoCard, AlertBox } from '@/components/index';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Page() {
@@ -8,7 +8,26 @@ export default function Page() {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isCompareListOpen, setIsCompareListOpen] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [universities, setUniversities] = useState<any[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/university');
+        const data = await response.json();
+        setUniversities(data.map((university: any) => ({
+          ...university,
+          // set logo&image
+          logo: '/images/logofooter.avif',
+          image: '/images/uni-pic/mock.avif',
+        })));
+      } catch (error) {
+        console.error('Error fetching universities:', error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleAddToCompare = (item: any) => {
     setSelectedItems((prevSelectedItems) => {
@@ -47,113 +66,39 @@ export default function Page() {
       <Navbar />
       <div className="flex flex-1">
         <div className="sm:w-full md:w-1/2 lg:w-1/4">
-        <CompareSidebar
-          onToggleSidebar={handleToggleSidebar}
-          onAddToCompare={handleAddToCompare}
-        />
+          <CompareSidebar
+            onToggleSidebar={handleToggleSidebar}
+            onAddToCompare={handleAddToCompare}
+          />
         </div>
         {alertMessage && (
-            <AlertBox
-              alertType="info"
-              title="Info Message"
-              message={alertMessage}
-            />
-          )}
+          <AlertBox
+            alertType="info"
+            title="Info Message"
+            message={alertMessage}
+          />
+        )}
         <div className="lg:w-3/4 p-6 ml-6">
           <p className="text-headline-4 mr-5 mb-4">Compare Universities List</p>
 
           <div className="grid sm:grid-cols-1 md:grid-cols-1 gap-6 lg:grid-cols-2">
-            <InfoCard
-              university="จุฬาลงกรณ์มหาวิทยาลัย"
-              faculty="คณะวิศวกรรมศาสตร์"
-              major="สาขาวิศวกรรมคอมพิวเตอร์"
-              logo="/images/uni-pic/cu.avif"
-              image="/images/uni-pic/mock.avif"
-              rounds={[
-                { name: 'รอบ 1 Portfolio', quota: 'รับ 327 คน' },
-                { name: 'รอบ 2 Quota', quota: 'รับ 38 คน' },
-                { name: 'รอบ 3 Admission', quota: 'รับ 240 คน' },
-                { name: 'รอบ 4 Direct Admission', quota: 'ไม่เปิดรับสมัคร' },
-              ]}
-              onAddToCompare={handleAddToCompare}
-            />
-             <InfoCard
-              university="มหาวิทยาลัยเกษตรศาสตร์"
-              faculty="คณะวิศวกรรมศาสตร์"
-              major="สาขาวิศวกรรมคอมพิวเตอร์"
-              logo="/images/uni-pic/ku.avif"
-              image="/images/uni-pic/mock2.avif"
-              rounds={[
-                { name: 'รอบ 1 Portfolio', quota: 'รับ 327 คน' },
-                { name: 'รอบ 2 Quota', quota: 'รับ 38 คน' },
-                { name: 'รอบ 3 Admission', quota: 'รับ 240 คน' },
-                { name: 'รอบ 4 Direct Admission', quota: 'ไม่เปิดรับสมัคร' },
-              ]}
-              onAddToCompare={handleAddToCompare}
-            />
-            <InfoCard
-              university="มหาวิทยาลัยเชียงใหม่"
-              faculty="คณะวิจิตรศิลป์"
-              major="สาขา การออกแบบ"
-              logo="/images/uni-pic/cmu.avif"
-              image="/images/uni-pic/mock3.avif"
-              rounds={[
-                { name: 'รอบ 1 Portfolio', quota: 'รับ 327 คน' },
-                { name: 'รอบ 2 Quota', quota: 'รับ 38 คน' },
-                { name: 'รอบ 3 Admission', quota: 'รับ 240 คน' },
-                { name: 'รอบ 4 Direct Admission', quota: 'ไม่เปิดรับสมัคร' },
-              ]}
-              onAddToCompare={handleAddToCompare}
-            />
-            <InfoCard
-              university="มหาวิทยาลัยเทคโนโลยีพระจอมเก..."
-              faculty="คณะ วิทยาศาสตร์"
-              major="สาขา วิทยาการคอมพิวเตอร์ประยุกต์"
-              logo="/images/uni-pic/kmutt.avif"
-              image="/images/uni-pic/mock4.avif"
-              rounds={[
-                { name: 'รอบ 1 Portfolio', quota: 'รับ 327 คน' },
-                { name: 'รอบ 2 Quota', quota: 'รับ 38 คน' },
-                { name: 'รอบ 3 Admission', quota: 'รับ 240 คน' },
-                { name: 'รอบ 4 Direct Admission', quota: 'ไม่เปิดรับสมัคร' },
-              ]}
-              onAddToCompare={handleAddToCompare}
-            />
-            <InfoCard
-              university="มหาวิทยาลัยมหิดล"
-              faculty="คณะ แพทยศาสตร์ศิริราชพยาบาล"
-              major="สาขา กายอุปกรณ์"
-              logo="/images/uni-pic/mu.avif"
-              image="/images/uni-pic/mock5.avif"
-              rounds={[
-                { name: 'รอบ 1 Portfolio', quota: 'รับ 327 คน' },
-                { name: 'รอบ 2 Quota', quota: 'รับ 38 คน' },
-                { name: 'รอบ 3 Admission', quota: 'รับ 240 คน' },
-                { name: 'รอบ 4 Direct Admission', quota: 'ไม่เปิดรับสมัคร' },
-              ]}
-              onAddToCompare={handleAddToCompare}
-            />
-            <InfoCard
-              university="มหาวิทยาลัยศรีนครินทรวิโรฒ"
-              faculty="คณะ มนุษยศาสตร์"
-              major="สาขา จิตวิทยา"
-              logo="/images/uni-pic/swu.avif"
-              image="/images/uni-pic/mock6.avif"
-              rounds={[
-                { name: 'รอบ 1 Portfolio', quota: 'รับ 327 คน' },
-                { name: 'รอบ 2 Quota', quota: 'รับ 38 คน' },
-                { name: 'รอบ 3 Admission', quota: 'รับ 240 คน' },
-                { name: 'รอบ 4 Direct Admission', quota: 'ไม่เปิดรับสมัคร' },
-              ]}
-              onAddToCompare={handleAddToCompare}
-            />
+            {universities.map((university, index) => (
+              <InfoCard
+                key={index}
+                institution={university.name}
+                faculty={university.faculty}
+                program={university.major}
+                logo={university.logo}
+                image={university.image}
+                rounds={university.rounds}
+                onAddToCompare={handleAddToCompare}
+              />
+            ))}
           </div>
 
           <div className="fixed bottom-4 right-4 flex flex-col items-end">
             <div
-              className={`bg-primary-700 text-monochrome-50 p-4 rounded-lg shadow-lg cursor-pointer w-[370px] transition-all duration-300 ${
-                isCompareListOpen ? 'translate-y-[-165px] z-10' : 'translate-y-0'
-              }`}
+              className={`bg-primary-700 text-monochrome-50 p-4 rounded-lg shadow-lg cursor-pointer w-[370px] transition-all duration-300 ${isCompareListOpen ? 'translate-y-[-165px] z-10' : 'translate-y-0'}`}
               onClick={handleToggleCompareList}
             >
               <div className="flex items-center justify-between">
@@ -173,9 +118,7 @@ export default function Page() {
             </div>
 
             <div
-              className={`absolute h-[170px] bottom-0 right-0 bg-monochrome-50 p-4 shadow-lg rounded-b-lg w-[360px] overflow-hidden transition-all duration-300 ${
-                isCompareListOpen ? 'translate-y-0 opacity-100' : 'translate-y-[70px] opacity-0 pointer-events-none'
-              }`}
+              className={`absolute h-[170px] bottom-0 right-0 bg-monochrome-50 p-4 shadow-lg rounded-b-lg w-[360px] overflow-hidden transition-all duration-300 ${isCompareListOpen ? 'translate-y-0 opacity-100' : 'translate-y-[70px] opacity-0 pointer-events-none'}`}
             >
               {selectedItems.length > 0 ? (
                 selectedItems.map((item, index) => (
@@ -187,7 +130,7 @@ export default function Page() {
                     <button onClick={() => handleRemoveItem(index)}>
                       <img src="/images/uni-pic/cancel.avif" alt="remove" className="h-6 w-6" />
                     </button>
-                </div>
+                  </div>
                 ))
               ) : (
                 <p className="mt-12 text-center text-monochrome-500">
@@ -196,12 +139,12 @@ export default function Page() {
                 </p>
               )}
               <div className="border-t border-monochrome-300 absolute bottom-16 left-2 right-2"></div>
-                <button
-                  className="absolute bottom-4 right-4 bg-primary-600 text-monochrome-50 py-2 px-4 rounded-lg hover:bg-primary-700 transition-all"
-                  onClick={handleCompare}
-                >
-                  Compare
-                </button>
+              <button
+                className="absolute bottom-4 right-4 bg-primary-600 text-monochrome-50 py-2 px-4 rounded-lg hover:bg-primary-700 transition-all"
+                onClick={handleCompare}
+              >
+                Compare
+              </button>
             </div>
           </div>
         </div>
