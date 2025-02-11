@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, mongo, Schema } from 'mongoose';
 
 // User Schema
 interface User extends Document {
@@ -161,6 +161,20 @@ const BookmarkSchema: Schema<Bookmark> = new Schema({
 
 const BookmarkModel = mongoose.models.Bookmark || mongoose.model<Bookmark>('Bookmark', BookmarkSchema);
 
+// LikeTopic Schema
+
+interface LikeTopic extends Document {
+  user_id: mongoose.Types.ObjectId;
+  topic_id: mongoose.Types.ObjectId;
+}
+
+const LikeSchema: Schema<LikeTopic> = new Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
+  topic_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', required: true},
+})
+
+const LikeTopicModel = mongoose.models.LikeTopic || mongoose.model<LikeTopic>('LikeTopic', LikeSchema)
+
 export {
   UserModel,
   TopicModel,
@@ -168,4 +182,5 @@ export {
   ScoreModel,
   CommentModel,
   BookmarkModel,
+  LikeTopicModel,
 };
