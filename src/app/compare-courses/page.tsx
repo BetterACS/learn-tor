@@ -1,33 +1,52 @@
 'use client';
 import { Navbar, CompareSidebar, InfoCard, AlertBox } from '@/components/index';
+import type { University } from '@/db/models';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { trpc } from '@/app/_trpc/client';
 
 export default function Page() {
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isCompareListOpen, setIsCompareListOpen] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [universities, setUniversities] = useState<any[]>([]);
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [error, setError] = useState<string>();
   const router = useRouter();
+  const mutation = trpc.searchUniversities.useMutation();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/university');
-        const data = await response.json();
-        setUniversities(data.map((university: any) => ({
-          ...university,
-          // set logo&image
-          logo: '/images/logofooter.avif',
-          image: '/images/uni-pic/mock.avif',
-        })));
-      } catch (error) {
-        console.error('Error fetching universities:', error);
+    mutation.mutate(
+      // แก้ตรงนี้
+      {
+        "search": "จุฬา",
+        "sortBy": "institution",
+        "order": "asc",
+        "limit": 6,
+        "page": 1
+      },
+      {
+        onSuccess: (data) => {
+          if (data.status !== 200) {
+            console.log("Mutation Failed:", data.data);
+          } else if (data.status === 200) {
+            // console.log("Mutation Success:", data.data);
+            if ("universities" in data.data){
+              setUniversities(data.data.universities.map((university: any) => ({
+                ...university,
+                // set logo&image
+                logo: '/images/logofooter.avif',
+                image: '/images/uni-pic/mock.avif',
+              })));}
+          }
+        },
+        onError: (error) => {
+          console.error("Mutation Failed:", error);
+          setError(error.message);
+        },
       }
-    };
-    fetchData();
-  }, []);
+    )
+  },[])
 
   const handleAddToCompare = (item: any) => {
     setSelectedItems((prevSelectedItems) => {
@@ -78,24 +97,30 @@ export default function Page() {
             message={alertMessage}
           />
         )}
+        
         <div className="lg:w-3/4 p-6 ml-6">
           <p className="text-headline-4 mr-5 mb-4">Compare Universities List</p>
 
           <div className="grid sm:grid-cols-1 md:grid-cols-1 gap-6 lg:grid-cols-2">
-            {universities.map((university, index) => (
+            {universities && universities.map((university, index) => (
               <InfoCard
-                key={index}
-                institution={university.name}
+                key={university.course_id}
+                university={university.institution}
                 faculty={university.faculty}
-                program={university.major}
+                major={university.program}
                 logo={university.logo}
                 image={university.image}
-                rounds={university.rounds}
+                rounds={[
+                  { name: 'รอบ 1 Portfolio', quota: university.info["รอบ 1 Portfolio"] },
+                  { name: 'รอบ 2 Quota', quota: university.info["รอบ 2 Quota"] },
+                  { name: 'รอบ 3 Admission', quota: university.info["รอบ 3 Admission"] },
+                  { name: 'รอบ 4 Direct Admission', quota: university.info["รอบ 4 Direct Admission"]},
+                ]}
                 onAddToCompare={handleAddToCompare}
               />
             ))}
           </div>
-
+          
           <div className="fixed bottom-4 right-4 flex flex-col items-end">
             <div
               className={`bg-primary-700 text-monochrome-50 p-4 rounded-lg shadow-lg cursor-pointer w-[370px] transition-all duration-300 ${isCompareListOpen ? 'translate-y-[-165px] z-10' : 'translate-y-0'}`}

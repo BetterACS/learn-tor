@@ -1,6 +1,7 @@
 'use client'
 import { useState, ChangeEvent, useEffect, useRef, useMemo } from 'react';
-
+import type { University } from '@/db/models';
+import { trpc } from '@/app/_trpc/client';
 interface CompareSidebarProps {
   onToggleSidebar: (isOpen: boolean) => void;
   onAddToCompare: (item: any) => void;
@@ -13,7 +14,62 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
-  const [data, setData] = useState<any[]>([]);
+  const mutation = trpc.searchUniversities.useMutation();
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [error, setError] = useState<string>();
+  useEffect(() => {
+    mutation.mutate(
+      // แก้ตรงนี้
+      {
+        "sortBy": "institution", //จริงควรใช้ "view_today"
+        "order": "asc",
+        "limit": 10,
+        "page": 1
+      },
+      {
+        onSuccess: (data) => {
+          if (data.status !== 200) {
+            console.log("Mutation Failed:", data.data);
+          } else if (data.status === 200) {
+            // console.log("Mutation Success:", data.data);
+            if ("universities" in data.data){
+              setUniversities(data.data.universities.map((university: any) => ({
+                ...university,
+                // set logo&image
+                logo: '/images/logofooter.avif',
+                image: '/images/uni-pic/mock.avif',
+              })));}
+          }
+        },
+        onError: (error) => {
+          console.error("Mutation Failed:", error);
+          setError(error.message);
+        },
+      }
+    )
+  },[])
+
+  
+
+  // const mockup_top10popular = [
+  //   { rank: 1, logo: 'images/uni-pic/kmutt.avif', major: 'kmutt วิทยาการคอมพิวเตอร์ประยุกต์', addImage: 'images/uni-pic/add.avif', tuition: 50000 },
+  //   { rank: 2, logo: 'images/uni-pic/cu.avif', major: 'cu คณะแพทยศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย', addImage: 'images/uni-pic/add.avif', tuition: 45000 },
+  //   { rank: 3, logo: 'images/uni-pic/cu.avif', major: 'cu สาขา วิศวกรรมศาสตร์คอมพิวเตอร์', addImage: 'images/uni-pic/add.avif', tuition: 35000 },
+  //   { rank: 4, logo: 'images/uni-pic/tu.avif', major: 'tu คณะนิติศาสตร์ มหาวิทยาลัยธรรมศาสตร์', addImage: 'images/uni-pic/add.avif', tuition: 55000 },
+  //   { rank: 5, logo: 'images/uni-pic/mu.avif', major: 'mu คณะแพทยศาสตร์ศิริราชพยาบาล', addImage: 'images/uni-pic/add.avif', tuition: 61000 },
+  //   { rank: 6, logo: 'images/uni-pic/ku.avif', major: 'ku คณะบริหารธุรกิจ การบัญชี', addImage: 'images/uni-pic/add.avif', tuition: 28000 },
+  //   { rank: 7, logo: 'images/uni-pic/swu.avif', major: 'swu วิทยาลัยนวัตกรรม การจัดการการสื่อสาร', addImage: 'images/uni-pic/add.avif', tuition: 30000 },
+  //   { rank: 8, logo: 'images/uni-pic/cmu.avif', major: 'cmu คณะมนุษยศาสตร์ อักษรศาสตร์', addImage: 'images/uni-pic/add.avif', tuition: 40000 },
+  //   { rank: 9, logo: 'images/uni-pic/kku.avif', major: 'kku สาขา วิศวกรรมศาสตร์คอมพิวเตอร์', addImage: 'images/uni-pic/add.avif', tuition: 60000 },
+  //   { rank: 10, logo: 'images/uni-pic/kmutnb.avif', major: 'kmutnb สาขา วิศวกรรมหุ่นยนต์', addImage: 'images/uni-pic/add.avif', tuition: 75000 }
+  // ];
+  const mockup_top10popular = universities.map((university, index) => ({
+    rank: index + 1,
+    logo: university.logo,
+    major: university.institution + ' ' + university.program,
+    addImage: '/images/uni-pic/add.avif',
+    tuition: university.info.ค่าใข้จ่าย //บางอันเป็น text ผสมเลข บางอันเป็น link ให้กดดู
+  }));
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value);
 
@@ -25,7 +81,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
     setSortOption(option);
     setIsDropdownOpen(false);
   };
-
+  // แจ๊คลองอ่านดูคือค่าใช้จ่ายทื่เก็บมาบางทีมันติด text อื่นมาด้วย บางอันก็ไม่เป็นตัวเลขเป็น link ให้กดดู
   const getSortLabel = (option: string) => {
     switch (option) {
       case 'A-Z':
@@ -42,18 +98,20 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
   };
 
   const sortedData = useMemo(() => {
-    let sortedList = [...data];
+    let sortedList = [...mockup_top10popular];
     if (sortOption === 'A-Z') {
       sortedList.sort((a, b) => a.major.localeCompare(b.major));
     } else if (sortOption === 'Z-A') {
       sortedList.sort((a, b) => b.major.localeCompare(a.major));
-    } else if (sortOption === 'low-high') {
-      sortedList.sort((a, b) => a.tuition - b.tuition);
-    } else if (sortOption === 'high-low') {
-      sortedList.sort((a, b) => b.tuition - a.tuition);
     }
+    // ปิดไว้ก่อน
+    // } else if (sortOption === 'low-high') {
+    //   sortedList.sort((a, b) => a.tuition - b.tuition);
+    // } else if (sortOption === 'high-low') {
+    //   sortedList.sort((a, b) => b.tuition - a.tuition);
+    // }
     return sortedList;
-  }, [sortOption, data]);
+  }, [sortOption]);
 
   const handleToggleSidebar = () => {
     const newSidebarState = !isSidebarOpen;
@@ -67,20 +125,6 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/university');
-        const result = await response.json();
-        setData(result);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
@@ -92,6 +136,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
     };
   }, []);
 
+  // ปัจจุบันยังไม่มีส่วนที่ render หัวข้อเรื่องตามวันจริงที่พิมพ์ไป
   return (
     <div>
       <div
@@ -158,7 +203,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                     </button>
                   </li>
                   <li>
-                    <button
+                    <button 
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
                       onClick={() => handleSortOptionSelect('low-high')}
                     >
@@ -182,7 +227,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
             <p className="text-headline-5">Top 10 Popular</p>
             <div className="flex flex-col pl-1 gap-4 text-body-small">
               {sortedData
-                .filter(item => item.program.toLowerCase().includes(searchQuery.toLowerCase()))
+                .filter(item => item.major.toLowerCase().includes(searchQuery.toLowerCase()))
                 .map((item, index) => (
                   <div key={item.rank} className="flex w-full justify-between items-center">
                     <div className="flex items-center gap-4">
