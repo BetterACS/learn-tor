@@ -161,6 +161,38 @@ const BookmarkSchema: Schema<Bookmark> = new Schema({
 
 const BookmarkModel = mongoose.models.Bookmark || mongoose.model<Bookmark>('Bookmark', BookmarkSchema);
 
+interface University extends Document {
+  course_id: string,
+  institution: string,
+  faculty: string,
+  campus: string,
+  program: string,
+  course_type: string,
+  view_today: number,
+  info : Object, 
+  round_1: Array<string>,
+  round_2: Array<string>,
+  round_3: Array<Object>,
+  round_4: Array<string>,
+}
+
+const UniversitySchema: Schema<University> = new Schema({
+  course_id: { type: String, required: true },
+  institution: { type: String, required: true },
+  faculty: { type: String, required: true },
+  campus: { type: String, required: true },
+  program: { type: String, required: true },
+  course_type: { type: String, required: true },
+  view_today: { type: Number, default: 0 },
+  info: { type: Object },
+  round_1: { type: [String], default: [] },
+  round_2: { type: [String], default: [] },
+  round_3: { type: [Object], default: [] },
+  round_4: { type: [String], default: [] },
+});
+
+const UniversityModel = mongoose.models.University || mongoose.model<University>('University', UniversitySchema);
+
 export {
   UserModel,
   TopicModel,
@@ -168,4 +200,5 @@ export {
   ScoreModel,
   CommentModel,
   BookmarkModel,
+  UniversityModel,
 };
