@@ -23,7 +23,7 @@ export default function InfoCard({
   const handleAddClick = () => {
     onAddToCompare({ logo, major });
   };
-
+  
   return (
     <div className="relative flex flex-col w-full bg-monochrome-50 shadow-lg rounded-lg overflow-hidden">
       <div className="relative flex items-center">

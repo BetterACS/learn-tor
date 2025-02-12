@@ -15,7 +15,7 @@ export default function universityQueries() {
                 z.object({
                     search: z.string().optional(), // ค้นหาตามชื่อมหาวิทยาลัยหรือหลักสูตร
                     course_id: z.string().optional(), // ค้นหาตาม course_id
-                    sortBy: z.enum(["institution", "program"]).optional(), // จัดเรียงตามชื่อมหาวิทยาลัยหรือหลักสูตร
+                    sortBy: z.enum(["institution", "program","view_today"]).optional(), // จัดเรียงตามชื่อมหาวิทยาลัยหรือหลักสูตร
                     order: z.enum(["asc", "desc"]).optional(), // เรียงจากน้อยไปมาก หรือ มากไปน้อย
                     limit: z.number().min(1).max(100).default(10), // จำนวนผลลัพธ์ต่อหน้า (pagination)
                     page: z.number().min(1).default(1), // เลือกหน้าของผลลัพธ์ (pagination)
