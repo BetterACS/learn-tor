@@ -30,6 +30,8 @@ import CompareSidebar from '@/components/compare-sidebar';
 import InfoCard from '@/components/info-card';
 import ChatbotSidebar from '@/components/chatbot-sidebar';
 import Questionbox from '@/components/question';
+import CompareList from '@/components/comparelist';
+import PaginationButtons from '@/components/pagination';
 
 export {
   Test,
@@ -64,4 +66,6 @@ export {
   InfoCard,
   ChatbotSidebar,
   Questionbox,
+  CompareList,
+  PaginationButtons,
 }
