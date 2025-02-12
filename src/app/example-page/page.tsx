@@ -15,7 +15,7 @@ export default function Page() {
     // </div>
     <>
       <CldImage
-      src="naw7ewycl70ytakxcgyz" // Use this sample image or upload your own via the Media Explorer
+      src="learn-tor/test/custom-public-id" // Use this sample image or upload your own via the Media Explorer
       width="500" // Transform the image: auto-crop to square aspect_ratio
       height="500"
       alt="Sample image" // Add alt text for accessibility
@@ -27,11 +27,13 @@ export default function Page() {
       <CldUploadWidget
         uploadPreset='learn-tor'
         signatureEndpoint='/api/sign-image'
+        // https://next.cloudinary.dev/clduploadwidget/configuration
         options={{
           folder: 'learn-tor/test', // Specify the folder path
           publicId: 'custom-public-id',  // Specify a custom public ID ถ้ามันใช้ทับกันมันจะเขียนทับกัน
           maxFileSize: 5000000, // 5 MB limit ไม่ต้องใส่ก็ใช้ได้
         }}
+        
         onSuccess={(results) => {
           if (results.info)  {
             if (typeof results.info !== 'string' && results.info.public_id) {
@@ -47,7 +49,7 @@ export default function Page() {
         )}
       </CldUploadWidget>
 
-    <img src="https://res.cloudinary.com/ddwxdqhwr/image/upload/f_auto,q_auto/p3enppi5sbyg74bpkkds"/>
+    <img src="https://res.cloudinary.com/ddwxdqhwr/image/upload/f_auto,q_auto/learn-tor/test/custom-public-id"/>
   </>
   );
 }
