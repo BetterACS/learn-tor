@@ -90,20 +90,20 @@ export default function CreateTopic() {
           email: session.user?.email || '',
         },
         {
-            onSuccess: (data) => {
-                if (data.status !== 200) {
-                    console.warn("Validation Error:", data.data.message);
-                    setError(data.data.message);
-                } else if (data.status === 200) {
-                    console.log("Mutation Successful:", data);
-                  // ยังไม่ได้ทำตัว ID 
-                    router.push(`/forum/${postData.id}?${JSON.stringify(postData)}`);
-                }
-            },
-            onError: (error) => {
-                console.error("Mutation Failed:", error);
-                setError(error.message);
-            },
+          onSuccess: (data) => {
+              if (data.status !== 200) {
+                  console.warn("Validation Error:", data.data.message);
+                  setError(data.data.message);
+              } else if (data.status === 200) {
+                  console.log("Mutation Successful:", data);
+                // ยังไม่ได้ทำตัว ID 
+                  router.push(`/forum/${postData.id}?${JSON.stringify(postData)}`);
+              }
+          },
+          onError: (error) => {
+              console.error("Mutation Failed:", error);
+              setError(error.message);
+          },
         }
     );    
     }
