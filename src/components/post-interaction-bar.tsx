@@ -28,11 +28,11 @@ export default function PostInteractionBar({ post, comment_enable, onCommentClic
         email: session.user.email,
       }, {
         onSuccess: (data) => {
-          console.log(data.data)
-          setIsLiked(data.data.liked); // Set the like status (true or false)
-          setIsSaved(data.data.saved)
-          setCountLike(data.data.n_like)
-          console.log(isLiked)
+          if (typeof data.data !== 'string') {
+            setIsLiked(data.data.liked); // Set the like status (true or false)
+            setIsSaved(data.data.saved);
+            setCountLike(data.data.n_like);
+          }
         },
         onError: (error) => {
           console.error("Error checking like status:", error);
@@ -97,7 +97,6 @@ export default function PostInteractionBar({ post, comment_enable, onCommentClic
       },
       {
         onSuccess: (data) => {
-          console.log(data);
           if (data?.data?.n_like != null) {
             setCountLike((data as { data: { n_like: number } }).data.n_like);
           }

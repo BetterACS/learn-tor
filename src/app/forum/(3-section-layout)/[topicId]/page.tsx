@@ -34,12 +34,11 @@ export default function Topic() {
         email: session.user.email,
       }, {
         onSuccess: (data) => {
-          console.log(data.data)
-          setIsLiked(data.data.liked); // Set the like status (true or false)
-          setIsSaved(data.data.saved)
-          setCountLike(data.data.n_like)
-          console.log(countLike)
-          console.log(isLiked)
+          if (typeof data.data !== 'string') {
+            setIsLiked(data.data.liked ?? false);
+            setIsSaved(data.data.saved ?? false);
+            setCountLike(data.data.n_like ?? 0);
+          }
         },
         onError: (error) => {
           console.error("Error checking like status:", error);
@@ -89,7 +88,6 @@ export default function Topic() {
     const status: boolean = !buttonStates[buttonName].liked;  // กำหนดประเภทเป็น boolean
     const topic_id = post._id?.toString();
     const email = session?.user?.email ?? 'default@example.com';
-    console.log(post)
     if (!topic_id) {
       console.error("Post ID is missing!")
       return
@@ -104,8 +102,7 @@ export default function Topic() {
       },
       {
         onSuccess: (data) => {
-          console.log(data);
-          if (data?.data?.n_like != null) {
+          if (data && data.data?.n_like != null) {
             setCountLike((data as { data: { n_like: number } }).data.n_like);
           }
           
