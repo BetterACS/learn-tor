@@ -38,6 +38,7 @@ export default function createTopic() {
                     n_like: 0,
                     forum: 'general',
                 });
+                
 
                 try{
                     const savedTopic = await newTopic.save();
