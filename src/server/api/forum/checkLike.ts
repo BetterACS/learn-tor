@@ -1,8 +1,7 @@
 import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod';
-import { LikeTopicModel, UserModel } from "@/db/models";
+import { LikeTopicModel, UserModel, BookmarkModel } from "@/db/models";
 import { connectDB } from "@/server/db";
-import likeTopic from "./likeTopic";
 
 export default function checkLike(){
     return {
@@ -27,17 +26,18 @@ export default function checkLike(){
 
                 console.log(user._id)
                 const liked = await LikeTopicModel.findOne({ topic_id: topic_id, user_id: user._id })
+                const saved = await BookmarkModel.findOne({ topic_id: topic_id, user_id: user._id})
                 console.log(liked)
-                if (liked){
-                    return {
-                        status: 200,
-                        data: true
-                      };
-                }else{
-                    return {
-                        status: 200,
-                        data: false
-                      };
+                console.log(saved)
+                const n_like = await LikeTopicModel.countDocuments({ topic_id: topic_id });
+                console.log(n_like)
+                return {
+                    status: 200,
+                    data: {
+                      liked: liked ? true : false,  // หรือใช้ค่าของ liked
+                      saved: saved ? true : false,  // หรือใช้ค่าของ saved
+                      n_like: n_like,
+                    },
                 }
             })
     }
