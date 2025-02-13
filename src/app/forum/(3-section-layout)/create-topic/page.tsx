@@ -75,7 +75,27 @@ export default function CreateTopic() {
               } else if (data.status === 200) {
                   console.log("Mutation Successful:", data);
 
-                  
+                  const postId = data.data.topic._id;
+
+                  console.log("Tags before mutation:", tags);
+
+                  if (tags.length > 0) {
+                    mutationTag.mutate(
+                      {
+                        postId: postId,
+                        tags: tags,
+                      },
+                      {
+                        onSuccess: (data) => {
+                          console.log("After add tag success" + data);
+                        },
+                        onError: (error) => {
+                          console.error("Tag mutation error:", error);
+                        },
+                      }
+                    );
+                  }
+
               
                   if ('topic' in data.data) {
                     router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
