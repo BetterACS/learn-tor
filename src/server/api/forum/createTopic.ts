@@ -44,12 +44,11 @@ export default function createTopic() {
 
                 try{
                     const savedTopic = await newTopic.save();
-                    const populatedTopic = await TopicModel.populate(savedTopic, { path: 'user_id', select: 'username' });
                     return {
                         status: 200,
                         data: {
                           message: 'Topic created successfully',
-                          topic: populatedTopic 
+                          topic: savedTopic,
                         },
                       };
                     } catch (error) {
