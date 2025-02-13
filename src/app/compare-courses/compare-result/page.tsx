@@ -1,6 +1,6 @@
 'use client';
 import { Navbar } from '@/components/index';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { University } from '@/db/models';
 import { trpc } from '@/app/_trpc/client';
@@ -8,31 +8,29 @@ import { trpc } from '@/app/_trpc/client';
 export default function Page() {
   const [checkedState, setCheckedState] = useState({
     all: false,
-    criteria1: false,
-    criteria2: false,
-    criteria3: false,
-    criteria4: false,
-    criteria5: false,
+    'info.ค่าใช้จ่าย': false,
+    'info.อัตราการสำเร็จการศึกษา': false,
+    'round': false,
   });
 
   const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
   const [isCompared, setIsCompared] = useState(false);
 
   const criteriaLabels: { [key: string]: string } = {
-    criteria1: 'คุณสมบัติที่ต้องการ',
-    criteria2: 'ค่าใช้จ่ายตลอดทั้งหลักสูตร',
-    criteria3: 'ทุนการศึกษา',
-    criteria4: 'อาชีพที่ประกอบได้',
-    criteria5: 'ระยะเวลาหลักสูตร',
+    'info.ค่าใช้จ่าย': 'ค่าใช้จ่ายตลอดทั้งหลักสูตร',
+    'info.อัตราการสำเร็จการศึกษา': 'อัตราการสำเร็จการศึกษา',
+    'round': 'อัตราการรับเข้าศึกษา',
   };
 
-  //data query zone
+  // Data query zone
   const mutation = trpc.searchUniversities.useMutation();
   const [state, setState] = useState({
     universities: [] as University[],
     error: null as string | null,
   });
+
   const searchParams = useSearchParams();
+
   const fetchUniversity = (cur: string): Promise<University | null> => {
     return new Promise((resolve, reject) => {
       mutation.mutate(
@@ -46,10 +44,9 @@ export default function Page() {
           onSuccess: (data) => {
             if (data.status === 200 && 'universities' in data.data) {
               resolve((data.data as { universities: University[] }).universities[0]);
-              // console.log((data.data as { universities: University[] }).universities[0]);
+            } else {
+              reject(new Error('Failed to fetch university data'));
             }
-
-            // resolve(data[0] || null);
           },
           onError: (error) => {
             reject(error);
@@ -58,80 +55,38 @@ export default function Page() {
       );
     });
   };
+
   useEffect(() => {
-      const dataParam = searchParams.get('data');
-      const dummy = dataParam ? JSON.parse(dataParam) : [];
-      const fetchAllUniversities = async () => {
-        const results: University[] = [];
-        for (const cur of dummy) {
-          try {
-            const result = await fetchUniversity(cur);
-            if (result) {
-              results.push(result);
-            }
-          } catch (error) {
-            setState((prevState) => ({
-              ...prevState,
-              error: (error as Error).message,
-            }));
+    const dataParam = searchParams.get('data');
+    const dummy = dataParam ? JSON.parse(dataParam) : [];
+    const fetchAllUniversities = async () => {
+      const results: University[] = [];
+      for (const cur of dummy) {
+        try {
+          const result = await fetchUniversity(cur);
+          if (result) {
+            results.push(result);
           }
+        } catch (error) {
+          setState((prevState) => ({
+            ...prevState,
+            error: (error as Error).message,
+          }));
         }
-        setState((prevState) => ({
-          ...prevState,
-          universities: results,
-        }));
-      };
-  
-      fetchAllUniversities();
-    }, []);
+      }
+      setState((prevState) => ({
+        ...prevState,
+        universities: results,
+      }));
+    };
+    fetchAllUniversities();
+  }, [searchParams]);
 
-    const universities = state.universities.map((university) => ({
-      ...university,
-    }));
+  const universities = state.universities.map((university) => ({
+    ...university,
+  }));
 
-    console.log("university",universities);
-    
-  // const universities = [
-  //   {
-  //     institution: 'มหาวิทยาลัยที่ 1',
-  //     program: 'สาขาวิทยาการคอมพิวเตอร์ประยุกต์',
-  //     faculty: 'คณะวิศวกรรมศาสตร์',
-  //     image: '/images/uni-pic/mock.avif',
-  //     data: {
-  //       criteria1: 'วิศวกรรมคอมพิวเตอร์, วิทยาการคอมพิวเตอร์',
-  //       criteria2: '100,000 บาท/ปี',
-  //       criteria3: 'ทุนการศึกษาเต็มจำนวน',
-  //       criteria4: 'วิศวกร, นักพัฒนาโปรแกรม',
-  //       criteria5: '4 ปี',
-  //     },
-  //   },
-  //   {
-  //     institution: 'มหาวิทยาลัยที่ 2',
-  //     program: 'สาขาการบัญชี',
-  //     faculty: 'คณะเศรษฐศาสตร์',
-  //     image: '/images/uni-pic/mock.avif',
-  //     data: {
-  //       criteria1: 'มนุษยศาสตร์, การจัดการธุรกิจ',
-  //       criteria2: '80,000 บาท/ปี',
-  //       criteria3: 'ทุนการศึกษา 50%',
-  //       criteria4: 'นักบริหารธุรกิจ, นักวิเคราะห์ข้อมูล',
-  //       criteria5: '3 ปี',
-  //     },
-  //   },
-  //   {
-  //     institution: 'มหาวิทยาลัยที่ 3',
-  //     program: 'สาขาวิทยาการคอมพิวเตอร์ประยุกต์',
-  //     faculty: 'คณะวิทยาศาสตร์',
-  //     image: '/images/uni-pic/mock.avif',
-  //     data: {
-  //       criteria1: 'วิศวกรรมไฟฟ้า, วิทยาศาสตร์คอมพิวเตอร์',
-  //       criteria2: '120,000 บาท/ปี',
-  //       criteria3: 'ทุนการศึกษาบางส่วน',
-  //       criteria4: 'นักวิจัย, วิศวกรระบบ',
-  //       criteria5: '4 ปี',
-  //     },
-  //   },
-  // ];
+  console.log('university', universities);
 
   const handleCheckboxChange = (id: string) => {
     if (id === 'all') {
@@ -199,9 +154,9 @@ const UniversityDisplay = ({ universities }: { universities: any[] }) => (
     {universities.map((university, index) => (
       <div key={index} className="flex flex-col items-center space-y-4">
         <div className="text-center">
-          <p className="text-headline-4">{university.program}</p>
-          <p className="text-headline-5 text-monochrome-700">{university.faculty}</p>
-          <p className="text-headline-6 text-monochrome-600">{university.institution}</p>
+          <p className="text-headline-5">{university.program}</p>
+          <p className="text-headline-5 text-monochrome-600">{university.faculty}</p>
+          <p className="text-headline-6 text-monochrome-500">{university.institution}</p>
         </div>
         <img
           src={university.image}
@@ -225,9 +180,25 @@ const ComparisonCriteria = ({
   handleCompareClick: () => void;
 }) => (
   <>
-    <p className="text-headline-4 mb-8 mt-8">What do you need to compare?</p>
-    <div className="grid grid-cols-3 gap-x-3 gap-y-2 text-headline-6">
-      <div className="space-x-3">
+    <p className="text-headline-4 mb-8 mt-8 text-center">What do you need to compare?</p>
+
+    <div className="grid grid-cols-1 gap-y-4 justify-center items-center text-headline-6">
+      {Object.keys(criteriaLabels).map((criteria, index) => (
+        <div key={index} className="flex items-center justify-center space-x-2 py-3">
+          <input
+            type="checkbox"
+            id={criteria}
+            checked={checkedState[criteria]}
+            onChange={() => handleCheckboxChange(criteria)}
+            className="h-8 w-8 border-monochrome-300 checked:bg-primary-600 cursor-pointer"
+          />
+          <label htmlFor={criteria} className="cursor-pointer">
+            {criteriaLabels[criteria]}
+          </label>
+        </div>
+      ))}
+
+      <div className="flex items-center justify-center space-x-2 py-3">
         <input
           type="checkbox"
           id="all"
@@ -239,26 +210,9 @@ const ComparisonCriteria = ({
           All
         </label>
       </div>
-
-      <div className="space-y-2">
-        {Object.keys(criteriaLabels).map((criteria, index) => (
-          <div key={index} className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id={criteria}
-              checked={checkedState[criteria]}
-              onChange={() => handleCheckboxChange(criteria)}
-              className="h-8 w-8 border-monochrome-300 checked:bg-primary-600 cursor-pointer"
-            />
-            <label htmlFor={criteria} className="cursor-pointer">
-              {criteriaLabels[criteria]}
-            </label>
-          </div>
-        ))}
-      </div>
     </div>
 
-    <div className="mt-12">
+    <div className="mt-12 flex justify-center">
       <button
         className="px-4 py-2 bg-primary-600 text-monochrome-50 rounded-lg hover:bg-primary-700"
         onClick={handleCompareClick}
@@ -277,20 +231,62 @@ const ComparisonResults = ({
   universities: any[];
   selectedCriteria: string[];
   criteriaLabels: { [key: string]: string };
-}) => (
-  <div className="mt-8 text-left">
-    <div className={`grid ${universities.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-6`}>
-      {universities.map((university, index) => (
-        <div key={index} className="space-y-4">
-          {selectedCriteria.map((criteria, idx) => (
-            <div key={idx} className="text-headline-4 px-8 font-bold mt-8 mb-4">
-              <div className="text-left">{criteriaLabels[criteria]}</div>
-              <div className="h-[1px] bg-monochrome-200 mt-2 mb-4" />
-              <div className="text-headline-5 ">{university.data[criteria]}</div>
+}) => {
+  const renderCriteriaValue = (university: any, criteriaKey: string) => {
+    if (criteriaKey === 'round') {
+      // แสดงข้อมูลการรับเข้าศึกษาจาก round_1, round_2, round_3, round_4
+      const rounds = [
+        { name: 'รอบ 1 Portfolio', data: university.round_1 },
+        { name: 'รอบ 2 Quota', data: university.round_2 },
+        { name: 'รอบ 3 Admission', data: university.round_3 },
+        { name: 'รอบ 4 Direct Admission', data: university.round_4 },
+      ];
+
+      return (
+        <div>
+          {rounds.map((round, index) => (
+            <div key={index}>
+              <p><strong>{round.name}:</strong></p>
+              {round.data && round.data.length > 0 ? (
+                round.data.map((item: any, idx: number) => (
+                  <div key={idx}>
+                    <p>{JSON.stringify(item)}</p>
+                  </div>
+                ))
+              ) : (
+                <p>-</p>
+              )}
             </div>
           ))}
         </div>
-      ))}
+      );
+    } else {
+      // แสดงข้อมูลทั่วไป
+      const value = university.info[criteriaKey];
+      return value || '-'; // หากไม่มีข้อมูลให้แสดงเป็น -
+    }
+  };
+
+  return (
+    <div className="mt-8 text-left">
+      <div className={`grid ${universities.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-6`}>
+        {universities.map((university, index) => (
+          <div key={index} className="space-y-4">
+            {selectedCriteria.map((criteria, idx) => {
+              const criteriaKey = criteria.split('.')[1];
+              return (
+                <div key={idx} className="text-headline-4 px-8 font-bold mt-8 mb-4">
+                  <div className="text-left">{criteriaLabels[criteria]}</div>
+                  <div className="h-[1px] bg-monochrome-200 mt-2 mb-4" />
+                  <div className="text-headline-5">
+                    {renderCriteriaValue(university, criteriaKey)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};

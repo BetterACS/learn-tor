@@ -34,12 +34,15 @@ const CompareList: React.FC<CompareListProps> = ({
     >
       {selectedItems.length > 0 ? (
         selectedItems.map((item, index) => (
-          <div key={index} className="mt-2 mr-2 flex text-body-large items-center justify-between">
-            <div className="flex items-center">
-              <img src={item.logo} alt={item.institution} className="h-8 w-8 mr-4" />
+          <div key={index} className="mt-2 mr-2 flex items-center justify-between text-body-large">
+            <div className="flex items-center flex-1 min-w-0">
+              <img src={item.logo} alt={item.institution} className="h-8 w-8 mr-4 shrink-0" />
               <span>{item.program}</span>
             </div>
-            <button onClick={() => handleRemoveItem(index)}>
+            <button
+              className="ml-2 flex-shrink-0 w-8 h-8 flex items-center justify-center bg-transparent hover:bg-monochrome-200 transition-all"
+              onClick={() => handleRemoveItem(index)}
+            >
               <img src="/images/uni-pic/cancel.avif" alt="remove" className="h-6 w-6" />
             </button>
           </div>

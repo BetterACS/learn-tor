@@ -201,22 +201,21 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
             <div className="flex flex-col pl-1 gap-4 text-body-small">
               {top10popular.map((item, index) => {
                 return (
-                  <div key={item.rank} className="flex w-full justify-between items-center">
+                  <div key={item.rank} className="flex w-full justify-between items-center gap-4">
                     <div className="flex items-center gap-4">
                       <p className="font-regular mr-1">{index + 1}.</p>
                       <img className="w-10 h-10 rounded-full object-cover" src={item.logo} alt="Uni Logo" />
                       <p className="text-monochrome-950">{item.major}</p>
                     </div>
                     <button
-                      className="flex items-center justify-center bg-monochrome-50 hover:bg-monochrome-200 rounded-md p-2"
+                      className="flex items-center justify-center bg-monochrome-50 flex-shrink-0 hover:bg-monochrome-200 rounded-md w-8 h-8 p-0"
                       onClick={() => handleAddClick(universities[index])}
                     >
-                      <img className="w-8 h-8 object-contain" src={item.addImage} alt="Add Button" />
+                      <img className="w-6 h-6 object-contain" src={item.addImage} alt="Add Button" />
                     </button>
                   </div>
                 );
               })}
-          
             </div>
           </div>
         </div>

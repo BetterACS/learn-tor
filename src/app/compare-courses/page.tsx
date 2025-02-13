@@ -86,15 +86,16 @@ export default function Page() {
     setState((prev) => ({ ...prev, searchQuery: query }));
   };
 
-
-
   const handleAddToCompare = (item: University) => {
     setState((prev) => {
-      if (
-        prev.selectedItems.length < 3
-      ) {
+      const alreadyAdded = prev.selectedItems.some(
+        (selected) => selected.course_id === item.course_id
+      );
+
+      if (!alreadyAdded && prev.selectedItems.length < 3) {
         return { ...prev, selectedItems: [...prev.selectedItems, item] };
       }
+
       return prev;
     });
   };
