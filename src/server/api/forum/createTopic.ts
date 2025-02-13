@@ -49,7 +49,7 @@ export default function createTopic() {
                         status: 200,
                         data: {
                           message: 'Topic created successfully',
-                          topic: populatedTopic 
+                          topic: populatedTopic
                         },
                       };
                     } catch (error) {
