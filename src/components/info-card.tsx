@@ -8,6 +8,7 @@ interface InfoCardProps {
   logo: string;
   image: string;
   rounds: { name: string; quota: string }[];
+  onAddToCompare: (item: any) => void;
 }
 
 export default function InfoCard({
@@ -17,12 +18,16 @@ export default function InfoCard({
   logo,
   image,
   rounds,
+  onAddToCompare,
 }: InfoCardProps) {
+  const handleAddClick = () => {
+    onAddToCompare({ logo, major });
+  };
+  
   return (
-    <div className="flex flex-col w-full max-w-[520px] bg-monochrome-50 shadow-lg rounded-lg overflow-hidden">
-
+    <div className="relative flex flex-col w-full bg-monochrome-50 shadow-lg rounded-lg overflow-hidden">
       <div className="relative flex items-center">
-        <div className="relative w-[150px] h-[200px]">
+        <div className="relative w-full md:w-[150px] h-[200px]">
           <Image
             src={image}
             alt={`Image of ${university}`}
@@ -30,10 +35,10 @@ export default function InfoCard({
             objectFit="cover"
           />
         </div>
-        <div className="w-1/2 flex flex-col items-start pl-4">
-          <p className="text-headline-6 text-monochrome-950">{university}</p>
+        <div className="w-full md:w-1/2 flex flex-col items-start pl-4">
+          <p className="text-headline-6 text-monochrome-950">{major}</p>
           <p className="text-body-large text-monochrome-700">{faculty}</p>
-          <p className="text-body-small text-monochrome-600">{major}</p>
+          <p className="text-body-small text-monochrome-600">{university}</p>
 
           <div className="w-full mt-2">
             {rounds.map((round, index) => (
@@ -44,25 +49,28 @@ export default function InfoCard({
             ))}
           </div>
         </div>
-        <div className="absolute top-4 right-4 flex items-center space-x-2">
+        <div className="absolute top-5 right-5 flex items-center space-x-2">
           <Image
             src={logo}
             alt={`${university} logo`}
-            width={20}
-            height={20}
+            width={25}
+            height={25}
             className="rounded-full"
           />
-          <button
-            className={clsx("p-2 bg-monochrome-50 rounded-md", "hover:bg-monochrome-100 transition")}
-          >
-            <Image
-              src="/images/uni-pic/add.avif"
-              alt="Add"
-              width={20}
-              height={20}
-            />
-          </button>
         </div>
+      </div>
+      <div className="absolute bottom-4 right-4">
+        <button
+          className={clsx("p-2 bg-monochrome-50 rounded-md", "hover:bg-monochrome-100 transition")}
+          onClick={handleAddClick}
+        >
+          <Image
+            src="/images/uni-pic/add.avif"
+            alt="Add"
+            width={20}
+            height={20}
+          />
+        </button>
       </div>
     </div>
   );

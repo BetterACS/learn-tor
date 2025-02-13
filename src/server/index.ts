@@ -6,7 +6,17 @@ import editUser from './api/member-system/editUser';
 import resetVerificationToken from './api/member-system/resetVerificationToken';
 import getJWT from './api/getJWT';
 import search from './api/search-post/search';
+import universityQueries from './api/university'
 import { createCallerFactory, router } from './trpc';
+import createTopic from './api/forum/createTopic';
+import queryTopic from './api/forum/queryTopic';
+import likeTopic from './api/forum/likeTopic';
+import checkLike from './api/forum/checkLike';
+import getUser from './api/member-system/getUser';
+import getTags from './api/forum/getTags';
+import addTags from './api/forum/addTags';
+import topicTags from './api/forum/topicTags';
+
 export const appRouter = router({
 	...apiTest(),
     ...register(),
@@ -16,6 +26,15 @@ export const appRouter = router({
     ...resetVerificationToken(),
     ...getJWT(),
     ...search(),
+    ...createTopic(),
+    ...queryTopic,
+    ...likeTopic(),
+    ...checkLike(),
+    ...getUser(),
+    ...universityQueries(),
+    ...getTags,
+    ...addTags(),
+    ...topicTags(),
 });
 const createCaller = createCallerFactory(appRouter);
 

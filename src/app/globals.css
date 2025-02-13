@@ -106,3 +106,16 @@ body {
 .slick-prev:before, .slick-next:before  {
   content: '' !important;
 }
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden {
+  overflow: auto;
+}

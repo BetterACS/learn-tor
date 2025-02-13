@@ -10,7 +10,6 @@ interface FilterProps {
 
 export default function SortBy({ filters, sortBy, setSortBy }: FilterProps) {
   const sortDropdownRef = useRef<HTMLDivElement>(null);
-  const [selectedFilter, setSelectedFilter] = useState("Newest");
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   // const filters = ["Newest", "Oldest", "Most Likes"];
 
@@ -41,7 +40,7 @@ export default function SortBy({ filters, sortBy, setSortBy }: FilterProps) {
       {sortDropdownOpen && (
         <div className="absolute w-[9rem] right-0 top-10 mt-2 bg-monochrome-50 text-monochrome-950 text-body-large text-nowrap rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300 z-10">
           {filters.map((filter) => (
-            <label key={filter} className={`flex px-5 py-4 items-center text-button hover:bg-monochrome-100 hover:cursor-pointer ${selectedFilter === filter ? "bg-monochrome-200" : ""}`}>
+            <label key={filter} className={`flex px-5 py-4 items-center text-button hover:bg-monochrome-100 hover:cursor-pointer ${sortBy === filter ? "bg-monochrome-200" : ""}`}>
               <input
                 type="radio"
                 key={filter}

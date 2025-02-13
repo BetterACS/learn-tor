@@ -1,25 +1,30 @@
 'use client';
 import { Post, SortBy } from '@/components/index';
-import { useState, useRef, useEffect } from 'react';
 import { trpc } from '@/app/_trpc/client';
+import { useEffect, useState } from 'react';
 
 interface PostSectionProps {
   searchTerm?: string;
   filterTags?: Record<string, "included" | "excluded">;
 }
 
-interface Post { 
-  id: number, 
+interface Post {
+  _id: number, 
   img: string, 
   title: string, 
-  body: string 
-};
+  body: string, 
+  created_at: string, 
+  n_like: number, 
+  user_id: { username: string }, 
+  isLiked : boolean
+}
 
 export default function PostSection({ searchTerm, filterTags }: PostSectionProps) {
-  const [posts, setPosts] = useState<Post[]>([]);
+  // const [posts, setPosts] = useState<Post[]>([]);
   const [sortBy, setSortBy] = useState<string>("Newest");
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  const { data, isLoading, error, refetch } = trpc.searchQuery.useQuery({ 
+  const { data, isLoading, isError, refetch } = trpc.searchQuery.useQuery({ 
     searchTerm: searchTerm || '',
     filterTags: filterTags || {},
     sortBy: sortBy,
@@ -29,6 +34,7 @@ export default function PostSection({ searchTerm, filterTags }: PostSectionProps
     console.log("Data: ", data?.data);
     console.log("Sort By: ", sortBy);
     if (data && Array.isArray(data.data)) {
+      // console.log("Here: ", data.data);
       setPosts(data.data);
     } 
     else {
@@ -37,12 +43,34 @@ export default function PostSection({ searchTerm, filterTags }: PostSectionProps
     }
 
   }, [data, sortBy]);
+  
+  // const { data: posts, isLoading, isError } = trpc.queryTopic.useQuery();
+  // const topicTagsMutation = trpc.topicTags.useQuery();
+  // const { topicTags, isLoading, isError } = trpc.topicTags.useQuery();
+
+  // useEffect(() => {
+  //   if (posts && posts.length > 0) {
+  //     Promise.allSettled(
+  //       posts.map((post) =>
+  //         topicTagsMutation.mutateAsync({ topic_id: post._id })
+  //       )
+  //     ).then((results) => {
+  //       results.forEach((result, index) => {
+  //         if (result.status === "fulfilled") {
+  //           console.log("Tags for post:", posts[index]._id, result.value);
+  //         } else {
+  //           console.error("Error fetching tags for post:", posts[index]._id, result.reason);
+  //         }
+  //       });
+  //     });
+  //   }
+  // }, [posts]);
 
   return (
     <div className="h-fit w-full flex flex-col gap-6">
       <div className="flex w-fit gap-2 items-center">
         <p className="text-monochrome-500 text-subtitle-large">
-          Sort by: 
+          Sort by:
         </p>
         <SortBy filters={["Newest", "Oldest", "Popular"]} sortBy={sortBy} setSortBy={setSortBy}/>
       </div>
@@ -91,13 +119,13 @@ export default function PostSection({ searchTerm, filterTags }: PostSectionProps
             )
             ||
             data?.status === 200 && (
-              posts?.map((post, index) => (
-                <Post key={index} post={post} isLoading={isLoading}/>
+              posts?.map((post) => (
+                <Post key={post._id} post={post}/>
               ))
             )
           )
         }
       </div>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { NextAuthOptions } from 'next-auth';
-
+import type {User} from '@/db/models';
 const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -48,7 +48,7 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = (user as User)._id;
         token.email = user.email;
       }
       return token;
