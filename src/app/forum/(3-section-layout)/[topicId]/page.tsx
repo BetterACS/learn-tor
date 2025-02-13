@@ -22,8 +22,7 @@ export default function Topic() {
   const [isSaved, setIsSaved] = useState<boolean>();
   const [countLike, setCountLike] = useState<number>();
   const checkLikeMutation = trpc.checkLike.useMutation();
-  const { data: user, isLoading, isError } = trpc.getUser.useQuery({ _id: post?.user_id });
-  console.log("user",user)
+
   useEffect(() => {
     if (session?.user?.email && post?._id) {
       checkLikeMutation.mutate({
@@ -156,7 +155,7 @@ export default function Topic() {
             <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
           </div>
           <p className="text-headline-6 font-bold">
-            {user?.data && 'user' in user.data ? (user.data.user as User).username : 'Unknown User'}
+            {post?.user_id && 'username' in post.user_id ? post.user_id.username : 'Unknown User'}
           </p>
           <p className="text-subtitle-small">•</p>
           <p className="text-subtitle-small text-monochrome-400">
