@@ -4,11 +4,12 @@ import type { University } from '@/db/models';
 import { trpc } from '@/app/_trpc/client';
 interface CompareSidebarProps {
   onToggleSidebar: (isOpen: boolean) => void;
-  onAddToCompare: (item: any) => void;
+  onAddToCompare: (item:  University ) => void;
   onSearchChange: (query: string) => void;
+  setOptions: (options: any) => void;
 }
 
-const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddToCompare,onSearchChange}) => {
+const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddToCompare,onSearchChange,setOptions}) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('');
@@ -68,6 +69,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
   };
 
   const handleSortOptionSelect = (option: string) => {
+    setOptions(option);
     setSortOption(option);
     setIsDropdownOpen(false);
   };
@@ -91,7 +93,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
     onToggleSidebar(newSidebarState);
   };
 
-  const handleAddClick = (item: any) => {
+  const handleAddClick = (item: University) => {
     setSelectedItems((prevItems) => [...prevItems, item]);
     onAddToCompare(item);
   };
@@ -207,7 +209,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                     </div>
                     <button
                       className="flex items-center justify-center bg-monochrome-50 hover:bg-monochrome-200 rounded-md p-2"
-                      onClick={() => handleAddClick(item)}
+                      onClick={() => handleAddClick(universities[index])}
                     >
                       <img className="w-8 h-8 object-contain" src={item.addImage} alt="Add Button" />
                     </button>

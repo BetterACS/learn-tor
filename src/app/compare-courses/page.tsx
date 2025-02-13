@@ -7,16 +7,16 @@ import { useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
 import { set } from 'mongoose';
 
-const optionsDict = {
-  'ชื่อมหาลัย “ ก - ฮ “': {"sortBy" :"institution","order":"asc"},
-  'ชื่อมหาลัย “ ฮ - ก “': {"sortBy" :"institution","order":"desc"},
-  'ชื่อหลักสูตร “ ก - ฮ “': {"sortBy" :"program","order":"asc"},
-  'ชื่อหลักสูตร “ ฮ - ก “': {"sortBy" :"program","order":"desc"},
-}
+const optionsDict: Record<string, { sortBy: 'institution' | 'program' | 'view_today', order: 'asc' | 'desc' }> = {
+  'ชื่อมหาลัย “ ก - ฮ “': { sortBy: 'institution', order: 'asc' },
+  'ชื่อมหาลัย “ ฮ - ก “': { sortBy: 'institution', order: 'desc' },
+  'ชื่อหลักสูตร “ ก - ฮ “': { sortBy: 'program', order: 'asc' },
+  'ชื่อหลักสูตร “ ฮ - ก “': { sortBy: 'program', order: 'desc' },
+};
 
 export default function Page() {
   const [state, setState] = useState({
-    selectedItems: [],
+    selectedItems: [] as University[],
     searchQuery: '',
     isSidebarOpen: true,
     isCompareListOpen: false,
@@ -27,22 +27,22 @@ export default function Page() {
     totalPages: 1,
   });
 
-  const [options, setOptions] = useState(optionsDict['ชื่อมหาลัย “ ก - ฮ “']);
+  const [options, setOptions] = useState("");
   
   const router = useRouter();
   const mutation = trpc.searchUniversities.useMutation();
 
   useEffect(() => {
     fetchUniversities();
-  }, [state.currentPage , state.searchQuery]);
+  }, [state.currentPage , state.searchQuery, options]);
 
   const fetchUniversities = () => {
     mutation.mutate(
       {
         search: state.searchQuery,
         // search: '',
-        sortBy: 'institution',
-        order: 'asc',
+        sortBy: optionsDict[options]?.sortBy || 'institution',
+        order: optionsDict[options]?.order || 'asc',
         limit: 6,
         page: state.currentPage,
       },
@@ -84,30 +84,19 @@ export default function Page() {
 
   const handleSearchChange = (query: string) => {
     setState((prev) => ({ ...prev, searchQuery: query }));
-    console.log("handleSearchChange",query);
   };
 
 
-  interface CompareItem {
-    university: string;
-    faculty: string;
-    program: string;
-    logo: string;
-    image: string;
-    info: Record<string, string>;
-    course_id: string;
-  }
 
-  const handleAddToCompare = (item: CompareItem) => {
-    // setState((prev) => {
-    //   if (
-    //     prev.selectedItems.length < 3 &&
-    //     !prev.selectedItems.some((selected) => selected.university === item.university)
-    //   ) {
-    //     return { ...prev, selectedItems: [...prev.selectedItems, item] };
-    //   }
-    //   return prev;
-    // });
+  const handleAddToCompare = (item: University) => {
+    setState((prev) => {
+      if (
+        prev.selectedItems.length < 3
+      ) {
+        return { ...prev, selectedItems: [...prev.selectedItems, item] };
+      }
+      return prev;
+    });
   };
 
   const handleRemoveItem = (index: number) => {
@@ -118,14 +107,10 @@ export default function Page() {
   };
 
   const handleCompare = () => {
-    // if (state.selectedItems.length >= 1 && state.selectedItems.length <= 3) {
-    //   const query = state.selectedItems
-    //     .map((item, i) => `uni${i}=${encodeURIComponent(item.university)}`)
-    //     .join('&');
-    //   router.push(`/compare-result?${query}`);
-    // } else {
-    //   handleStateUpdate('alertMessage', 'Please select at least one university.');
-    // }
+    if (state.selectedItems.length > 1) {
+      const courseIds = state.selectedItems.slice(0, 3).map(item => item.course_id);
+      router.push(`/target-page?data=${encodeURIComponent(JSON.stringify(courseIds))}`); // แล้วใช้ funtion trpc.searchUniversities.useMutation();
+    }
   };
 
   return (
@@ -137,6 +122,7 @@ export default function Page() {
             onToggleSidebar={(isOpen) => handleStateUpdate('isSidebarOpen', isOpen)}
             onAddToCompare={handleAddToCompare}
             onSearchChange={handleSearchChange}
+            setOptions={setOptions}
           />
         </div>
 
@@ -166,7 +152,8 @@ export default function Page() {
                   { name: 'รอบ 3 Admission', quota: university.info['รอบ 3 Admission'] },
                   { name: 'รอบ 4 Direct Ad', quota: university.info['รอบ 4 Direct Admission'] },
                 ]}
-                onAddToCompare={handleAddToCompare}
+                all_data={university}
+                onAddToCompare={() => handleAddToCompare(university)}
               />
             ))}
           </div>
@@ -205,7 +192,7 @@ export default function Page() {
               isCompareListOpen={state.isCompareListOpen}
               handleRemoveItem={handleRemoveItem}
               handleCompare={handleCompare}
-              handleAddItem={()=>{}} //อย่าลืมมาแก้ตรงนี้เด้อ
+              handleAddItem={handleAddToCompare}
             />
           </div>
 

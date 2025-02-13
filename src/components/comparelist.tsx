@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import type { University } from '@/db/models';
 
 interface CompareItem {
   logo: string;
@@ -9,11 +10,11 @@ interface CompareItem {
 }
 
 interface CompareListProps {
-  selectedItems: CompareItem[];
+  selectedItems: University[];
   isCompareListOpen: boolean;
   handleRemoveItem: (index: number) => void;
   handleCompare: () => void;
-  handleAddItem: (item: CompareItem) => void;
+  handleAddItem: (item:  University) => void;
 }
 
 const CompareList: React.FC<CompareListProps> = ({
@@ -35,8 +36,8 @@ const CompareList: React.FC<CompareListProps> = ({
         selectedItems.map((item, index) => (
           <div key={index} className="mt-4 mr-2 flex text-body-large items-center justify-between">
             <div className="flex items-center">
-              <img src={item.logo} alt={item.university} className="h-8 w-8 mr-4" />
-              <span>{item.major}</span>
+              <img src={item.logo} alt={item.institution} className="h-8 w-8 mr-4" />
+              <span>{item.program}</span>
             </div>
             <button onClick={() => handleRemoveItem(index)}>
               <img src="/images/uni-pic/cancel.avif" alt="remove" className="h-6 w-6" />
