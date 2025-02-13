@@ -22,10 +22,12 @@ export default function PostSection({ searchTerm, filterTags }: PostSectionProps
   const { data, isLoading, error, refetch } = trpc.searchQuery.useQuery({ 
     searchTerm: searchTerm || '',
     filterTags: filterTags || {},
+    sortBy: sortBy,
   });
 
   useEffect(() => {
     console.log("Data: ", data?.data);
+    console.log("Sort By: ", sortBy);
     if (data && Array.isArray(data.data)) {
       setPosts(data.data);
     } 
@@ -34,7 +36,7 @@ export default function PostSection({ searchTerm, filterTags }: PostSectionProps
       console.log('API response is not an array:', data);
     }
 
-  }, [data])
+  }, [data, sortBy]);
 
   return (
     <div className="h-fit w-full flex flex-col gap-6">
@@ -80,9 +82,19 @@ export default function PostSection({ searchTerm, filterTags }: PostSectionProps
             </div>
           </div>
           ) : (
-            posts?.map((post, index) => (
-              <Post key={index} post={post} isLoading={isLoading}/>
-            ))
+            data?.status === 400 && (
+              <p className="text-headline-5 self-center">Topic not found</p>
+            )
+            ||
+            data?.status === 500 && (
+              <p className="text-headline-5 self-center">Fail to fetch topic</p>
+            )
+            ||
+            data?.status === 200 && (
+              posts?.map((post, index) => (
+                <Post key={index} post={post} isLoading={isLoading}/>
+              ))
+            )
           )
         }
       </div>

@@ -10,10 +10,11 @@ export default function search() {
         z.object({
           searchTerm: z.string().optional(),
           filterTags: z.record(z.string(), z.enum(["included", "excluded"])).optional(),
+          sortBy: z.string(),
         }),
       )
       .query(async ({ input }) => {
-        const { searchTerm, filterTags } = input;
+        const { searchTerm, filterTags, sortBy } = input;
         try {
           await connectDB();
 
@@ -46,7 +47,13 @@ export default function search() {
             }
           }
 
-          const topics = await TopicModel.find(query);
+          const sortOptions: Record<string, any> = {
+            Newest: { created_at: -1 },
+            Oldest: { created_at: 1 },
+            Popular: { n_like: -1 },
+          };
+
+          const topics = await TopicModel.find(query).sort(sortOptions[sortBy] || { created_at: -1 });
           if (!topics || topics.length === 0) {
             return {
               status: 400,

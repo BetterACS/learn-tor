@@ -48,7 +48,7 @@ export default function Post({ post, isLoading }: PostProps) {
         </p>
       </div>
       <div className="h-[25rem] w-full">
-        <img src={post.img} className="w-full h-full object-cover"/>
+        <img src={post.img || "/"} className="w-full h-full object-cover"/>
       </div>
       {/* Interaction Bar */}
       <PostInteractionBar post={post} comment_enable={true} onCommentClicked={onCommentClicked}/>
