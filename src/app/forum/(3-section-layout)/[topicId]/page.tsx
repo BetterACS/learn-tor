@@ -23,6 +23,7 @@ export default function Topic() {
   const [countLike, setCountLike] = useState<number>();
   const checkLikeMutation = trpc.checkLike.useMutation();
   const topicTagsMutation = trpc.topicTags.useMutation();
+  const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (session?.user?.email && post?._id) {
@@ -41,16 +42,21 @@ export default function Topic() {
           console.error("Error checking like status:", error);
         }
       });
-      topicTagsMutation.mutate({
-        topic_id: post._id,
-      },{
-        onSuccess: (data) => {
-          console.log(data) // Tag data
-        },
-        onError: (error) => {
-          console.error("Error:", error);
+      topicTagsMutation.mutate(
+        { topic_id: post._id },
+        {
+          onSuccess: (data) => {
+            if (data.topicTags && Array.isArray(data.topicTags)) {
+              const extractedTags = data.topicTags.map(tag => tag.tagname);
+              setTags(extractedTags);
+              // console.log("Fetching Tags for post successfully: ", post._id);
+            }
+          },
+          onError: (error) => {
+            console.error("Error:", error);
+          }
         }
-      })
+      )
     }
   }, [session, post]);
 
@@ -181,12 +187,26 @@ export default function Topic() {
         </div>
         {/* Post details */}
         <div className="w-full h-full flex flex-col items-center gap-2">
+          {tags.length > 0 && 
+          <div className="flex gap-2 self-start">
+            {topicTagsMutation.isPending && 
+              <div className="text-subtitle-small rounded-lg text-transparent px-2 py-1 w-fit bg-monochrome-200 animate-pulse">placeholder</div>
+            }
+            {!topicTagsMutation.isPending && 
+              tags.map((tag) => (
+                <div key={tag} className="text-subtitle-small rounded-lg border border-primary-500 text-primary-500 px-2 py-1 w-fit">
+                  {tag}
+                </div>
+              ))
+            }
+          </div>
+          }
           <div className="w-full h-fit text-headline-4">{post.title}</div>
           <div className="text-headline-6 w-full">{post.body}</div>
           {post.img && 
-          <div className="h-[25rem] w-full">
-            <img src={post.img || null} className="w-full h-full object-cover"/>
-          </div>
+            <div className="h-[25rem] w-full">
+              <img src={post.img || null} className="w-full h-full object-cover"/>
+            </div>
           }
           <div className="flex gap-2 self-start">
             {/* Like */}

@@ -65,7 +65,7 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
     "มหาวิทยาลัย": [],
     "คณะ": []
   });
-  console.log(tagArray)
+  // console.log(tagArray)
 
   useEffect(() => {
     if (tagArray) {

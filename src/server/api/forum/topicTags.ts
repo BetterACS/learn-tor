@@ -31,8 +31,8 @@ export default function topicTags(){
                         category: tagInfo ? tagInfo.category : "Unknown"
                     };
                 });
-                console.log("จะเอาtagggggggggg")
-                console.log(result)
+                // console.log("จะเอาtagggggggggg")
+                // console.log(result)
                 return {
                     status: 200,
                     topicTags: result

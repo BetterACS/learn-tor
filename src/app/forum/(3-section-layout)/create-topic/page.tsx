@@ -53,7 +53,7 @@ export default function CreateTopic() {
   // }
   const mutationTag = trpc.addTags.useMutation();
   const mutation = trpc.createTopic.useMutation();
-  console.log(postData)
+  // console.log(postData)
   const handleOnClickPost = async () => {
     setError('');
     if (postData.title === "") {
