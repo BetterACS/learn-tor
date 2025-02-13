@@ -1,12 +1,31 @@
 'use client';
 import { Post, SortBy } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
-
+import { useEffect } from 'react';
 
 export default function PostSection() {
 
   const { data: posts, isLoading, isError } = trpc.queryTopic.useQuery();
-  console.log(posts)
+  const topicTagsMutation = trpc.topicTags.useMutation();
+
+  useEffect(() => {
+    if (posts && posts.length > 0) {
+      Promise.allSettled(
+        posts.map((post) =>
+          topicTagsMutation.mutateAsync({ topic_id: post._id })
+        )
+      ).then((results) => {
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled") {
+            console.log("Tags for post:", posts[index]._id, result.value);
+          } else {
+            console.error("Error fetching tags for post:", posts[index]._id, result.reason);
+          }
+        });
+      });
+    }
+  }, [posts]);
+  
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading posts</div>;
 

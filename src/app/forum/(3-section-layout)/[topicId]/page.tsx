@@ -22,7 +22,8 @@ export default function Topic() {
   const [isSaved, setIsSaved] = useState<boolean>();
   const [countLike, setCountLike] = useState<number>();
   const checkLikeMutation = trpc.checkLike.useMutation();
-  
+  const topicTagsMutation = trpc.topicTags.useMutation();
+
   useEffect(() => {
     if (session?.user?.email && post?._id) {
       checkLikeMutation.mutate({
@@ -40,6 +41,16 @@ export default function Topic() {
           console.error("Error checking like status:", error);
         }
       });
+      topicTagsMutation.mutate({
+        topic_id: post._id,
+      },{
+        onSuccess: (data) => {
+          console.log(data) // Tag data
+        },
+        onError: (error) => {
+          console.error("Error:", error);
+        }
+      })
     }
   }, [session, post]);
 
