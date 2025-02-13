@@ -22,9 +22,6 @@ export default function addTags(){
                 }
 
                 const tagIds = tagNames.map(tag => tag._id);
-                console.log("peet")
-                console.log({ postId, tagIds });
-                
                 for (let tagId of tagIds) {
                     const topicAndTag = new TopicAndTagModel({
                       topic_id: postId,
@@ -34,7 +31,6 @@ export default function addTags(){
                     await topicAndTag.save();
                     console.log(`Tag added with ID: ${tagId}`);
                 }
-                console.log(tagNames)
                 return {
                     status:200,
                     message: "Tags added successfully",

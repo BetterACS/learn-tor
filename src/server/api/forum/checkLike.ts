@@ -24,13 +24,9 @@ export default function checkLike(){
                     };
                   }
 
-                console.log(user._id)
                 const liked = await LikeTopicModel.findOne({ topic_id: topic_id, user_id: user._id })
                 const saved = await BookmarkModel.findOne({ topic_id: topic_id, user_id: user._id})
-                console.log(liked)
-                console.log(saved)
                 const n_like = await LikeTopicModel.countDocuments({ topic_id: topic_id });
-                console.log(n_like)
                 return {
                     status: 200,
                     data: {

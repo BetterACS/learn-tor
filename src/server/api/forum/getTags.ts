@@ -18,7 +18,6 @@ const getTags = {
             return acc;
         }, {} as Record<string, string[]>);
 
-        console.log(groupedTags);
         return groupedTags;
     })
 };
