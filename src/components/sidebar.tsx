@@ -1,22 +1,15 @@
 'use client'; 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { trpc } from '@/app/_trpc/client';
+import { useEffect, useState } from 'react';
 
 export default function Sidebar() {
   const router = useRouter();
-  const mockup_forum_name = [
-    "Portfolio",
-    "TCAS",
-    "แนะนำคณะและมหาวิทยาลัย",
-    "การเตรียมตัวสอบ",
-    "ทุนการศึกษา",
-    "การเตรียมตัวเรียนต่อต่างประเทศ",
-    "เส้นทางอาชีพ",
-    "กิจกรรมและค่าย",
-    "test",
-    "testststt",
-    "testestsseasd",
-  ];
+
+  const { data, isLoading, isError, refetch } = trpc.getTopTags.useQuery();
+  const [topTags, setTopTags] = useState<string[]>([]);
+  const top = 10;
 
   const isUserLoggedIn = false;
 
@@ -32,6 +25,11 @@ export default function Sidebar() {
   //     router.push(path);
   //   }
   // };
+
+  useEffect(() => {
+    const tagNames = data?.map(tag => tag.tagname);
+    setTopTags(tagNames?.slice(0, top) || []);
+  }, [isLoading]);
 
   return (
     <div className="h-[calc(100vh-5.25rem)] w-full bg-monochrome-50 sticky overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-100 top-[5.25rem] flex flex-col divide-y divide-monochrome-200 items-center px-6 py-6 border-r border-monochrome-400">
@@ -67,7 +65,7 @@ export default function Sidebar() {
           Forum
         </h1>
         <div className="flex flex-col pl-4 gap-4 text-headline-6">
-          {mockup_forum_name.map((item) => (
+          {topTags.map((item) => (
             <button name={item} onClick={handleTagClicked} key={item} className="hover:underline w-fit text-start">{item}</button>
           ))}
         </div>

@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/index';
-import { trpc } from '@/app/_trpc/client';
 
 interface AddTagPopupProps {
   isPopupOpen: boolean;
@@ -15,65 +14,48 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
   // const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
   // const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  // const [tagList, setTagList] = useState<Record<"ทั่วไป" | "มหาวิทยาลัย" | "คณะ", string[]>>({
-  //   "ทั่วไป": ["TCAS", "Portfolio", "แนะนำคณะและมหาวิทยาลัย", "การเตรียมตัวสอบ"],
-  //   "มหาวิทยาลัย": [
-  //     "เกษตรศาสตร์",
-  //     "ธรรมศาสตร์",
-  //     "จุฬาลงกรณ์",
-  //     "ลาดกระบัง",
-  //     "มหิดล",
-  //     "พระจอมเกล้าธนบุรี",
-  //     "ศรีนคริทรวิโรฒ",
-  //     "พระนครเหนือ",
-  //     "เชียงใหม่",
-  //     "แม่โจ้",
-  //     "สงขลานครินทร์",
-  //     "วลัยลักษณ์",
-  //     "แม่ฟ้าหลวง",
-  //     "บูรพา",
-  //     "พะเยา",
-  //     "สุโขทัยธรรมาธิราช",
-  //     "มหาสารคาม",
-  //     "อุบลราชธานี",
-  //     "รามคําแหง"
-  //   ],
-  //   "คณะ": [
-  //     "แพทยฯ",
-  //     "เภสัชฯ",
-  //     "พยาบาลฯ",
-  //     "วิศวฯ",
-  //     "สถาปัตย์ฯ",
-  //     "วิทยาฯ",
-  //     "อักษรฯ - มนุษยฯ",
-  //     "บัญชี - บริหาร",
-  //     "ครุฯ - ศึกษาฯ",
-  //     "ทันตะฯ",
-  //     "สหเวชฯ",
-  //     "จิตวิทยา",
-  //     "นิเทศฯ",
-  //     "นิติฯ",
-  //     "รัฐฯ-สังคมฯ",
-  //     "ศิลปกรรมฯ"
-  //   ],
-  // });
-
-  const { data: tagArray, isLoading, isError } = trpc.getTags.useQuery();
-
   const [tagList, setTagList] = useState<Record<"ทั่วไป" | "มหาวิทยาลัย" | "คณะ", string[]>>({
-    "ทั่วไป": [],
-    "มหาวิทยาลัย": [],
-    "คณะ": []
+    "ทั่วไป": ["TCAS", "Portfolio", "แนะนำคณะและมหาวิทยาลัย", "การเตรียมตัวสอบ"],
+    "มหาวิทยาลัย": [
+      "เกษตรศาสตร์",
+      "ธรรมศาสตร์",
+      "จุฬาลงกรณ์",
+      "ลาดกระบัง",
+      "มหิดล",
+      "พระจอมเกล้าธนบุรี",
+      "ศรีนคริทรวิโรฒ",
+      "พระนครเหนือ",
+      "เชียงใหม่",
+      "แม่โจ้",
+      "สงขลานครินทร์",
+      "วลัยลักษณ์",
+      "แม่ฟ้าหลวง",
+      "บูรพา",
+      "พะเยา",
+      "สุโขทัยธรรมาธิราช",
+      "มหาสารคาม",
+      "อุบลราชธานี",
+      "รามคําแหง"
+    ],
+    "คณะ": [
+      "แพทยฯ",
+      "เภสัชฯ",
+      "พยาบาลฯ",
+      "วิศวฯ",
+      "สถาปัตย์ฯ",
+      "วิทยาฯ",
+      "อักษรฯ - มนุษยฯ",
+      "บัญชี - บริหาร",
+      "ครุฯ - ศึกษาฯ",
+      "ทันตะฯ",
+      "สหเวชฯ",
+      "จิตวิทยา",
+      "นิเทศฯ",
+      "นิติฯ",
+      "รัฐฯ-สังคมฯ",
+      "ศิลปกรรมฯ"
+    ],
   });
-  // console.log(tagArray)
-
-  useEffect(() => {
-    if (tagArray) {
-      setTagList(tagArray);
-    }
-  }, [tagArray]);
-
-
 
   const [newTag, setNewTag] = useState<{ [key in keyof typeof tagList]?: string }>({});
   const [activeCategory, setActiveCategory] = useState<keyof typeof tagList | null>(null);

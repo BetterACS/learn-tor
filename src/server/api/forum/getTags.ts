@@ -1,6 +1,6 @@
 import { publicProcedure } from "@/server/trpc";
 import { connectDB } from "@/server/db";
-import { TagNameModel } from "@/db/models";
+import { TagNameModel, TopicAndTagModel } from "@/db/models";
 
 const getTags = {
     getTags: publicProcedure.query(async () => {
@@ -19,6 +19,39 @@ const getTags = {
         }, {} as Record<string, string[]>);
 
         return groupedTags;
+    }),
+    getTopTags: publicProcedure.query(async () => {
+        await connectDB();
+        const tagUsage = await TopicAndTagModel.aggregate([
+            {
+                $group: {
+                    _id: "$tag_id",
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { count: -1 } },
+            {
+                $lookup: {
+                    from: "tagnames",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "tagDetails"
+                }
+            },
+            { $unwind: "$tagDetails" },
+            {
+                $project: {
+                    _id: 0,
+                    tag_id: "$_id",
+                    tagname: "$tagDetails.tagname",
+                    category: "$tagDetails.category",
+                    count: 1
+                }
+            }
+        ]);
+
+        console.log(tagUsage);
+        return tagUsage;
     })
 };
 

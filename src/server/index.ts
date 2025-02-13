@@ -14,6 +14,7 @@ import likeTopic from './api/forum/likeTopic';
 import checkLike from './api/forum/checkLike';
 import getUser from './api/member-system/getUser';
 import getTags from './api/forum/getTags';
+import getTopTags from './api/forum/getTags';
 import addTags from './api/forum/addTags';
 import topicTags from './api/forum/topicTags';
 
@@ -33,6 +34,7 @@ export const appRouter = router({
     ...getUser(),
     ...universityQueries(),
     ...getTags,
+    ...getTopTags,
     ...addTags(),
     ...topicTags(),
 });
