@@ -25,13 +25,13 @@ export default function Sidebar() {
     router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
   };
 
-  const handleLinkClick = (path: string) => {
-    if (!isUserLoggedIn) {
-      router.push('/login');
-    } else {
-      router.push(path);
-    }
-  };
+  // const handleLinkClick = (path: string) => {
+  //   if (!isUserLoggedIn) {
+  //     router.push('/login');
+  //   } else {
+  //     router.push(path);
+  //   }
+  // };
 
   return (
     <div className="h-[calc(100vh-5.25rem)] w-full bg-monochrome-50 sticky overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-100 top-[5.25rem] flex flex-col divide-y divide-monochrome-200 items-center px-6 py-6 border-r border-monochrome-400">
@@ -42,20 +42,24 @@ export default function Sidebar() {
             Homepage
           </p>
         </Link>
-        <div onClick={() => handleLinkClick('/forum/my-topic')} className="w-full h-20 flex gap-3 items-center px-4 hover:bg-monochrome-100 transform duration-100 rounded-lg">
-          <p className="text-headline-5">
-            My Topic
-          </p>
-        </div>
+        <Link href="/forum/my-topic">
+          <div className="w-full h-20 flex gap-3 items-center px-4 hover:bg-monochrome-100 transform duration-100 rounded-lg">
+            <p className="text-headline-5">
+              My Topic
+            </p>
+          </div>
+        </Link>
       </div>
 
       <div className="w-full flex items-center gap-4 py-6 px-4">
         <p className="w-full text-nowrap text-headline-5">
           Create Topic
         </p>
-        <div onClick={() => handleLinkClick('/forum/create-topic')}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-8 min-w-8"><path fill="currentColor" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/></svg>
-        </div>
+        <Link href="/forum/create-topic">
+          <div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-8 min-w-8"><path fill="currentColor" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/></svg>
+          </div>
+        </Link>
       </div>
 
       <div className="w-full flex flex-col py-6 px-4 last:pb-0 items-start gap-6">

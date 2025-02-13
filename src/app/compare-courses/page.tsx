@@ -161,7 +161,7 @@ export default function Page() {
           <div className="fixed bottom-4 right-4 flex flex-col items-end">
             <div
               className={`bg-primary-700 text-monochrome-50 p-4 rounded-lg shadow-lg cursor-pointer w-[370px] transition-all duration-300 ${
-                state.isCompareListOpen ? 'translate-y-[-165px] z-10' : 'translate-y-0'
+                state.isCompareListOpen ? 'translate-y-[-195px] z-10' : 'translate-y-0'
               }`}
               onClick={() => handleStateUpdate('isCompareListOpen', !state.isCompareListOpen)}
             >

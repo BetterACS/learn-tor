@@ -25,16 +25,16 @@ const CompareList: React.FC<CompareListProps> = ({
   handleAddItem,
 }) => {
   const maxItems = 3;
-
+  
   return (
     <div
-      className={`absolute h-[175px] bottom-0 right-0 bg-monochrome-50 p-4 shadow-lg rounded-b-lg w-[360px] overflow-hidden transition-all duration-600 ${
+      className={`absolute h-[195px] bottom-0 right-0 bg-monochrome-50 p-4 shadow-lg rounded-b-lg w-[360px] overflow-hidden transition-all duration-600 ${
         isCompareListOpen ? 'translate-y-0 opacity-100' : 'translate-y-[70px] opacity-0 pointer-events-none'
       }`}
     >
       {selectedItems.length > 0 ? (
         selectedItems.map((item, index) => (
-          <div key={index} className="mt-4 mr-2 flex text-body-large items-center justify-between">
+          <div key={index} className="mt-2 mr-2 flex text-body-large items-center justify-between">
             <div className="flex items-center">
               <img src={item.logo} alt={item.institution} className="h-8 w-8 mr-4" />
               <span>{item.program}</span>
@@ -52,7 +52,7 @@ const CompareList: React.FC<CompareListProps> = ({
       )}
 
       {selectedItems.length >= maxItems && (
-        <p className="text-center text-monochrome-500 mt-4">
+        <p className="text-center text-monochrome-500 absolute bottom-6 left-2 right-2">
           เลือกได้สูงสุด {maxItems} รายการ
         </p>
       )}
