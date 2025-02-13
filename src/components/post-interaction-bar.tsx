@@ -81,8 +81,11 @@ export default function PostInteractionBar({ post, comment_enable, onCommentClic
     const type = buttonName as 'like' | 'save' | 'share';
     const status: boolean = !buttonStates[buttonName].liked;  // กำหนดประเภทเป็น boolean
     const topic_id = post.id?.toString();
-    const email = session?.user?.email ?? 'default@example.com';
-    
+    const email = session?.user?.email;
+    if (!email) {
+      alert("You must Login first.!")
+      return
+    }
     if (!topic_id) {
       console.error("Post ID is missing!")
       return
