@@ -244,10 +244,8 @@ export {
   ScoreModel,
   CommentModel,
   BookmarkModel,
-  LikeTopicModel,
-
-  type User,
-  type Topic,
   UniversityModel,
+  LikeTopicModel,
+  type Topic,
   type University
 };
