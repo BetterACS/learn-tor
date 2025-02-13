@@ -31,8 +31,8 @@ export default function Topic() {
       }, {
         onSuccess: (data) => {
           if (typeof data.data !== 'string') {
-            setIsLiked(data.data.liked ?? false);
-            setIsSaved(data.data.saved ?? false);
+            setIsLiked(data.data.liked);
+            setIsSaved(data.data.saved);
             setCountLike(data.data.n_like ?? 0);
           }
         },
@@ -98,8 +98,9 @@ export default function Topic() {
       },
       {
         onSuccess: (data) => {
-          if (data) {
+          if (data?.data?.n_like != null) {
             setCountLike((data as { data: { n_like: number } }).data.n_like);
+            console.log(data)
           }
           
         },
