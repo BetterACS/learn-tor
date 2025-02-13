@@ -13,11 +13,11 @@ const Footer: React.FC = () => {
     {
       title: "Learntor",
       links: [
-        { name: "FAQ", href: "/faq" },
-        { name: "About Us", href: "/about" },
-        { name: "Our Services", href: "/services" },
-        { name: "Privacy Policy", href: "/privacy-policy" },
-        { name: "Affiliate Program", href: "/affiliate-program" },
+        { name: "FAQ", href: "/information/faq" },
+        { name: "About Us", href: "/information/about" },
+        { name: "Our Services", href: "/information/services" },
+        { name: "Privacy Policy", href: "/information/privacy-policy" },
+        { name: "Affiliate Program", href: "/information/affiliate-program" },
       ],
     },
     {

@@ -153,4 +153,7 @@ export default {
   plugins: [
     require('tailwind-scrollbar'),
   ],
-} satisfies Config;
+  safelist: [
+    'scrollbar-hidden',
+  ],
+} satisfies Config

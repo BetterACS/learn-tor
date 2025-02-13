@@ -18,10 +18,6 @@ export default function Topic() {
   const initialPost = raw_data ? JSON.parse(raw_data) : null;
 
   const [post, setPost] = useState(initialPost);
-  const [likeCount, setLikeCount] = useState(() => {
-    const savedLikeCount = localStorage.getItem(`likeCount-${initialPost?._id}`);
-    return savedLikeCount ? parseInt(savedLikeCount) : initialPost?.n_like || 0;
-  });
   const [isLiked, setIsLiked] = useState<boolean>();
   const [isSaved, setIsSaved] = useState<boolean>();
   const [countLike, setCountLike] = useState<number>();

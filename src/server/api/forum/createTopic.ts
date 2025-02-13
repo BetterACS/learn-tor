@@ -10,13 +10,14 @@ export default function createTopic() {
             .input(
                 z.object({
                     title: z.string(),
-                    body: z.string().default(' '),
+                    body: z.string().default(''),
                     email: z.string(),
+                    img: z.string().default(''),
                 })
             )
             .mutation(async ({ input }) => {
                 await connectDB();
-                const { title, body, email } = input;
+                const { title, body, email,img } = input;
                 console.log(title, body, email);
 
                 const user = await UserModel.findOne({ email });
@@ -37,6 +38,7 @@ export default function createTopic() {
                     created_at: new Date(),
                     n_like: 0,
                     forum: 'general',
+                    img: img,
                 });
                 
 

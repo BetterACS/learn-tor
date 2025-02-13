@@ -44,6 +44,7 @@ interface Topic extends Document {
   created_at: Date;
   n_like?: number;
   forum?: string;
+  img?: string;
 }
 
 const TopicSchema: Schema<Topic> = new Schema({
@@ -55,6 +56,7 @@ const TopicSchema: Schema<Topic> = new Schema({
   created_at: { type: Date, default: Date.now },
   n_like: { type: Number, default: 0 },
   forum: { type: String },
+  img: { type: String },
 });
 
 const TopicModel = mongoose.models.Topic || mongoose.model<Topic>('Topic', TopicSchema);
@@ -165,6 +167,62 @@ const BookmarkSchema: Schema<Bookmark> = new Schema({
 
 const BookmarkModel = mongoose.models.Bookmark || mongoose.model<Bookmark>('Bookmark', BookmarkSchema);
 
+interface info{
+  ชื่อหลักสูตร: string,
+  ชื่อหลักสูตรภาษาอังกฤษ: string,
+  วิทยาเขต: string,
+  ค่าใข้จ่าย: string,
+  "รอบ 1 Portfolio": string,
+  "รอบ 2 Quota": string,
+  "รอบ 3 Admission": string,
+  "รอบ 4 Direct Admission": string,
+}
+
+interface University extends Document {
+  course_id: string,
+  institution: string,
+  faculty: string,
+  campus: string,
+  program: string,
+  course_type: string,
+  view_today: number,
+  info : info, 
+  round_1: Array<string>,
+  round_2: Array<string>,
+  round_3: Array<Object>,
+  round_4: Array<string>,
+  logo: string
+  image: string
+}
+
+const UniversitySchema: Schema<University> = new Schema({
+  course_id: { type: String, required: true },
+  institution: { type: String, required: true },
+  faculty: { type: String, required: true },
+  campus: { type: String, required: true },
+  program: { type: String, required: true },
+  course_type: { type: String, required: true },
+  view_today: { type: Number, default: 0 },
+  info: {
+    ชื่อหลักสูตร: { type: String, required: true },
+    ชื่อหลักสูตรภาษาอังกฤษ: { type: String, required: true },
+    วิทยาเขต: { type: String, required: true },
+    ค่าใข้จ่าย: { type: String},
+    "รอบ 1 Portfolio": { type: String, required: true },
+    "รอบ 2 Quota": { type: String, required: true },
+    "รอบ 3 Admission": { type: String, required: true },
+    "รอบ 4 Direct Admission": { type: String, required: true },
+  },
+  round_1: { type: [String], default: [] },
+  round_2: { type: [String], default: [] },
+  round_3: { type: [Object], default: [] },
+  round_4: { type: [String], default: [] },
+  logo: {type:String},
+  image: {type:String}
+});
+
+const UniversityModel = mongoose.models.University || mongoose.model<University>('University', UniversitySchema);
+
 // LikeTopic Schema
 
 interface LikeTopic extends Document {
@@ -189,5 +247,7 @@ export {
   LikeTopicModel,
 
   type User,
-  type Topic
+  type Topic,
+  UniversityModel,
+  type University
 };

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
+
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -83,22 +84,30 @@ export default function Navbar() {
         <Link href="/forum" className="block px-5 py-4 transition duration-150">Forum</Link>
         <Link href="/tcascalculator" className="block px-5 py-4 transition duration-150">TCAS Calculate</Link>
         <Link href="/chatbot" className="block px-5 py-4 transition duration-150">Chatbot</Link>
-        {status === "authenticated"  && (
-        <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
-          <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-            <img src='/images/profile.avif' alt="Profile" />
-          </button>
-          {profileDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
-              <Link href="/profile" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
-                Profile
-              </Link>
-              <Link href="#" onClick={handleSignOut} className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
-                Log out
-              </Link>
-            </div>
-          )}
-        </div>)}
+
+        {status === "authenticated" ? (
+          <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
+            <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
+              <img src='/images/profile.avif' alt="Profile" />
+            </button>
+            {profileDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
+                <Link href="/profile" className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
+                  Profile
+                </Link>
+                <Link href="#" onClick={handleSignOut} className="block px-5 py-4 hover:bg-monochrome-100 transition duration-150">
+                  Log out
+                </Link>
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {status !== "authenticated" && (
+          <Link href="/login" className="bg-monochrome-50 text-primary-600 text-big-button px-6 py-3 rounded-xl hover:bg-monochrome-100 transition duration-150">
+            Login
+          </Link>
+        )}
       </div>
 
       {menuOpen && (
@@ -106,12 +115,14 @@ export default function Navbar() {
           <div className="text-monochrome-50">
             <div className="flex flex-col gap-4">
               <div className="text-center px-5">
-                <Link href="/profile">
-                  <div className="flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
-                    <img src='/images/profile.avif' className="w-[3.5rem] h-[3.5rem] rounded-full" />
-                    <span className="text-monochrome-50">Username</span>
-                  </div>
-                </Link>
+                {status === "authenticated" && (
+                  <Link href="/profile">
+                    <div className="flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
+                      <img src='/images/profile.avif' className="w-[3.5rem] h-[3.5rem] rounded-full" />
+                      <span className="text-monochrome-50">Username</span>
+                    </div>
+                  </Link>
+                )}
               </div>
               <div className="flex flex-col gap-4">
                 <Link href="/tcas-info" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
@@ -129,9 +140,11 @@ export default function Navbar() {
                 <Link href="/chatbot" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
                   Chatbot
                 </Link>
-                <Link href="/home" className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
-                  Log out
-                </Link>
+                {status === "authenticated" && (
+                  <Link href="#" onClick={handleSignOut} className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
+                    Log out
+                  </Link>
+                )}
               </div>
             </div>
           </div>
