@@ -1,6 +1,9 @@
 'use client';
 import { Navbar } from '@/components/index';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import type { University } from '@/db/models';
+import { trpc } from '@/app/_trpc/client';
 
 export default function Page() {
   const [checkedState, setCheckedState] = useState({
@@ -23,47 +26,112 @@ export default function Page() {
     criteria5: 'ระยะเวลาหลักสูตร',
   };
 
-  const universities = [
-    {
-      institution: 'มหาวิทยาลัยที่ 1',
-      program: 'สาขาวิทยาการคอมพิวเตอร์ประยุกต์',
-      faculty: 'คณะวิศวกรรมศาสตร์',
-      image: '/images/uni-pic/mock.avif',
-      data: {
-        criteria1: 'วิศวกรรมคอมพิวเตอร์, วิทยาการคอมพิวเตอร์',
-        criteria2: '100,000 บาท/ปี',
-        criteria3: 'ทุนการศึกษาเต็มจำนวน',
-        criteria4: 'วิศวกร, นักพัฒนาโปรแกรม',
-        criteria5: '4 ปี',
-      },
-    },
-    {
-      institution: 'มหาวิทยาลัยที่ 2',
-      program: 'สาขาการบัญชี',
-      faculty: 'คณะเศรษฐศาสตร์',
-      image: '/images/uni-pic/mock.avif',
-      data: {
-        criteria1: 'มนุษยศาสตร์, การจัดการธุรกิจ',
-        criteria2: '80,000 บาท/ปี',
-        criteria3: 'ทุนการศึกษา 50%',
-        criteria4: 'นักบริหารธุรกิจ, นักวิเคราะห์ข้อมูล',
-        criteria5: '3 ปี',
-      },
-    },
-    {
-      institution: 'มหาวิทยาลัยที่ 3',
-      program: 'สาขาวิทยาการคอมพิวเตอร์ประยุกต์',
-      faculty: 'คณะวิทยาศาสตร์',
-      image: '/images/uni-pic/mock.avif',
-      data: {
-        criteria1: 'วิศวกรรมไฟฟ้า, วิทยาศาสตร์คอมพิวเตอร์',
-        criteria2: '120,000 บาท/ปี',
-        criteria3: 'ทุนการศึกษาบางส่วน',
-        criteria4: 'นักวิจัย, วิศวกรระบบ',
-        criteria5: '4 ปี',
-      },
-    },
-  ];
+  //data query zone
+  const mutation = trpc.searchUniversities.useMutation();
+  const [state, setState] = useState({
+    universities: [] as University[],
+    error: null as string | null,
+  });
+  const searchParams = useSearchParams();
+  const fetchUniversity = (cur: string): Promise<University | null> => {
+    return new Promise((resolve, reject) => {
+      mutation.mutate(
+        {
+          course_id: cur,
+          sortBy: 'institution',
+          order: 'asc',
+          limit: 1,
+        },
+        {
+          onSuccess: (data) => {
+            if (data.status === 200 && 'universities' in data.data) {
+              resolve((data.data as { universities: University[] }).universities[0]);
+              // console.log((data.data as { universities: University[] }).universities[0]);
+            }
+
+            // resolve(data[0] || null);
+          },
+          onError: (error) => {
+            reject(error);
+          },
+        }
+      );
+    });
+  };
+  useEffect(() => {
+      const dataParam = searchParams.get('data');
+      const dummy = dataParam ? JSON.parse(dataParam) : [];
+      const fetchAllUniversities = async () => {
+        const results: University[] = [];
+        for (const cur of dummy) {
+          try {
+            const result = await fetchUniversity(cur);
+            if (result) {
+              results.push(result);
+            }
+          } catch (error) {
+            setState((prevState) => ({
+              ...prevState,
+              error: (error as Error).message,
+            }));
+          }
+        }
+        setState((prevState) => ({
+          ...prevState,
+          universities: results,
+        }));
+      };
+  
+      fetchAllUniversities();
+    }, []);
+
+    const universities = state.universities.map((university) => ({
+      ...university,
+    }));
+
+    console.log("university",universities);
+    
+  // const universities = [
+  //   {
+  //     institution: 'มหาวิทยาลัยที่ 1',
+  //     program: 'สาขาวิทยาการคอมพิวเตอร์ประยุกต์',
+  //     faculty: 'คณะวิศวกรรมศาสตร์',
+  //     image: '/images/uni-pic/mock.avif',
+  //     data: {
+  //       criteria1: 'วิศวกรรมคอมพิวเตอร์, วิทยาการคอมพิวเตอร์',
+  //       criteria2: '100,000 บาท/ปี',
+  //       criteria3: 'ทุนการศึกษาเต็มจำนวน',
+  //       criteria4: 'วิศวกร, นักพัฒนาโปรแกรม',
+  //       criteria5: '4 ปี',
+  //     },
+  //   },
+  //   {
+  //     institution: 'มหาวิทยาลัยที่ 2',
+  //     program: 'สาขาการบัญชี',
+  //     faculty: 'คณะเศรษฐศาสตร์',
+  //     image: '/images/uni-pic/mock.avif',
+  //     data: {
+  //       criteria1: 'มนุษยศาสตร์, การจัดการธุรกิจ',
+  //       criteria2: '80,000 บาท/ปี',
+  //       criteria3: 'ทุนการศึกษา 50%',
+  //       criteria4: 'นักบริหารธุรกิจ, นักวิเคราะห์ข้อมูล',
+  //       criteria5: '3 ปี',
+  //     },
+  //   },
+  //   {
+  //     institution: 'มหาวิทยาลัยที่ 3',
+  //     program: 'สาขาวิทยาการคอมพิวเตอร์ประยุกต์',
+  //     faculty: 'คณะวิทยาศาสตร์',
+  //     image: '/images/uni-pic/mock.avif',
+  //     data: {
+  //       criteria1: 'วิศวกรรมไฟฟ้า, วิทยาศาสตร์คอมพิวเตอร์',
+  //       criteria2: '120,000 บาท/ปี',
+  //       criteria3: 'ทุนการศึกษาบางส่วน',
+  //       criteria4: 'นักวิจัย, วิศวกรระบบ',
+  //       criteria5: '4 ปี',
+  //     },
+  //   },
+  // ];
 
   const handleCheckboxChange = (id: string) => {
     if (id === 'all') {

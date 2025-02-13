@@ -109,7 +109,7 @@ export default function Page() {
   const handleCompare = () => {
     if (state.selectedItems.length > 1) {
       const courseIds = state.selectedItems.slice(0, 3).map(item => item.course_id);
-      router.push(`/target-page?data=${encodeURIComponent(JSON.stringify(courseIds))}`); // แล้วใช้ funtion trpc.searchUniversities.useMutation();
+      router.push(`/compare-courses/compare-result?data=${encodeURIComponent(JSON.stringify(courseIds))}`);
     }
   };
 
