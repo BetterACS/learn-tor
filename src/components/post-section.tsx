@@ -1,35 +1,40 @@
 'use client';
 import { Post, SortBy } from '@/components/index';
 import { useState, useRef, useEffect } from 'react';
+import { trpc } from '@/app/_trpc/client';
 
-export default function PostSection() {
+interface PostSectionProps {
+  searchTerm?: string;
+  filterTags?: Record<string, "included" | "excluded">;
+}
 
-  const posts = [
-    {
-      id: 1,
-      img: "http://i.ibb.co/ncrXc2V/1.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 1",
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-    },
-    {
-      id: 2,
-      img: "http://i.ibb.co/B3s7v4h/2.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 2",
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-    },
-    {
-      id: 3,
-      img: "http://i.ibb.co/XXR8kzF/3.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 3",
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-    },
-    {
-      id: 4,
-      img: "http://i.ibb.co/yg7BSdM/4.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 4",
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-    },
-  ]
+interface Post { 
+  id: number, 
+  img: string, 
+  title: string, 
+  body: string 
+};
+
+export default function PostSection({ searchTerm, filterTags }: PostSectionProps) {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [sortBy, setSortBy] = useState<string>("Newest");
+
+  const { data, isLoading, error, refetch } = trpc.searchQuery.useQuery({ 
+    searchTerm: searchTerm || '',
+    filterTags: filterTags || {},
+  });
+
+  useEffect(() => {
+    console.log("Data: ", data?.data);
+    if (data && Array.isArray(data.data)) {
+      setPosts(data.data);
+    } 
+    else {
+      setPosts([]);
+      console.log('API response is not an array:', data);
+    }
+
+  }, [data])
 
   return (
     <div className="h-fit w-full flex flex-col gap-6">
@@ -37,12 +42,49 @@ export default function PostSection() {
         <p className="text-monochrome-500 text-subtitle-large">
           Sort by: 
         </p>
-        <SortBy filters={["Newest", "Oldest", "Popular"]} />
+        <SortBy filters={["Newest", "Oldest", "Popular"]} sortBy={sortBy} setSortBy={setSortBy}/>
       </div>
       <div className="h-fit w-full px-[14vw] flex flex-col gap-6">
-        {posts.map((post) => (
-          <Post key={post.id} post={post} />
-        ))}
+        {isLoading ? (
+          <div
+          className="h-fit w-full bg-monochrome-50 drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] rounded-xl text-start pt-6 pb-3 px-8"
+          >
+            <div className="h-full w-full flex flex-col gap-3 animate-pulse">
+              {/* Username Section */}
+              <div className="flex content-center items-center gap-2">
+                <div className="size-10">
+                  <div className="w-full h-full bg-monochrome-100 rounded-full"/>
+                </div>
+                <p className="text-body-large font-bold text-transparent bg-monochrome-100 rounded-md">
+                  Username
+                </p>
+                <p className="text-subtitle-small text-transparent bg-monochrome-100 rounded-md">
+                  second ago
+                </p>
+              </div>
+              {/* Body */}
+              <div className="flex flex-col gap-2">
+                <p className="text-headline-5 text-transparent bg-monochrome-100 rounded-md">
+                  Lorem ipsum dolor sit amet
+                </p>
+                <p className='w-fit text-body-large text-transparent bg-monochrome-100 rounded-md'>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus magni doloremque
+                </p>
+                <p className='w-fit text-body-large text-transparent bg-monochrome-100 rounded-md'>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                </p>
+              </div>
+              <div className="h-[25rem] w-full pb-4">
+                <div className="w-full h-full object-cover bg-monochrome-100 rounded-md"/>
+              </div>
+            </div>
+          </div>
+          ) : (
+            posts?.map((post, index) => (
+              <Post key={index} post={post} isLoading={isLoading}/>
+            ))
+          )
+        }
       </div>
     </div>
   )

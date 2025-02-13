@@ -6,10 +6,10 @@ import { PostInteractionBar } from '@/components/index';
 
 interface PostProps {
   post: { id: number, img: string, title: string, body: string };
+  isLoading: boolean
 }
 
-
-export default function Post({ post }: PostProps) {
+export default function Post({ post, isLoading }: PostProps) {
   const router = useRouter();
 
   // Not yet added comment auto focus functionality when redirect with comment button

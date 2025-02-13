@@ -9,7 +9,7 @@ export default function Search() {
   const searchParams = useSearchParams();  // Gets the query params
   
   const [searchTerm, setSearchTerm] = useState<string | undefined>('');
-  const [tags, setTags] = useState<{ [key: string]: string } | undefined>(undefined);
+  const [tags, setTags] = useState<Record<string, "included" | "excluded">>({});
 
   useEffect(() => {
     const queryParam = searchParams.get('query'); // Extract query parameter
@@ -24,7 +24,7 @@ export default function Search() {
         setTags({ [queryParam]: 'included' }); // Example: Add the query as a single tag
       }
     } else {
-      setTags(undefined); // Reset tags if query is missing
+      setTags({}); // Reset tags if query is missing
     }
   }, [searchParams]);
 
@@ -44,7 +44,7 @@ export default function Search() {
         </div>
       ))}
       </div>
-      <PostSection />
+      <PostSection searchTerm={searchTerm} filterTags={tags} />
     </div>
   );
 }
