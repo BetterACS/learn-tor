@@ -1,71 +1,91 @@
 'use client'
 import { useState, ChangeEvent, useEffect, useRef, useMemo } from 'react';
-
+import type { University } from '@/db/models';
+import { trpc } from '@/app/_trpc/client';
 interface CompareSidebarProps {
   onToggleSidebar: (isOpen: boolean) => void;
-  onAddToCompare: (item: any) => void;
+  onAddToCompare: (item:  University ) => void;
+  onSearchChange: (query: string) => void;
+  setOptions: (options: any) => void;
 }
 
-const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddToCompare }) => {
+const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddToCompare,onSearchChange,setOptions}) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
+  const mutation = trpc.searchUniversities.useMutation();
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [error, setError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const mockup_top10popular = [
-    { rank: 1, logo: 'images/uni-pic/kmutt.avif', major: 'kmutt วิทยาการคอมพิวเตอร์ประยุกต์', addImage: 'images/uni-pic/add.avif', tuition: 50000 },
-    { rank: 2, logo: 'images/uni-pic/cu.avif', major: 'cu คณะแพทยศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย', addImage: 'images/uni-pic/add.avif', tuition: 45000 },
-    { rank: 3, logo: 'images/uni-pic/cu.avif', major: 'cu สาขา วิศวกรรมศาสตร์คอมพิวเตอร์', addImage: 'images/uni-pic/add.avif', tuition: 35000 },
-    { rank: 4, logo: 'images/uni-pic/tu.avif', major: 'tu คณะนิติศาสตร์ มหาวิทยาลัยธรรมศาสตร์', addImage: 'images/uni-pic/add.avif', tuition: 55000 },
-    { rank: 5, logo: 'images/uni-pic/mu.avif', major: 'mu คณะแพทยศาสตร์ศิริราชพยาบาล', addImage: 'images/uni-pic/add.avif', tuition: 61000 },
-    { rank: 6, logo: 'images/uni-pic/ku.avif', major: 'ku คณะบริหารธุรกิจ การบัญชี', addImage: 'images/uni-pic/add.avif', tuition: 28000 },
-    { rank: 7, logo: 'images/uni-pic/swu.avif', major: 'swu วิทยาลัยนวัตกรรม การจัดการการสื่อสาร', addImage: 'images/uni-pic/add.avif', tuition: 30000 },
-    { rank: 8, logo: 'images/uni-pic/cmu.avif', major: 'cmu คณะมนุษยศาสตร์ อักษรศาสตร์', addImage: 'images/uni-pic/add.avif', tuition: 40000 },
-    { rank: 9, logo: 'images/uni-pic/kku.avif', major: 'kku สาขา วิศวกรรมศาสตร์คอมพิวเตอร์', addImage: 'images/uni-pic/add.avif', tuition: 60000 },
-    { rank: 10, logo: 'images/uni-pic/kmutnb.avif', major: 'kmutnb สาขา วิศวกรรมหุ่นยนต์', addImage: 'images/uni-pic/add.avif', tuition: 75000 }
-  ];
+  useEffect(() => {
+    mutation.mutate(
+      {
+        "sortBy": "view_today", //จริงควรใช้ "view_today"
+        "order": "desc",
+        "limit": 10,
+        "page": 1
+      },
+      {
+        onSuccess: (data) => {
+          if (data.status !== 200) {
+            console.log("Mutation Failed:", data.data);
+          } else if (data.status === 200) {
+            // console.log("Mutation Success:", data.data);
+            if ("universities" in data.data){
+              setUniversities(data.data.universities.map((university: any) => ({
+                ...university,
+                // set logo&image
+                logo: '/images/logofooter.avif',
+                image: '/images/uni-pic/mock.avif',
+              })));}
+          }
+        },
+        onError: (error) => {
+          console.error("Mutation Failed:", error);
+          setError(error.message);
+        },
+      }
+    )
+  },[])
+  
+  const top10popular = universities.map((university, index) => ({
+    rank: index + 1,
+    logo: university.logo,
+    major: university.institution + ' ' + university.program,
+    addImage: '/images/uni-pic/add.avif',
+  }));
 
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value);
-
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    onSearchChange(e.target.value);
+  };
+  
   const handleDropdownToggle = () => {
     setIsDropdownOpen(prev => !prev);
   };
 
   const handleSortOptionSelect = (option: string) => {
+    setOptions(option);
     setSortOption(option);
     setIsDropdownOpen(false);
   };
-
+  // แจ๊คลองอ่านดูคือค่าใช้จ่ายทื่เก็บมาบางทีมันติด text อื่นมาด้วย บางอันก็ไม่เป็นตัวเลขเป็น link ให้กดดู
   const getSortLabel = (option: string) => {
     switch (option) {
-      case 'A-Z':
-        return "ชื่อมหาลัย “ ก - ฮ “";
-      case 'Z-A':
-        return "ชื่อมหาลัย “ ฮ - ก “";
-      case 'low-high':
-        return "ค่าเทอม ต่ำ - สูง";
-      case 'high-low':
-        return "ค่าเทอม สูง - ต่ำ";
-      default:
-        return "Sort by";
+      case 'ชื่อมหาลัย “ ก - ฮ “':
+        return 'ชื่อมหาลัย “ ก - ฮ “';
+      case 'ชื่อมหาลัย “ ฮ - ก “':
+        return 'ชื่อมหาลัย “ ฮ - ก “'; 
+      case 'ชื่อหลักสูตร “ ก - ฮ “':
+        return 'ชื่อหลักสูตร “ ก - ฮ “';
+      case 'ชื่อหลักสูตร “ ฮ - ก “':
+        return 'ชื่อหลักสูตร “ ฮ - ก “';
     }
   };
-
-  const sortedData = useMemo(() => {
-    let sortedList = [...mockup_top10popular];
-    if (sortOption === 'A-Z') {
-      sortedList.sort((a, b) => a.major.localeCompare(b.major));
-    } else if (sortOption === 'Z-A') {
-      sortedList.sort((a, b) => b.major.localeCompare(a.major));
-    } else if (sortOption === 'low-high') {
-      sortedList.sort((a, b) => a.tuition - b.tuition);
-    } else if (sortOption === 'high-low') {
-      sortedList.sort((a, b) => b.tuition - a.tuition);
-    }
-    return sortedList;
-  }, [sortOption]);
 
   const handleToggleSidebar = () => {
     const newSidebarState = !isSidebarOpen;
@@ -73,7 +93,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
     onToggleSidebar(newSidebarState);
   };
 
-  const handleAddClick = (item: any) => {
+  const handleAddClick = (item: University) => {
     setSelectedItems((prevItems) => [...prevItems, item]);
     onAddToCompare(item);
   };
@@ -90,7 +110,6 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
     };
   }, []);
 
-  // ปัจจุบันยังไม่มีส่วนที่ render หัวข้อเรื่องตามวันจริงที่พิมพ์ไป
   return (
     <div>
       <div
@@ -143,7 +162,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                   <li>
                     <button
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
-                      onClick={() => handleSortOptionSelect('A-Z')}
+                      onClick={() => handleSortOptionSelect('ชื่อมหาลัย “ ก - ฮ “')}
                     >
                       ชื่อมหาลัย “ ก - ฮ “
                     </button>
@@ -151,7 +170,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                   <li>
                     <button
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
-                      onClick={() => handleSortOptionSelect('Z-A')}
+                      onClick={() => handleSortOptionSelect('ชื่อมหาลัย “ ฮ - ก “')}
                     >
                       ชื่อมหาลัย “ ฮ - ก “
                     </button>
@@ -159,17 +178,17 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                   <li>
                     <button 
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
-                      onClick={() => handleSortOptionSelect('low-high')}
+                      onClick={() => handleSortOptionSelect('ชื่อหลักสูตร “ ก - ฮ “')}
                     >
-                      ค่าเทอม ต่ำ - สูง
+                      ชื่อหลักสูตร “ ก - ฮ “
                     </button>
                   </li>
                   <li>
                     <button
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
-                      onClick={() => handleSortOptionSelect('high-low')}
+                      onClick={() => handleSortOptionSelect('ชื่อหลักสูตร “ ฮ - ก “')}
                     >
-                      ค่าเทอม สูง - ต่ำ
+                      ชื่อหลักสูตร “ ฮ - ก “
                     </button>
                   </li>
                 </ul>
@@ -180,23 +199,23 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
           <div className="w-full flex flex-col py-6 px-4 last:pb-4 items-start gap-6">
             <p className="text-headline-5">Top 10 Popular</p>
             <div className="flex flex-col pl-1 gap-4 text-body-small">
-              {sortedData
-                .filter(item => item.major.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map((item, index) => (
-                  <div key={item.rank} className="flex w-full justify-between items-center">
+              {top10popular.map((item, index) => {
+                return (
+                  <div key={item.rank} className="flex w-full justify-between items-center gap-4">
                     <div className="flex items-center gap-4">
                       <p className="font-regular mr-1">{index + 1}.</p>
                       <img className="w-10 h-10 rounded-full object-cover" src={item.logo} alt="Uni Logo" />
                       <p className="text-monochrome-950">{item.major}</p>
                     </div>
                     <button
-                      className="flex items-center justify-center bg-monochrome-50 hover:bg-monochrome-200 rounded-md p-2"
-                      onClick={() => handleAddClick(item)}
+                      className="flex items-center justify-center bg-monochrome-50 flex-shrink-0 hover:bg-monochrome-200 rounded-md w-8 h-8 p-0"
+                      onClick={() => handleAddClick(universities[index])}
                     >
-                      <img className="w-5 h-5 object-contain" src={item.addImage} alt="Add Button" />
+                      <img className="w-6 h-6 object-contain" src={item.addImage} alt="Add Button" />
                     </button>
                   </div>
-                ))}
+                );
+              })}
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import clsx from 'clsx';
+import { University } from '@/db/models';
 
 interface InfoCardProps {
   university: string;
@@ -8,7 +9,8 @@ interface InfoCardProps {
   logo: string;
   image: string;
   rounds: { name: string; quota: string }[];
-  onAddToCompare: (item: any) => void;
+  all_data: University;
+  onAddToCompare: (item: { all_data: University }) => void;
 }
 
 export default function InfoCard({
@@ -18,12 +20,13 @@ export default function InfoCard({
   logo,
   image,
   rounds,
+  all_data,
   onAddToCompare,
 }: InfoCardProps) {
   const handleAddClick = () => {
-    onAddToCompare({ logo, major });
+    onAddToCompare({ all_data });
   };
-
+  
   return (
     <div className="relative flex flex-col w-full bg-monochrome-50 shadow-lg rounded-lg overflow-hidden">
       <div className="relative flex items-center">
