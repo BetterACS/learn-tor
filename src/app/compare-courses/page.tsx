@@ -1,10 +1,18 @@
 'use client'
 import { Navbar, CompareSidebar, InfoCard, AlertBox, CompareList, PaginationButtons, }
 from '@/components/index';
-import type { university } from '@/db/models';
+import type { University } from '@/db/models';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
+import { set } from 'mongoose';
+
+const optionsDict = {
+  'ชื่อมหาลัย “ ก - ฮ “': {"sortBy" :"institution","order":"asc"},
+  'ชื่อมหาลัย “ ฮ - ก “': {"sortBy" :"institution","order":"desc"},
+  'ชื่อหลักสูตร “ ก - ฮ “': {"sortBy" :"program","order":"asc"},
+  'ชื่อหลักสูตร “ ฮ - ก “': {"sortBy" :"program","order":"desc"},
+}
 
 export default function Page() {
   const [state, setState] = useState({
@@ -13,12 +21,14 @@ export default function Page() {
     isSidebarOpen: true,
     isCompareListOpen: false,
     alertMessage: null,
-    universities: [],
-    error: null,
+    universities: [] as University[],
+    error: null as string | null,
     currentPage: 1,
     totalPages: 1,
   });
 
+  const [options, setOptions] = useState(optionsDict['ชื่อมหาลัย “ ก - ฮ “']);
+  
   const router = useRouter();
   const mutation = trpc.searchUniversities.useMutation();
 
@@ -41,12 +51,8 @@ export default function Page() {
           if (data.status === 200 && 'universities' in data.data) {
             setState((prev) => ({
               ...prev,
-              universities: data.data.universities.map((uni) => ({
-                ...uni,
-                logo: '/images/logofooter.avif',
-                image: '/images/uni-pic/mock.avif',
-              })),
-              totalPages: data.maxPage || 1,
+              universities: (data.data as { universities: University[] }).universities,
+              totalPages: 'maxPage' in data ? data.maxPage : 1,
             }));
           } else {
             console.error('Error fetching universities:', data.data);
@@ -60,28 +66,51 @@ export default function Page() {
     );
   };
 
-  const handleStateUpdate = (key, value) => {
+  interface State {
+    selectedItems: University[];
+    searchQuery: string;
+    isSidebarOpen: boolean;
+    isCompareListOpen: boolean;
+    alertMessage: string | null;
+    universities: University[];
+    error: string | null;
+    currentPage: number;
+    totalPages: number;
+  }
+
+  const handleStateUpdate = (key: keyof State, value: State[keyof State]) => {
     setState((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSearchChange = (query: string) => {
     setState((prev) => ({ ...prev, searchQuery: query }));
+    console.log("handleSearchChange",query);
   };
 
 
-  const handleAddToCompare = (item) => {
-    setState((prev) => {
-      if (
-        prev.selectedItems.length < 3 &&
-        !prev.selectedItems.some((selected) => selected.university === item.university)
-      ) {
-        return { ...prev, selectedItems: [...prev.selectedItems, item] };
-      }
-      return prev;
-    });
+  interface CompareItem {
+    university: string;
+    faculty: string;
+    program: string;
+    logo: string;
+    image: string;
+    info: Record<string, string>;
+    course_id: string;
+  }
+
+  const handleAddToCompare = (item: CompareItem) => {
+    // setState((prev) => {
+    //   if (
+    //     prev.selectedItems.length < 3 &&
+    //     !prev.selectedItems.some((selected) => selected.university === item.university)
+    //   ) {
+    //     return { ...prev, selectedItems: [...prev.selectedItems, item] };
+    //   }
+    //   return prev;
+    // });
   };
 
-  const handleRemoveItem = (index) => {
+  const handleRemoveItem = (index: number) => {
     setState((prev) => ({
       ...prev,
       selectedItems: prev.selectedItems.filter((_, i) => i !== index),
@@ -89,14 +118,14 @@ export default function Page() {
   };
 
   const handleCompare = () => {
-    if (state.selectedItems.length >= 1 && state.selectedItems.length <= 3) {
-      const query = state.selectedItems
-        .map((item, i) => `uni${i}=${encodeURIComponent(item.university)}`)
-        .join('&');
-      router.push(`/compare-result?${query}`);
-    } else {
-      handleStateUpdate('alertMessage', 'Please select at least one university.');
-    }
+    // if (state.selectedItems.length >= 1 && state.selectedItems.length <= 3) {
+    //   const query = state.selectedItems
+    //     .map((item, i) => `uni${i}=${encodeURIComponent(item.university)}`)
+    //     .join('&');
+    //   router.push(`/compare-result?${query}`);
+    // } else {
+    //   handleStateUpdate('alertMessage', 'Please select at least one university.');
+    // }
   };
 
   return (
@@ -104,7 +133,7 @@ export default function Page() {
       <Navbar />
       <div className="flex flex-1">
         <div className="sm:w-full md:w-1/2 lg:w-1/4">
-          <CompareSidebar
+          <CompareSidebar 
             onToggleSidebar={(isOpen) => handleStateUpdate('isSidebarOpen', isOpen)}
             onAddToCompare={handleAddToCompare}
             onSearchChange={handleSearchChange}
@@ -176,6 +205,7 @@ export default function Page() {
               isCompareListOpen={state.isCompareListOpen}
               handleRemoveItem={handleRemoveItem}
               handleCompare={handleCompare}
+              handleAddItem={()=>{}} //อย่าลืมมาแก้ตรงนี้เด้อ
             />
           </div>
 

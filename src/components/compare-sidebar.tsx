@@ -8,7 +8,7 @@ interface CompareSidebarProps {
   onSearchChange: (query: string) => void;
 }
 
-const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddToCompare }) => {
+const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddToCompare,onSearchChange}) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('');
@@ -22,11 +22,9 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
 
   useEffect(() => {
     mutation.mutate(
-      // แก้ตรงนี้
       {
-        "search": '',
-        "sortBy": "institution", //จริงควรใช้ "view_today"
-        "order": "asc",
+        "sortBy": "view_today", //จริงควรใช้ "view_today"
+        "order": "desc",
         "limit": 10,
         "page": 1
       },
@@ -58,7 +56,6 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
     logo: university.logo,
     major: university.institution + ' ' + university.program,
     addImage: '/images/uni-pic/add.avif',
-    tuition: university.info.ค่าใข้จ่าย //บางอันเป็น text ผสมเลข บางอันเป็น link ให้กดดู
   }));
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -77,34 +74,16 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
   // แจ๊คลองอ่านดูคือค่าใช้จ่ายทื่เก็บมาบางทีมันติด text อื่นมาด้วย บางอันก็ไม่เป็นตัวเลขเป็น link ให้กดดู
   const getSortLabel = (option: string) => {
     switch (option) {
-      case 'A-Z':
-        return "ชื่อมหาลัย “ ก - ฮ “";
-      case 'Z-A':
-        return "ชื่อมหาลัย “ ฮ - ก “";
-      case 'low-high':
-        return "ค่าเทอม ต่ำ - สูง";
-      case 'high-low':
-        return "ค่าเทอม สูง - ต่ำ";
-      default:
-        return "Sort by";
+      case 'ชื่อมหาลัย “ ก - ฮ “':
+        return 'ชื่อมหาลัย “ ก - ฮ “';
+      case 'ชื่อมหาลัย “ ฮ - ก “':
+        return 'ชื่อมหาลัย “ ฮ - ก “'; 
+      case 'ชื่อหลักสูตร “ ก - ฮ “':
+        return 'ชื่อหลักสูตร “ ก - ฮ “';
+      case 'ชื่อหลักสูตร “ ฮ - ก “':
+        return 'ชื่อหลักสูตร “ ฮ - ก “';
     }
   };
-
-  const sortedData = useMemo(() => {
-    let sortedList = [...top10popular];
-    if (sortOption === 'A-Z') {
-      sortedList.sort((a, b) => a.major.localeCompare(b.major));
-    } else if (sortOption === 'Z-A') {
-      sortedList.sort((a, b) => b.major.localeCompare(a.major));
-    }
-    // ปิดไว้ก่อน
-    // } else if (sortOption === 'low-high') {
-    //   sortedList.sort((a, b) => a.tuition - b.tuition);
-    // } else if (sortOption === 'high-low') {
-    //   sortedList.sort((a, b) => b.tuition - a.tuition);
-    // }
-    return sortedList;
-  }, [sortOption]);
 
   const handleToggleSidebar = () => {
     const newSidebarState = !isSidebarOpen;
@@ -181,7 +160,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                   <li>
                     <button
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
-                      onClick={() => handleSortOptionSelect('A-Z')}
+                      onClick={() => handleSortOptionSelect('ชื่อมหาลัย “ ก - ฮ “')}
                     >
                       ชื่อมหาลัย “ ก - ฮ “
                     </button>
@@ -189,7 +168,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                   <li>
                     <button
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
-                      onClick={() => handleSortOptionSelect('Z-A')}
+                      onClick={() => handleSortOptionSelect('ชื่อมหาลัย “ ฮ - ก “')}
                     >
                       ชื่อมหาลัย “ ฮ - ก “
                     </button>
@@ -197,17 +176,17 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                   <li>
                     <button 
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
-                      onClick={() => handleSortOptionSelect('low-high')}
+                      onClick={() => handleSortOptionSelect('ชื่อหลักสูตร “ ก - ฮ “')}
                     >
-                      ค่าเทอม ต่ำ - สูง
+                      ชื่อหลักสูตร “ ก - ฮ “
                     </button>
                   </li>
                   <li>
                     <button
                       className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
-                      onClick={() => handleSortOptionSelect('high-low')}
+                      onClick={() => handleSortOptionSelect('ชื่อหลักสูตร “ ฮ - ก “')}
                     >
-                      ค่าเทอม สูง - ต่ำ
+                      ชื่อหลักสูตร “ ฮ - ก “
                     </button>
                   </li>
                 </ul>
@@ -218,9 +197,8 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
           <div className="w-full flex flex-col py-6 px-4 last:pb-4 items-start gap-6">
             <p className="text-headline-5">Top 10 Popular</p>
             <div className="flex flex-col pl-1 gap-4 text-body-small">
-              {sortedData
-                .filter(item => item.major.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map((item, index) => (
+              {top10popular.map((item, index) => {
+                return (
                   <div key={item.rank} className="flex w-full justify-between items-center">
                     <div className="flex items-center gap-4">
                       <p className="font-regular mr-1">{index + 1}.</p>
@@ -234,7 +212,9 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({ onToggleSidebar, onAddT
                       <img className="w-8 h-8 object-contain" src={item.addImage} alt="Add Button" />
                     </button>
                   </div>
-                ))}
+                );
+              })}
+          
             </div>
           </div>
         </div>
