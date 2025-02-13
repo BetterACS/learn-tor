@@ -32,6 +32,7 @@ import ChatbotSidebar from '@/components/chatbot-sidebar';
 import Questionbox from '@/components/question';
 import CompareList from '@/components/comparelist';
 import PaginationButtons from '@/components/pagination';
+import AddTagPopup from '@/components/add-tag-popup';
 
 export {
   Test,
@@ -68,4 +69,5 @@ export {
   Questionbox,
   CompareList,
   PaginationButtons,
+  AddTagPopup,
 }
