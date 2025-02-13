@@ -74,11 +74,14 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
         <div className="text-primary-600 text-body-large font-bold mt-10 ml-12">Today</div>
         <MenuItem item="Today-1" label="แนะนำรอบ Admission ให้หน่อย" />
         <div className="text-primary-600 text-body-large font-bold mt-10 ml-12">Previous 2 Days</div>
+        <MenuItem item="Previous2-1" label="แนะนำรอบ Admission ให้หน่อย" />
+
+        {/* <div className="text-primary-600 text-body-large font-bold mt-10 ml-12">Previous 2 Days</div>
         <MenuItem item="Previous2-1" label="ใช้อะไรสมัครสอบเข้า" />
         <MenuItem item="Previous2-2" label="ทำยังไงให้สอบติด" />
 
         <div className="text-primary-600 text-body-large font-bold mt-10 ml-12">Previous 6 Days</div>
-        <MenuItem item="Previous6-1" label="ค่าเทอมมหาลัยไหนแพงสุด" />
+        <MenuItem item="Previous6-1" label="ค่าเทอมมหาลัยไหนแพงสุด" /> */}
       </div>
     </div>
   );

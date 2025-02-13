@@ -211,8 +211,8 @@ const UniversitySchema: Schema<University> = new Schema({
   round_2: { type: [String], default: [] },
   round_3: { type: [Object], default: [] },
   round_4: { type: [String], default: [] },
-  logo: {type:String},
-  image: {type:String}
+  logo: {type:String, default:'/images/logofooter.avif'},
+  image: {type:String, default:'/images/uni-pic/mock.avif'},
 });
 
 const UniversityModel = mongoose.models.University || mongoose.model<University>('University', UniversitySchema);

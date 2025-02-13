@@ -14,7 +14,7 @@ export default function Page() {
   const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; text: string }[]>([]);
   const [input, setInput] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const [showAlert, setShowAlert] = useState(false); // <-- เพิ่ม state สำหรับ AlertBox
+  const [showAlert, setShowAlert] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -38,13 +38,13 @@ export default function Page() {
                 - รอบที่ 4 รอบ Direct Admission` },
       ],
       'Previous2-1': [
-        { sender: 'user', text: 'ใช้อะไรสมัครสอบเข้า' },
-        { sender: 'bot', text: `เอกสารที่มักใช้ในการสมัครสอบ
-                ✅ บัตรประชาชน
-                ✅ ใบ ปพ.1 (Transcript) หรือใบแสดงผลการเรียน
-                ✅ คะแนนสอบต่าง ๆ (ถ้ามี)
-                ✅ แฟ้มสะสมผลงาน (กรณีสมัครรอบ Portfolio)
-                ✅ ใบรับรองคุณสมบัติพิเศษ (ถ้ามี) เช่น ใบประกาศการแข่งขัน` },
+        { sender: 'user', text: 'แนะนำรอบ Admission ให้หน่อย' },
+        { sender: 'bot', text: `รอบการรับสมัคร Admission สำหรับนักเรียนที่ต้องการศึกษาต่อในระดับอุดมศึกษาภายในประเทศไทยโดยใช้ระบบ TCAS
+                (Thai University Central Admission System) จะมีหลายรอบที่เปิดรับสมัคร และแต่ละรอบมีคุณสมบัติและเกณฑ์การคัดเลือกที่แตกต่างกันไป
+                - รอบที่ 1 รอบ Portfolio
+                - รอบที่ 2 รอบ Quota
+                - รอบที่ 3 รอบ Admission
+                - รอบที่ 4 รอบ Direct Admission` },
       ],
       'Previous2-2': [
         { sender: 'user', text: 'ทำยังไงให้สอบติด' },
@@ -123,7 +123,7 @@ export default function Page() {
                     'bg-monochrome-100': msg.sender === 'user',
                     'self-end break-words': msg.sender === 'user',
                     'self-start ml-1': msg.sender === 'bot',
-                    'lg:max-w-[55%] sm:max-w-[70%] md:max-w-[65%]': true,
+                    'lg:max-w-[55%] sm:max-w-[70%] md:max-w-[50%]': true,
                   })}>
                     {msg.text.split('\n').map((line, idx) => (
                       <p key={idx}>{line}</p>
