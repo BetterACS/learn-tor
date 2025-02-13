@@ -1,9 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { Button } from '@/components/index';
+import { Button, AlertBox  } from '@/components/index';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
+import type {Topic} from '@/db/models';
+
 interface PostData {
   id: number;
   title: string;
@@ -30,7 +32,7 @@ export default function CreateTopic() {
       ...prev,
       [name]: value,
     }));
-    console.log(postData);
+    // console.log(postData); title body email
   };
 
   const handleFiles = (files: File[]) => {
@@ -78,26 +80,34 @@ export default function CreateTopic() {
   // }
   const mutation = trpc.createTopic.useMutation();
   const handleOnClickPost = async () => {
-    if (postData.title === "" || postData.body === "") {
-      alert('Please fill in all the fields');
-    } else if (!session) {
-      alert('You must be logged in to create a topic');
-    }else{
+    setError('');
+    if (postData.title === "") {
+      setError("Title is required");
+    } 
+    else{
       mutation.mutate(
         { 
           title: postData.title,
           body: postData.body,
-          email: session.user?.email || '',
+          email: session?.user?.email || '',
         },
         {
           onSuccess: (data) => {
               if (data.status !== 200) {
-                  console.warn("Validation Error:", data.data.message);
+                  // console.warn("Validation Error:", data.data.message);
                   setError(data.data.message);
               } else if (data.status === 200) {
                   console.log("Mutation Successful:", data);
-                // ยังไม่ได้ทำตัว ID 
-                  router.push(`/forum/${postData.id}?${JSON.stringify(postData)}`);
+              
+                  if ('topic' in data.data) {
+                    router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
+                      ...data.data.topic,
+                    })}`
+                      
+                    );
+                  } else {
+                    setError("Topic data is missing");
+                  }
               }
           },
           onError: (error) => {
@@ -107,10 +117,6 @@ export default function CreateTopic() {
         }
     );    
     }
-    
-    // const buttonName = event.currentTarget.name;
-    console.log(postData);
-    const query = JSON.stringify(postData);
   };
 
   return (
@@ -118,6 +124,13 @@ export default function CreateTopic() {
       <p className="text-headline-3 mb-6">
         Create Topic
       </p>
+      {error && 
+        <AlertBox
+        alertType="error"
+        title="Error"
+        message={error}
+      />
+      }
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2 text-headline-5">
           <p>Title</p>

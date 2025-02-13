@@ -2,6 +2,7 @@ import mongoose, { Document, mongo, Schema } from 'mongoose';
 
 // User Schema
 interface User extends Document {
+  _id: mongoose.Types.ObjectId;
   username: string;
   email: string;
   talent?: string;
@@ -16,6 +17,7 @@ interface User extends Document {
 }
 
 const UserSchema: Schema<User> = new Schema({
+  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
   username: { type: String, required: true },
   email: { type: String, required: true },
   talent: { type: String },
@@ -34,6 +36,7 @@ const UserModel = mongoose.models.User || mongoose.model<User>('User', UserSchem
 
 // Topic Schema
 interface Topic extends Document {
+  _id: mongoose.Types.ObjectId;
   title: string;
   body: string;
   user_id: mongoose.Types.ObjectId;
@@ -44,8 +47,9 @@ interface Topic extends Document {
 }
 
 const TopicSchema: Schema<Topic> = new Schema({
+  _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
   title: { type: String, required: true },
-  body: { type: String, required: true },
+  body: { type: String },
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: { type: String },
   created_at: { type: Date, default: Date.now },
@@ -183,4 +187,7 @@ export {
   CommentModel,
   BookmarkModel,
   LikeTopicModel,
+
+  type User,
+  type Topic
 };

@@ -10,7 +10,7 @@ import createTopic from './api/forum/createTopic';
 import queryTopic from './api/forum/queryTopic';
 import likeTopic from './api/forum/likeTopic';
 import checkLike from './api/forum/checkLike';
-
+import getUser from './api/member-system/getUser';
 export const appRouter = router({
 	...apiTest(),
     ...register(),
@@ -23,6 +23,7 @@ export const appRouter = router({
     ...queryTopic,
     ...likeTopic(),
     ...checkLike(),
+    ...getUser(),
 });
 const createCaller = createCallerFactory(appRouter);
 

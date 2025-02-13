@@ -10,7 +10,7 @@ export default function createTopic() {
             .input(
                 z.object({
                     title: z.string(),
-                    body: z.string(),
+                    body: z.string().default(' '),
                     email: z.string(),
                 })
             )

@@ -47,9 +47,9 @@ export default function Home() {
     "รามคําแหง"
   ];
   const { data: carousel_items, isLoading, isError } = trpc.queryTopic.useQuery();
-  
-    if (isLoading) return <div>Loading...</div>;
-    if (isError) return <div>Error loading posts</div>;
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading posts</div>;
   // const carousel_items = [
   //   {
   //     id: 1,

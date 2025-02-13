@@ -24,7 +24,7 @@ export default function likeTopic() {
 
         if (type === 'like') {
           if (status) {
-            console.log('กดไลค์มาหรอ okkkk');
+            // console.log('กดไลค์มาหรอ okkkk');
 
             const existingLikeTopic = await LikeTopicModel.findOne({
               user_id: userId,
@@ -32,7 +32,7 @@ export default function likeTopic() {
             });
 
             if (existingLikeTopic) {
-              console.log('มี Like นี้อยู่แล้ว ไม่ต้องเพิ่มซ้ำ');
+              // console.log('มี Like นี้อยู่แล้ว ไม่ต้องเพิ่มซ้ำ');
               const updatedTopic = await TopicModel.findById(topic_id);
               return {
                 status: 200,
@@ -69,7 +69,7 @@ export default function likeTopic() {
               };
             }
           }else {
-            console.log('กดไลค์ไปแล้ว ลบบบบบบบ');
+            // console.log('กดไลค์ไปแล้ว ลบบบบบบบ');
 
             try {
               const deletedLikeTopic = await LikeTopicModel.findOneAndDelete({
@@ -111,7 +111,7 @@ export default function likeTopic() {
 
         if (type === 'save'){
           if (status){
-            console.log('กด BOOKMARK มาหรอ okkkk');
+            // console.log('กด BOOKMARK มาหรอ okkkk');
 
             const existingBookmark = await BookmarkModel.findOne({
               user_id: userId,
@@ -119,7 +119,7 @@ export default function likeTopic() {
             });
         
             if (existingBookmark) {
-              console.log('มี Bookmark นี้อยู่แล้ว ไม่สามารถกดซ้ำได้');
+              // console.log('มี Bookmark นี้อยู่แล้ว ไม่สามารถกดซ้ำได้');
               return {
                 status: 400,
                 data: { message: 'Bookmark already exists' },
@@ -147,7 +147,7 @@ export default function likeTopic() {
                 };
             }
           }else {
-            console.log('กด BOOKMARK ไปแล้ว ลบบบบบบบ');
+            // console.log('กด BOOKMARK ไปแล้ว ลบบบบบบบ');
             try {
               const deletedBookmark = await BookmarkModel.findOneAndDelete({
                 user_id: userId,

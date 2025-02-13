@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
-
+import type { User } from '@/db/models';
 dayjs.extend(relativeTime);
 
 export default function Topic() {
@@ -26,7 +26,8 @@ export default function Topic() {
   const [isSaved, setIsSaved] = useState<boolean>();
   const [countLike, setCountLike] = useState<number>();
   const checkLikeMutation = trpc.checkLike.useMutation();
-  
+  const { data: user, isLoading, isError } = trpc.getUser.useQuery({ _id: post?.user_id });
+  console.log("user",user)
   useEffect(() => {
     if (session?.user?.email && post?._id) {
       checkLikeMutation.mutate({
@@ -78,7 +79,7 @@ export default function Topic() {
     }
   }, [isSaved]);
 
-
+  
   const mutation = trpc.likeTopic.useMutation();
 
   // mockup like, save and share button animation
@@ -102,7 +103,7 @@ export default function Topic() {
       },
       {
         onSuccess: (data) => {
-          if (data && data.data?.n_like != null) {
+          if (data) {
             setCountLike((data as { data: { n_like: number } }).data.n_like);
           }
           
@@ -159,7 +160,7 @@ export default function Topic() {
             <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
           </div>
           <p className="text-headline-6 font-bold">
-            {post.user_id.username}
+            {user?.data && 'user' in user.data ? (user.data.user as User).username : 'Unknown User'}
           </p>
           <p className="text-subtitle-small">•</p>
           <p className="text-subtitle-small text-monochrome-400">
