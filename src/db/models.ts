@@ -1,4 +1,6 @@
+import Topic from '@/app/forum/(3-section-layout)/[topicId]/page';
 import mongoose, { Document, mongo, Schema } from 'mongoose';
+import { objectInputType } from 'zod';
 
 // User Schema
 interface User extends Document {
@@ -237,6 +239,30 @@ const LikeSchema: Schema<LikeTopic> = new Schema({
 
 const LikeTopicModel = mongoose.models.LikeTopic || mongoose.model<LikeTopic>('LikeTopic', LikeSchema)
 
+interface TagName extends Document {
+  tagname: string,
+  category: string
+}
+
+const TagNameSchema: Schema<TagName> = new Schema({
+  tagname: { type: String, required: true },
+  category: { type: String, required: true }
+})
+
+const TagNameModel = mongoose.models.TagName || mongoose.model<TagName>('TagName', TagNameSchema)
+
+interface TopicAndTag extends Document{
+  topic_id: mongoose.Types.ObjectId;
+  tag_id: mongoose.Types.ObjectId;
+}
+
+const TopicAndTagSchema: Schema<TopicAndTag> = new Schema({
+  topic_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', required: true},
+  tag_id: { type: mongoose.Schema.Types.ObjectId, ref: 'TagName', required: true},
+})
+
+const TopicAndTagModel = mongoose.models.TopicAndTag || mongoose.model<TopicAndTag>('TopicAndTag', TopicAndTagSchema)
+
 export {
   UserModel,
   TopicModel,
@@ -246,6 +272,8 @@ export {
   BookmarkModel,
   UniversityModel,
   LikeTopicModel,
+  TagNameModel,
+  TopicAndTagModel,
   type Topic,
   type University,
   type User,
