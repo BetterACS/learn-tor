@@ -247,5 +247,6 @@ export {
   UniversityModel,
   LikeTopicModel,
   type Topic,
-  type University
+  type University,
+  type User,
 };
