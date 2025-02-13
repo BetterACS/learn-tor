@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure } from "../trpc";
 import logError from '@/utils/logError';
 import jwt from 'jsonwebtoken';
-import { verify } from "crypto";
+
 export default function getJWT() {
     return {
         getJWT: publicProcedure

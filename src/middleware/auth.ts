@@ -15,9 +15,9 @@ export function auth(middleware: CustomMiddleware): CustomMiddleware {
  if (token && (pathname === '/login' || pathname === '/register')) {
    return NextResponse.redirect(new URL('/', request.url));}
 
- if (token && pathname === '/home') {
-   return NextResponse.redirect(new URL('/forum', request.url));
- }
+//  if (token && pathname === '/home') {
+//    return NextResponse.redirect(new URL('/forum', request.url));
+//  }
 
 return middleware(request, event, response);
  };

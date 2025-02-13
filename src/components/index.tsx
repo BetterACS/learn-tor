@@ -30,6 +30,7 @@ import CompareSidebar from '@/components/compare-sidebar';
 import InfoCard from '@/components/info-card';
 import ChatbotSidebar from '@/components/chatbot-sidebar';
 import Questionbox from '@/components/question';
+import AddTagPopup from '@/components/add-tag-popup';
 
 export {
   Test,
@@ -64,4 +65,5 @@ export {
   InfoCard,
   ChatbotSidebar,
   Questionbox,
+  AddTagPopup,
 }

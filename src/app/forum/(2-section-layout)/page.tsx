@@ -3,9 +3,12 @@ import Link from 'next/link';
 import { Carousel, PostSection, SearchBar } from '@/components/index';
 import { useRouter } from  'next/navigation';
 import { trpc } from '@/app/_trpc/client';
+import { useSession } from 'next-auth/react';
 
 export default function Home() {
   const router = useRouter();
+  const { data: session } = useSession();
+
   const mockup_faculty = [
     "แพทยฯ",
     "เภสัชฯ",
@@ -79,7 +82,11 @@ export default function Home() {
 
   const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     const buttonName = event.currentTarget.name;
-    router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
+    if (!session) {
+      router.push('/login');
+    } else {
+      router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
+    }
   };
 
   return (
