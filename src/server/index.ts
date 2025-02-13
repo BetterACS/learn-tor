@@ -14,6 +14,7 @@ import checkLike from './api/forum/checkLike';
 import getUser from './api/member-system/getUser';
 import getTags from './api/forum/getTags';
 import addTags from './api/forum/addTags';
+import topicTags from './api/forum/topicTags';
 
 export const appRouter = router({
 	...apiTest(),
@@ -31,6 +32,7 @@ export const appRouter = router({
     ...universityQueries(),
     ...getTags,
     ...addTags(),
+    ...topicTags(),
 });
 const createCaller = createCallerFactory(appRouter);
 
