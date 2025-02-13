@@ -22,7 +22,7 @@ export default function Topic() {
   const [isSaved, setIsSaved] = useState<boolean>();
   const [countLike, setCountLike] = useState<number>();
   const checkLikeMutation = trpc.checkLike.useMutation();
-
+  
   useEffect(() => {
     if (session?.user?.email && post?._id) {
       checkLikeMutation.mutate({
