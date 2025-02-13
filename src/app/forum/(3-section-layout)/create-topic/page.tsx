@@ -48,18 +48,19 @@ export default function CreateTopic() {
   const handleOnClickAddTags = () => {
     setIsPopupOpen(true);
   };
-
   // const handleOnClickPost = () => {
   //   console.log(postData);
   // }
+  const mutationTag = trpc.addTags.useMutation();
   const mutation = trpc.createTopic.useMutation();
+  console.log(postData)
   const handleOnClickPost = async () => {
     setError('');
     if (postData.title === "") {
       setError("Title is required");
     } 
     else{
-      mutation.mutate(
+      await mutation.mutate(
         { 
           title: postData.title,
           body: postData.body,
@@ -73,6 +74,8 @@ export default function CreateTopic() {
                   setError(data.data.message);
               } else if (data.status === 200) {
                   console.log("Mutation Successful:", data);
+
+                  
               
                   if ('topic' in data.data) {
                     router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
@@ -91,7 +94,7 @@ export default function CreateTopic() {
               setError(error.message);
           },
         }
-    );    
+    );
     }
   };
 
