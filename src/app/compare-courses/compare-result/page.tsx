@@ -10,7 +10,10 @@ export default function Page() {
     all: false,
     'info.ค่าใช้จ่าย': false,
     'info.อัตราการสำเร็จการศึกษา': false,
-    'round': false,
+    round_1: false,
+    round_2: false,
+    round_3: false,
+    round_4: false,
   });
 
   const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
@@ -19,7 +22,10 @@ export default function Page() {
   const criteriaLabels: { [key: string]: string } = {
     'info.ค่าใช้จ่าย': 'ค่าใช้จ่ายตลอดทั้งหลักสูตร',
     'info.อัตราการสำเร็จการศึกษา': 'อัตราการสำเร็จการศึกษา',
-    'round': 'อัตราการรับเข้าศึกษา',
+    round_1: 'รอบ 1 Portfolio',
+    round_2: 'รอบ 2 Quota',
+    round_3: 'รอบ 3 Admission',
+    round_4: 'รอบ 4 Direct Admission',
   };
 
   // Data query zone
@@ -43,6 +49,7 @@ export default function Page() {
         {
           onSuccess: (data) => {
             if (data.status === 200 && 'universities' in data.data) {
+              console.log('University Data:', data.data.universities);
               resolve((data.data as { universities: University[] }).universities[0]);
             } else {
               reject(new Error('Failed to fetch university data'));
@@ -182,29 +189,29 @@ const ComparisonCriteria = ({
   <>
     <p className="text-headline-4 mb-8 mt-8 text-center">What do you need to compare?</p>
 
-    <div className="grid grid-cols-1 gap-y-4 justify-center items-center text-headline-6">
+    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 justify-center items-center text-headline-6 md:ml-6 lg:ml-64">
       {Object.keys(criteriaLabels).map((criteria, index) => (
-        <div key={index} className="flex items-center justify-center space-x-2 py-3">
+        <div key={index} className="flex items-center justify-start space-x-2">
           <input
             type="checkbox"
             id={criteria}
             checked={checkedState[criteria]}
             onChange={() => handleCheckboxChange(criteria)}
-            className="h-8 w-8 border-monochrome-300 checked:bg-primary-600 cursor-pointer"
+            className="h-6 w-6 border-monochrome-300 checked:bg-primary-600 cursor-pointer"
           />
-          <label htmlFor={criteria} className="cursor-pointer">
+          <label htmlFor={criteria} className="cursor-pointer text-left">
             {criteriaLabels[criteria]}
           </label>
         </div>
       ))}
 
-      <div className="flex items-center justify-center space-x-2 py-3">
+      <div className="flex items-center justify-start space-x-1 py-3">
         <input
           type="checkbox"
           id="all"
           checked={checkedState.all}
           onChange={() => handleCheckboxChange('all')}
-          className="h-8 w-8 border-monochrome-300 checked:bg-primary-600 cursor-pointer"
+          className="h-6 w-6 border-monochrome-300 checked:bg-primary-600 cursor-pointer"
         />
         <label htmlFor="all" className="cursor-pointer">
           All
@@ -232,38 +239,62 @@ const ComparisonResults = ({
   selectedCriteria: string[];
   criteriaLabels: { [key: string]: string };
 }) => {
-  const renderCriteriaValue = (university: any, criteriaKey: string) => {
-    if (criteriaKey === 'round') {
-      // แสดงข้อมูลการรับเข้าศึกษาจาก round_1, round_2, round_3, round_4
-      const rounds = [
-        { name: 'รอบ 1 Portfolio', data: university.round_1 },
-        { name: 'รอบ 2 Quota', data: university.round_2 },
-        { name: 'รอบ 3 Admission', data: university.round_3 },
-        { name: 'รอบ 4 Direct Admission', data: university.round_4 },
-      ];
-
+  const formatCriteriaValue = (value: any) => {
+    if (typeof value === 'object' && value !== null) {
       return (
-        <div>
-          {rounds.map((round, index) => (
-            <div key={index}>
-              <p><strong>{round.name}:</strong></p>
-              {round.data && round.data.length > 0 ? (
-                round.data.map((item: any, idx: number) => (
-                  <div key={idx}>
-                    <p>{JSON.stringify(item)}</p>
-                  </div>
-                ))
+        <div className="text-left space-y-2">
+          {Object.entries(value).map(([key, val], index) => (
+            <div key={index} className="flex flex-col">
+              <strong className="text-monochrome-600">{key}:</strong>
+              {typeof val === 'object' && val !== null ? (
+                <div className="ml-4">{formatCriteriaValue(val)}</div>
               ) : (
-                <p>-</p>
+                <span>{val || '-'}</span>
               )}
             </div>
           ))}
         </div>
       );
+    }
+    return <span>{value || '-'}</span>;
+  };
+
+  const renderCriteriaValue = (university: any, criteriaKey: string) => {
+    if (criteriaKey.startsWith('round_')) {
+      const roundData = university[criteriaKey];
+      if (!roundData || roundData.length === 0) {
+        return <p>-</p>;
+      }
+
+      const uniqueRoundData = roundData.filter((value: any, index: number, self: any[]) =>
+        index === self.findIndex((t: any) => (
+          JSON.stringify(t) === JSON.stringify(value)
+        ))
+      );
+
+      return (
+        <div>
+          {uniqueRoundData.length > 0 ? (
+            uniqueRoundData.map((item: any, idx: number) => (
+              <div key={idx} className="mb-4">
+                <pre className="whitespace-pre-wrap text-left">
+                  {JSON.stringify(item, null, 2)
+                    .replace(/\\n/g, '\n')
+                    .replace(/^\s+/g, '')}
+                </pre>
+              </div>
+            ))
+          ) : (
+            <p>-</p>
+          )}
+        </div>
+      );
+    } else if (criteriaKey === 'info.ค่าใช้จ่าย' || criteriaKey === 'info.อัตราการสำเร็จการศึกษา') {
+      const value = university.info[criteriaKey.split('.')[1]];
+      return value ? <p>{value}</p> : <p>-</p>;
     } else {
-      // แสดงข้อมูลทั่วไป
       const value = university.info[criteriaKey];
-      return value || '-'; // หากไม่มีข้อมูลให้แสดงเป็น -
+      return value ? formatCriteriaValue(value) : '-';
     }
   };
 
@@ -273,7 +304,7 @@ const ComparisonResults = ({
         {universities.map((university, index) => (
           <div key={index} className="space-y-4">
             {selectedCriteria.map((criteria, idx) => {
-              const criteriaKey = criteria.split('.')[1];
+              const criteriaKey = criteria;
               return (
                 <div key={idx} className="text-headline-4 px-8 font-bold mt-8 mb-4">
                   <div className="text-left">{criteriaLabels[criteria]}</div>
