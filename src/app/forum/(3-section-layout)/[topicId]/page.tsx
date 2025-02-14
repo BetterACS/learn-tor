@@ -47,9 +47,8 @@ export default function Topic() {
         {
           onSuccess: (data) => {
             if (data.topicTags && Array.isArray(data.topicTags)) {
-              const extractedTags = data.topicTags.map(tag => tag.tagname);
+              const extractedTags = data.topicTags.map((tag: { tagname: string }) => tag.tagname); //บรรทัดนี้ของนัทเจอ error Parameter 'tag' implicitly has an 'any' type.ts(7006) เลยแก้เป็นแบบนี้
               setTags(extractedTags);
-              // console.log("Fetching Tags for post successfully: ", post._id);
             }
           },
           onError: (error) => {
@@ -231,10 +230,10 @@ export default function Topic() {
         </div>
         {/* Comment text area */}
         <div className="flex">
-          <CommentInput topic_id={null} parent_id={null} />
+          <CommentInput topic_id={post?._id || null} parent_id={null} />
         </div>
         <div>
-          <CommentSection />
+          <CommentSection topic_id={post?._id || ""} />
         </div>
       </div>
     </div>
