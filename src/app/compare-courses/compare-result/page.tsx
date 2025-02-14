@@ -10,10 +10,10 @@ export default function Page() {
     all: false,
     'info.ค่าใช้จ่าย': false,
     'info.อัตราการสำเร็จการศึกษา': false,
-    round_1: false,
-    round_2: false,
+    // round_1: false,
+    // round_2: false,
     round_3: false,
-    round_4: false,
+    // round_4: false,
   });
 
   const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
@@ -22,10 +22,10 @@ export default function Page() {
   const criteriaLabels: { [key: string]: string } = {
     'info.ค่าใช้จ่าย': 'ค่าใช้จ่ายตลอดทั้งหลักสูตร',
     'info.อัตราการสำเร็จการศึกษา': 'อัตราการสำเร็จการศึกษา',
-    round_1: 'รอบ 1 Portfolio',
-    round_2: 'รอบ 2 Quota',
+    // round_1: 'รอบ 1 Portfolio',
+    // round_2: 'รอบ 2 Quota',
     round_3: 'รอบ 3 Admission',
-    round_4: 'รอบ 4 Direct Admission',
+    // round_4: 'รอบ 4 Direct Admission',
   };
 
   // Data query zone
