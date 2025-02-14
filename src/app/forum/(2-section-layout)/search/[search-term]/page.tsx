@@ -2,19 +2,20 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';  // From Next.js 13+
 import { useEffect, useState } from 'react';
-import { SortBy, PostSection } from '@/components/index';
+import { PostSection } from '@/components/index';
 
 export default function Search() {
-  const pathname = usePathname();  // Gets the current path
+  const pathname = decodeURIComponent(usePathname());  // Gets the current path
   const searchParams = useSearchParams();  // Gets the query params
   
-  const [searchTerm, setSearchTerm] = useState<string | undefined>('');
-  const [tags, setTags] = useState<{ [key: string]: string } | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [tags, setTags] = useState<Record<string, "included" | "excluded">>({});
 
   useEffect(() => {
     // Extract searchTerm from path (Assuming path like /forum/search/term)
     const pathParts = pathname.split('/');
     const term = pathParts[pathParts.length - 1];  // Get the search term from the URL path
+    console.log(pathname);
 
     setSearchTerm(term);  // Set the search term from the path
 
@@ -46,7 +47,11 @@ export default function Search() {
         </div>
       ))}
       </div>
-      <PostSection />
+      {/* {isLoading ? 
+        (<p>Loading...</p>) 
+        : 
+        (<p>{data}</p>)} */}
+      <PostSection searchTerm={searchTerm} filterTags={tags}/>
     </div>
   );
 }

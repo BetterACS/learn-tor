@@ -9,7 +9,16 @@ import { trpc } from '@/app/_trpc/client';
 dayjs.extend(relativeTime);
 
 interface PostProps {
-  post: { _id: number, img: string, title: string, body: string, created_at: string, n_like: number, user_id: { username: string }, isLiked : boolean};
+  post: { 
+    _id: number, 
+    img: string, 
+    title: string, 
+    body: string, 
+    created_at: string, 
+    n_like: number, 
+    user_id: { username: string }, 
+    isLiked : boolean
+  };
 }
 
 export default function Post({ post }: PostProps) {

@@ -5,6 +5,7 @@ import verified from './api/member-system/verified';
 import editUser from './api/member-system/editUser';
 import resetVerificationToken from './api/member-system/resetVerificationToken';
 import getJWT from './api/getJWT';
+import getTopics from './api/search-post/getTopics';
 import universityQueries from './api/university'
 import { createCallerFactory, router } from './trpc';
 import createTopic from './api/forum/createTopic';
@@ -13,6 +14,7 @@ import likeTopic from './api/forum/likeTopic';
 import checkLike from './api/forum/checkLike';
 import getUser from './api/member-system/getUser';
 import getTags from './api/forum/getTags';
+import getTopTags from './api/forum/getTags';
 import addTags from './api/forum/addTags';
 import topicTags from './api/forum/topicTags';
 
@@ -24,6 +26,7 @@ export const appRouter = router({
     ...editUser(),
     ...resetVerificationToken(),
     ...getJWT(),
+    ...getTopics,
     ...createTopic(),
     ...queryTopic,
     ...likeTopic(),
@@ -31,6 +34,7 @@ export const appRouter = router({
     ...getUser(),
     ...universityQueries(),
     ...getTags,
+    ...getTopTags,
     ...addTags(),
     ...topicTags(),
 });
