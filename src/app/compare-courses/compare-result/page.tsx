@@ -161,7 +161,7 @@ const UniversityDisplay = ({ universities }: { universities: any[] }) => (
     {universities.map((university, index) => (
       <div key={index} className="flex flex-col items-center space-y-4">
         <div className="text-center">
-          <p className="text-headline-5">{university.program}</p>
+          <p className="text-headline-4">{university.program}</p>
           <p className="text-headline-5 text-monochrome-600">{university.faculty}</p>
           <p className="text-headline-6 text-monochrome-500">{university.institution}</p>
         </div>
@@ -265,25 +265,51 @@ const ComparisonResults = ({
       if (!roundData || roundData.length === 0) {
         return <p>-</p>;
       }
-
+  
       const uniqueRoundData = roundData.filter((value: any, index: number, self: any[]) =>
         index === self.findIndex((t: any) => (
           JSON.stringify(t) === JSON.stringify(value)
         ))
       );
-
+  
       return (
         <div>
           {uniqueRoundData.length > 0 ? (
-            uniqueRoundData.map((item: any, idx: number) => (
-              <div key={idx} className="mb-4">
-                <pre className="whitespace-pre-wrap text-left">
-                  {JSON.stringify(item, null, 2)
-                    .replace(/\\n/g, '\n')
-                    .replace(/^\s+/g, '')}
-                </pre>
-              </div>
-            ))
+            uniqueRoundData.map((item: any, idx: number) => {
+              if (criteriaKey === 'round_3') {
+                const {
+                  register,
+                  passed,
+                  max_score,
+                  min_score,
+                  acceptance_rate,
+                  enrollment_rate,
+                } = item;
+
+                return (
+                  <div key={idx} className="mb-4">
+                    <p>
+                      <span>สมัครสอบ: </span> {register || '-'}<br />
+                      <span>ผ่าน: </span> {passed || '-'}<br />
+                      <span>คะแนนสูงสุด: </span> {max_score || '-'}<br />
+                      <span>คะแนนต่ำสุด: </span> {min_score || '-'}<br />
+                      <span>อัตราการรับเข้าเรียน: </span> {acceptance_rate || '-'}<br />
+                      <span>อัตราการลงทะเบียน: </span> {enrollment_rate || '-'}<br />
+                    </p>
+                  </div>
+                );
+              } else {
+                return (
+                  <div key={idx} className="mb-4">
+                    <pre className="whitespace-pre-wrap text-left">
+                      {JSON.stringify(item, null, 2)
+                        .replace(/\\n/g, '\n')
+                        .replace(/^\s+/g, '')}
+                    </pre>
+                  </div>
+                );
+              }
+            })
           ) : (
             <p>-</p>
           )}
@@ -297,7 +323,6 @@ const ComparisonResults = ({
       return value ? formatCriteriaValue(value) : '-';
     }
   };
-
   return (
     <div className="mt-8 text-left">
       <div className={`grid ${universities.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-6`}>
