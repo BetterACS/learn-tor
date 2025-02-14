@@ -105,7 +105,7 @@ export default function CommentSection({ topic_id }: { topic_id: string }) {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await fetch(`/api/forum/topic/${topic_id}/comment`); //ไม่มั่นใจว่าเรียกมาถูกมั้ย
+        const response = await fetch(`/api/forum/topic/${topic_id}/comment`); //ไม่มั่นใจว่า fetch มาถูกมั้ย
         const data = await response.json();
 
         if (response.ok) {
@@ -125,7 +125,7 @@ export default function CommentSection({ topic_id }: { topic_id: string }) {
 
   const handleLike = async (commentId: string) => {
     try {
-      const response = await fetch("/api/forum/comment/like", { //ไม่มั่นใจว่าเรียกมาถูกมั้ย
+      const response = await fetch("/api/forum/comment/like", { //ไม่มั่นใจว่่า fetch มาถูกมั้ย
         method: "POST",
         headers: {
           "Content-Type": "application/json",
