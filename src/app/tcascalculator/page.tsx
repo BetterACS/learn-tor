@@ -8,7 +8,6 @@ const CalculatorPage = () => {
     <div className="calculator-page">
       <Navbar />
       <Calculator />
-      <Footer />
     </div>
   );
 };
