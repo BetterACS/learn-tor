@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Carousel, PostSection, SearchBar } from '@/components/index';
 import { useRouter } from  'next/navigation';
+import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 
 export default function Home() {
@@ -48,33 +49,36 @@ export default function Home() {
     "อุบลราชธานี",
     "รามคําแหง"
   ];
+  const { data: carousel_items, isLoading, isError } = trpc.queryTopic.useQuery();
 
-  const carousel_items = [
-    {
-      id: 1,
-      img: "http://i.ibb.co/ncrXc2V/1.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 1",
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-    },
-    {
-      id: 2,
-      img: "http://i.ibb.co/B3s7v4h/2.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 2",
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-    },
-    {
-      id: 3,
-      img: "http://i.ibb.co/XXR8kzF/3.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 3",
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-    },
-    {
-      id: 4,
-      img: "http://i.ibb.co/yg7BSdM/4.png",
-      title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 4",
-      body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-    },
-  ]
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading posts</div>;
+  // const carousel_items = [
+  //   {
+  //     id: 1,
+  //     img: "http://i.ibb.co/ncrXc2V/1.png",
+  //     title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 1",
+  //     body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
+  //   },
+  //   {
+  //     id: 2,
+  //     img: "http://i.ibb.co/B3s7v4h/2.png",
+  //     title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 2",
+  //     body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
+  //   },
+  //   {
+  //     id: 3,
+  //     img: "http://i.ibb.co/XXR8kzF/3.png",
+  //     title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 3",
+  //     body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
+  //   },
+  //   {
+  //     id: 4,
+  //     img: "http://i.ibb.co/yg7BSdM/4.png",
+  //     title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 4",
+  //     body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
+  //   },
+  // ]
 
   const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     const buttonName = event.currentTarget.name;
@@ -101,7 +105,7 @@ export default function Home() {
         </div>
         {/* Carosal */}
         <div className="w-auto h-fit">
-          <Carousel carousel_items={carousel_items} />
+          {carousel_items?<Carousel carousel_items={carousel_items} />:<div>Loading...</div>}
         </div>
       </div>
       <div className="w-full h-fit flex gap-[12%]">

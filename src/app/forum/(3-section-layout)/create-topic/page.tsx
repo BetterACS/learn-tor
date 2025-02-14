@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Button, AddTagPopup } from '@/components/index';
+import { Button, AlertBox , AddTagPopup } from '@/components/index';
 import { useRouter } from 'next/navigation';
+import { trpc } from '@/app/_trpc/client';
+import { useSession } from 'next-auth/react';
+import type {Topic} from '@/db/models';
 import { CldUploadWidget } from 'next-cloudinary'; // Import CldUploadWidget
 
 interface PostData {
-  id: number;
   title: string;
   body: string;
   img: string;
@@ -15,7 +17,6 @@ interface PostData {
 export default function CreateTopic() {
   const router = useRouter();
   const [postData, setPostData] = useState<PostData>({
-    id: 1,
     title: '',
     body: '',
     img: '',
@@ -31,6 +32,8 @@ export default function CreateTopic() {
       tags: tags,
     }));
   }, [isPopupOpen]);
+  const { data: session } = useSession();
+  const [error, setError] = useState('');
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -45,16 +48,88 @@ export default function CreateTopic() {
   const handleOnClickAddTags = () => {
     setIsPopupOpen(true);
   };
+  // const handleOnClickPost = () => {
+  //   console.log(postData);
+  // }
+  const mutationTag = trpc.addTags.useMutation();
+  const mutation = trpc.createTopic.useMutation();
+  // console.log(postData)
+  const handleOnClickPost = async () => {
+    setError('');
+    if (postData.title === "") {
+      setError("Title is required");
+    } 
+    else{
+      await mutation.mutate(
+        { 
+          title: postData.title,
+          body: postData.body,
+          email: session?.user?.email || '',
+          img: postData.img || '',
+        },
+        {
+          onSuccess: (data) => {
+              if (data.status !== 200) {
+                  // console.warn("Validation Error:", data.data.message);
+                  setError(data.data.message);
+              } else if (data.status === 200) {
+                  console.log("Mutation Successful:", data);
 
-  const handleOnClickPost = () => {
-    console.log(postData);
-    const query = JSON.stringify(postData);
-    router.push(`/forum/${postData.id}?${query}`);
+                  const postId = data.data.topic._id;
+
+                  console.log("Tags before mutation:", tags);
+
+                  if (tags.length > 0) {
+                    mutationTag.mutate(
+                      {
+                        postId: postId,
+                        tags: tags,
+                      },
+                      {
+                        onSuccess: (data) => {
+                          console.log("After add tag success" + data);
+                        },
+                        onError: (error) => {
+                          console.error("Tag mutation error:", error);
+                        },
+                      }
+                    );
+                  }
+
+              
+                  if ('topic' in data.data) {
+                    router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
+                      ...data.data.topic,
+                      img: postData.img,
+                    })}`
+                      
+                    );
+                  } else {
+                    setError("Topic data is missing");
+                  }
+              }
+          },
+          onError: (error) => {
+              console.error("Mutation Failed:", error);
+              setError(error.message);
+          },
+        }
+    );
+    }
   };
 
   return (
     <div className="relative h-full w-full">
-      <p className="text-headline-3 mb-6">Create Topic</p>
+      <p className="text-headline-3 mb-6">
+        Create Topic
+      </p>
+      {error && 
+        <AlertBox
+        alertType="error"
+        title="Error"
+        message={error}
+      />
+      }
       <div className="flex flex-col gap-6">
         {/* Display selected tags */}
         {tags.length > 0 && (
@@ -81,8 +156,8 @@ export default function CreateTopic() {
               name="title"
               placeholder="Title"
               onChange={handleInputChange}
-              className="bg-transparent w-full outline-none placeholder-monochrome-600 caret-monochrome-600"
-            />
+              value={postData.title} 
+              className="bg-transparent w-full outline-none placeholder-monochrome-600 caret-monochrome-600"/> 
           </div>
         </div>
 
@@ -95,6 +170,7 @@ export default function CreateTopic() {
               id=""
               rows={4}
               onChange={handleInputChange}
+              value={postData.body}
               className="w-full resize-none bg-transparent outline-none placeholder-monochrome-600 caret-monochrome-600 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-200"
             ></textarea>
           </div>
@@ -115,9 +191,8 @@ export default function CreateTopic() {
               uploadPreset="learn-tor"
               signatureEndpoint="/api/sign-image"
               options={{
-                folder: 'learn-tor/test', // Specify the folder path
-                publicId: `custom-public-id-${Date.now()}`, // Unique public ID
-                maxFileSize: 5000000, // 5 MB limit
+                folder: `learn-tor/`, // Specify the folder path
+                publicId: `custom-public-id-${Date.now()}`,// Unique public ID 
               }}
               // backend ต้องเอา url ไปเก็บ
               onSuccess={(results) => {
