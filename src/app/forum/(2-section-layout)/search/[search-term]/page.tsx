@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { PostSection } from '@/components/index';
 
 export default function Search() {
-  const pathname = usePathname();  // Gets the current path
+  const pathname = decodeURIComponent(usePathname());  // Gets the current path
   const searchParams = useSearchParams();  // Gets the query params
   
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -15,6 +15,7 @@ export default function Search() {
     // Extract searchTerm from path (Assuming path like /forum/search/term)
     const pathParts = pathname.split('/');
     const term = pathParts[pathParts.length - 1];  // Get the search term from the URL path
+    console.log(pathname);
 
     setSearchTerm(term);  // Set the search term from the path
 
