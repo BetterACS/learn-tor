@@ -2,10 +2,12 @@
 import { Post, SortBy } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
 import { useEffect, useState } from 'react';
+import { useSession } from "next-auth/react";
 
 interface PostSectionProps {
   searchTerm?: string;
   filterTags?: Record<string, "included" | "excluded">;
+  myTopic?: boolean;
 }
 
 interface Post {
@@ -19,16 +21,24 @@ interface Post {
   isLiked : boolean
 }
 
-export default function PostSection({ searchTerm, filterTags }: PostSectionProps) {
+export default function PostSection({ searchTerm, filterTags, myTopic=false }: PostSectionProps) {
+  const { data: session, status } = useSession();
   // const [posts, setPosts] = useState<Post[]>([]);
   const [sortBy, setSortBy] = useState<string>("Newest");
   const [posts, setPosts] = useState<Post[]>([]);
 
-  const { data, isLoading, isError, refetch } = trpc.searchQuery.useQuery({ 
-    searchTerm: searchTerm || '',
-    filterTags: filterTags || {},
-    sortBy: sortBy,
-  });
+  const queryData = myTopic 
+    ? trpc.queryMyTopic.useQuery({ 
+        email: session?.user?.email,
+        sortBy: sortBy,
+      })
+    : trpc.searchQuery.useQuery({ 
+        searchTerm: searchTerm || '',
+        filterTags: filterTags || {},
+        sortBy: sortBy,
+      });
+
+  const { data, isLoading, isError, refetch } = queryData;
 
   useEffect(() => {
     console.log("Data: ", data?.data);

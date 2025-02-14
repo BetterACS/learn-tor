@@ -40,8 +40,8 @@ export default function Sidebar() {
             Homepage
           </p>
         </Link>
-        <Link href="/forum/my-topic">
-          <div className="w-full h-20 flex gap-3 items-center px-4 hover:bg-monochrome-100 transform duration-100 rounded-lg">
+        <Link href="/forum/my-topic" className="w-full h-20 flex gap-3 items-center px-1 hover:bg-monochrome-100 transform duration-100 rounded-lg">
+          <div className="w-full flex gap-3 items-center px-4 hover:bg-monochrome-100 transform duration-100 rounded-lg">
             <p className="text-headline-5">
               My Topic
             </p>

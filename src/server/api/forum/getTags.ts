@@ -50,7 +50,6 @@ const getTags = {
             }
         ]);
 
-        console.log(tagUsage);
         return tagUsage;
     })
 };
