@@ -144,6 +144,7 @@ interface Comment extends Document {
   parent_id?: mongoose.Types.ObjectId;
   comment: string;
   n_like?: number;
+  created_at: Date;
 }
 
 const CommentSchema: Schema<Comment> = new Schema({
@@ -152,6 +153,7 @@ const CommentSchema: Schema<Comment> = new Schema({
   parent_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
   comment: { type: String, required: true },
   n_like: { type: Number, default: 0 },
+  created_at: { type: Date, default: Date.now },
 });
 
 const CommentModel = mongoose.models.Comment || mongoose.model<Comment>('Comment', CommentSchema);

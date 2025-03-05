@@ -231,10 +231,15 @@ export default function Topic() {
         </div>
         {/* Comment text area */}
         <div className="flex">
-          <CommentInput topic_id={null} parent_id={null} />
+        {post?._id && session?.user?.email && (
+          <CommentInput topic_id={post._id} parent_id={null} userEmail={session.user.email} />
+        )}
         </div>
         <div>
-          <CommentSection />
+          <CommentSection
+          topicId='67adf79e39fbc02ce6ccf613'
+          userEmail='s37695@bj.ac.th'
+          />
         </div>
       </div>
     </div>
