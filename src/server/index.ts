@@ -15,6 +15,9 @@ import getUser from './api/member-system/getUser';
 import getTags from './api/forum/getTags';
 import addTags from './api/forum/addTags';
 import topicTags from './api/forum/topicTags';
+import chatBot from './api/chatbot/chatBot';
+import createChat from './api/chatbot/createChat';
+import queryChat from './api/chatbot/queryChat';
 
 export const appRouter = router({
 	...apiTest(),
@@ -33,6 +36,10 @@ export const appRouter = router({
     ...getTags,
     ...addTags(),
     ...topicTags(),
+    ...chatBot(),
+    ...createChat(),
+    ...queryChat(),
+
 });
 const createCaller = createCallerFactory(appRouter);
 
