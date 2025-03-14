@@ -8,7 +8,6 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -35,11 +34,11 @@ export default function Navbar() {
 
   const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    signOut({ callbackUrl: '/login' }); 
+    signOut({ callbackUrl: '/login' });
   };
 
   return (
-    <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-20 text-big-button">
+    <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-[40] text-big-button">
       <Link href="/" className="h-full w-[4rem] min-w-[4rem]">
         <img src='/images/logo.avif' alt="Logo" />
       </Link>
@@ -111,7 +110,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="lg:hidden absolute top-[5.25rem] left-0 w-full bg-primary-600 py-8">
+        <div className="lg:hidden fixed top-[5.25rem] left-0 w-full bg-primary-600 py-8 z-50">
           <div className="text-monochrome-50">
             <div className="flex flex-col gap-4">
               <div className="text-center px-5">
