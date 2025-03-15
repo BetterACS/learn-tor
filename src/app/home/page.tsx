@@ -34,8 +34,16 @@ const Section4 = () => {
 
   const gridRef = useRef<HTMLDivElement>(null);
   const [isGridVisible, setIsGridVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const updateWindowDimensions = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', updateWindowDimensions);
+    updateWindowDimensions();
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -50,6 +58,7 @@ const Section4 = () => {
     }
 
     return () => {
+      window.removeEventListener('resize', updateWindowDimensions);
       if (gridRef.current) {
         observer.unobserve(gridRef.current);
       }
@@ -68,9 +77,11 @@ const Section4 = () => {
             isGridVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
           }`}
         >
-          {cards.map((card, index) => (
-            <Card key={index} title={card.title} imageUrl={card.imageUrl} />
-          ))}
+          {cards
+            .filter(card => !(isMobile && card.title === 'นิติศาสตร์'))
+            .map((card, index) => (
+              <Card key={index} title={card.title} imageUrl={card.imageUrl} />
+            ))}
         </div>
       </div>
     </div>
@@ -124,7 +135,7 @@ export default function Page() {
             <div className="flex sm:flex-row gap-4 justify-center md:justify-start">
               <a
                 href="/login"
-                className="border border-primary-600 text-primary-600 py-3 px-6 rounded-lg text-big-button hover:bg-primary-600 hover:text-white hover:border-whitetransition duration-150"
+                className="border border-primary-600 text-primary-600 py-3 px-6 rounded-lg text-big-button hover:bg-primary-600 hover:text-monochrome-50 hover:border-whitetransition duration-150"
               >
                 Login
               </a>
@@ -150,12 +161,13 @@ export default function Page() {
             Learntor มีฟีเจอร์อะไรเพื่อน้องๆบ้าง!!
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-12 md:px-24">
-          <div className="mt-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-12 md:px-24" style={{ gridTemplateRows: 'auto 1fr auto', alignItems: 'stretch' }}>
+          <div>
             <FeatureSection
               title="Compare Courses"
               description="ช่วยให้คุณสามารถเปรียบเทียบหลักสูตรจากมหาวิทยาลัยต่างๆ ได้อย่างง่ายดาย โดยพิจารณาจากข้อมูลสำคัญ"
               img="/images/feature/compare.avif"
+              imageClassName="mt-4"
               link="/compare-courses"
             />
           </div>
@@ -163,6 +175,7 @@ export default function Page() {
             <FeatureSection
               title="Chatbot"
               description="แชตบอตที่จะสามารถตอบข้อมูลเกี่ยวกับการเรียนต่อที่คุณต้องการได้อย่างรวดเร็วและทันใจ"
+              descriptionClassName="mb-14"
               img="/images/feature/chatbot.avif"
               link="/chatbot"
             />
@@ -171,6 +184,7 @@ export default function Page() {
             <FeatureSection
               title="TCAS Calculate"
               description="คำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ"
+              descriptionClassName="mb-14"
               img="/images/feature/calculate.avif"
               link="/tcascalculator"
             />
@@ -179,6 +193,7 @@ export default function Page() {
             <FeatureSection
               title="Forum"
               description="ฟอรั่มในการพูดคุยแลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะ"
+              descriptionClassName="mb-14"
               img="/images/feature/forum.avif"
               link="/forum"
             />
