@@ -105,7 +105,7 @@ export default function Page() {
       })}>
         <div className="flex justify-center flex-col flex-1 overflow-y-auto">
           {messages.length === 0 ? (
-            <div className="text-monochrome-950 text-headline-3 lg:text-headline-2 text-center mt-auto mb-4">
+            <div className="text-monochrome-950 text-headline-3 lg:font-medium md:font-medium lg:text-headline-2 text-center mt-auto mb-4 animate-fadeInAndFloat">
               What can I help?
             </div>
           ) : (
@@ -147,7 +147,7 @@ export default function Page() {
                 setShowAlert(true);
               }
             }}
-            className="h-[90px] p-3 bg-monochrome-100 border border-monochrome-100 rounded-xl text-monochrome-950
+            className="h-[60px] md:h-[70px] lg:h-[90px] p-3 bg-monochrome-100 border border-monochrome-100 rounded-xl text-monochrome-950
                        placeholder:text-monochrome-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600
                        resize-none box-border mr-4"
           />
