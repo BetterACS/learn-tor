@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { Navbar, Footer, EditButtons, InputField, ScoreInput } from '@/components/index';
 import Link from 'next/link';
-import { useSession } from "next-auth/react";
-import type { User } from '@/db/models';
+import { useSession } from 'next-auth/react';
+import type { User, Score } from '@/db/models';
 import { trpc } from '@/app/_trpc/client';
 
 interface CustomSession {
@@ -17,11 +17,11 @@ interface CustomSession {
 const initialFormData = {
   username: '',
   email: '',
-  major: '',
+  major: '', // major ยังบันทึกไม่ได้ (ไม่ขึ้นใน db)
   talent: '',
   lesson_plan: '',
   GPAX: '',
-  TGAT1: '',
+  TGAT1: '',  //คะแนนยังบันทึกไม่ได้ (ไม่ขึ้นใน db)
   TGAT2: '',
   TGAT3: '',
   TPAT2_1: '',
@@ -55,62 +55,50 @@ const UserProfile = () => {
   const { data: session } = useSession() as { data: CustomSession | null };
   const userId = session?.user?.id;
 
+  const { data: userData, error: userError } = trpc.getUser.useQuery(
+    { _id: userId || '' },
+    { enabled: !!userId }
+  );
+
+  const editUserMutation = trpc.editUser.useMutation();
+
   useEffect(() => {
-    if (userId) {
-      const fetchUser = async () => {
-        try {
-          const response = await fetch(`/api/member-system/getUser?_id=${encodeURIComponent(userId)}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (!response.ok) throw new Error('Failed to fetch user');
-
-          const data = await response.json();
-          console.log('User data:', data);
-          setFormData({
-            username: data.user.username || '',
-            email: data.user.email || '',
-            major: data.user.major || '',
-            talent: data.user.talent || '',
-            lesson_plan: data.user.lesson_plan || '',
-            GPAX: data.user.GPAX || '',
-            TGAT1: data.user.TGAT1 || '',
-            TGAT2: data.user.TGAT2 || '',
-            TGAT3: data.user.TGAT3 || '',
-            TPAT2_1: data.user.TPAT2_1 || '',
-            TPAT2_2: data.user.TPAT2_2 || '',
-            TPAT2_3: data.user.TPAT2_3 || '',
-            TPAT3: data.user.TPAT3 || '',
-            TPAT4: data.user.TPAT4 || '',
-            TPAT5: data.user.TPAT5 || '',
-            A_MATH1: data.user.A_MATH1 || '',
-            A_MATH2: data.user.A_MATH2 || '',
-            A_SCIENCE: data.user.A_SCIENCE || '',
-            A_PHYSIC: data.user.A_PHYSIC || '',
-            A_BIOLOGY: data.user.A_BIOLOGY || '',
-            A_CHEMISTRY: data.user.A_CHEMISTRY || '',
-            A_SOCIAL: data.user.A_SOCIAL || '',
-            A_THAI: data.user.A_THAI || '',
-            A_ENGLISH: data.user.A_ENGLISH || '',
-            A_FRANCE: data.user.A_FRANCE || '',
-            A_GERMANY: data.user.A_GERMANY || '',
-            A_JAPAN: data.user.A_JAPAN || '',
-            A_PALI: data.user.A_PALI || '',
-            A_CHINESE: data.user.A_CHINESE || '',
-            A_KOREAN: data.user.A_KOREAN || '',
-            A_SPANISH: data.user.A_SPANISH || '',
-          });
-        } catch (error) {
-          console.error('Error fetching user:', error);
-        }
-      };
-
-      fetchUser();
+    if (userData?.data?.user) {
+      setFormData({
+        username: userData.data.user.username || '',
+        email: userData.data.user.email || '',
+        major: userData.data.user.major || '',
+        talent: userData.data.user.talent || '',
+        lesson_plan: userData.data.user.lesson_plan || '',
+        GPAX: userData.data.user.GPAX || '',
+        TGAT1: userData.data.user.TGAT1 || '',
+        TGAT2: userData.data.user.TGAT2 || '',
+        TGAT3: userData.data.user.TGAT3 || '',
+        TPAT2_1: userData.data.user.TPAT2_1 || '',
+        TPAT2_2: userData.data.user.TPAT2_2 || '',
+        TPAT2_3: userData.data.user.TPAT2_3 || '',
+        TPAT3: userData.data.user.TPAT3 || '',
+        TPAT4: userData.data.user.TPAT4 || '',
+        TPAT5: userData.data.user.TPAT5 || '',
+        A_MATH1: userData.data.user.A_MATH1 || '',
+        A_MATH2: userData.data.user.A_MATH2 || '',
+        A_SCIENCE: userData.data.user.A_SCIENCE || '',
+        A_PHYSIC: userData.data.user.A_PHYSIC || '',
+        A_BIOLOGY: userData.data.user.A_BIOLOGY || '',
+        A_CHEMISTRY: userData.data.user.A_CHEMISTRY || '',
+        A_SOCIAL: userData.data.user.A_SOCIAL || '',
+        A_THAI: userData.data.user.A_THAI || '',
+        A_ENGLISH: userData.data.user.A_ENGLISH || '',
+        A_FRANCE: userData.data.user.A_FRANCE || '',
+        A_GERMANY: userData.data.user.A_GERMANY || '',
+        A_JAPAN: userData.data.user.A_JAPAN || '',
+        A_PALI: userData.data.user.A_PALI || '',
+        A_CHINESE: userData.data.user.A_CHINESE || '',
+        A_KOREAN: userData.data.user.A_KOREAN || '',
+        A_SPANISH: userData.data.user.A_SPANISH || '',
+      });
     }
-  }, [userId]);
+  }, [userData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -160,27 +148,19 @@ const UserProfile = () => {
     }
 
     try {
-      const response = await fetch('/api/member-system/editUser', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: session.user.email,
-          updates: formData,
-        }),
+      const result = await editUserMutation.mutateAsync({
+        email: session.user.email,
+        updates: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
+      if (result.status === 200) {
+        setIsEditing(false);
+        alert('Profile updated successfully!');
+      } else {
+        alert('Failed to update profile. Please try again.');
       }
-
-      const data = await response.json();
-      console.log('Profile updated:', data);
-      setIsEditing(false);
-      alert('Profile updated successfully!');
     } catch (error) {
-      console.error('Error updating profile:', error);
+      // console.error('Error updating profile:', error);
       alert('Failed to update profile. Please try again.');
     }
   };

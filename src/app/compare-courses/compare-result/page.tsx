@@ -158,7 +158,7 @@ export default function Page() {
 
 const UniversityDisplay = ({ universities }: { universities: any[] }) => (
   <div className="relative">
-    <div className="sticky top-20 bg-monochrome-50 z-50 pt-2 pb-4">
+    <div className="sticky top-20 bg-monochrome-50 z-20 pt-2 pb-4">
       <div className={`grid grid-cols-${universities.length} gap-6 mt-2 text-center`}>
         {universities.map((university, index) => (
           <p key={index} className="text-headline-5 font-bold">{university.program}</p>

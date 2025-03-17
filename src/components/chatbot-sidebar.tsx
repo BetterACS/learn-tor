@@ -63,28 +63,35 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
   };
 
   const MenuItem = ({ item, label }: { item: string; label: string }) => (
-    <div className="relative flex items-center justify-between p-2 mt-1 ml-11 cursor-pointer transition-all duration-200 rounded-md
-                   hover:bg-monochrome-200"
-         onClick={() => handleSelectItem(item)}>
-      <span className={`text-headline-6 ${selectedItem === item ? 'text-monochrome-950 bg-monochrome-200 p-3 rounded-md' : ''}`}>
-        {label}
-      </span>
-      <button className="ml-2 p-1" onClick={(e) => handleMenuToggle(item, e)}>
-        <img src="images/feature/dots.avif" alt="Menu" className="w-6 h-6 opacity-70 hover:opacity-100" />
+    <div
+      className={`relative flex items-center justify-between p-2 pr-2 mt-1 ml-11 mr-6 cursor-pointer transition-all duration-200 rounded-md 
+                  group ${selectedItem === item ? 'bg-monochrome-200' : 'hover:bg-monochrome-200'}`}
+      onClick={() => handleSelectItem(item)}
+    >
+      <span className="text-headline-6">{label}</span>
+      <button className="ml-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" onClick={(e) => handleMenuToggle(item, e)}>
+        <img src="images/feature/dots.avif" alt="Menu" className="w-6 h-6" />
       </button>
 
       {menuOpen === item && (
-        <div ref={menuRef} className="absolute right-0 mt-2 w-32 bg-monochrome-50  shadow-lg rounded-md divide-y divide-monochrome-300">
-          <button className="block w-full px-4 py-2 text-left text-sm hover:bg-monochrome-200"
-                  onClick={() => handleRename(item)}>
-            เปลี่ยนชื่อ
-          </button>
-          <button className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-100"
-                  onClick={() => handleDelete(item)}>
-            ลบ
-          </button>
-        </div>
-      )}
+      <div
+        ref={menuRef}
+        className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden divide-y divide-monochrome-300"
+      >
+        <button
+          className="w-full flex items-center justify-center px-5 py-4 hover:bg-monochrome-100 transition duration-150"
+          onClick={() => handleRename(item)}
+        >
+          เปลี่ยนชื่อ
+        </button>
+        <button
+          className="w-full flex items-center justify-center px-5 py-4 hover:bg-monochrome-100 transition duration-150 text-red-600"
+          onClick={() => handleDelete(item)}
+        >
+          ลบ
+        </button>
+      </div>
+    )}
     </div>
   );
 
@@ -102,7 +109,7 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
           <img src="images/feature/new.avif" alt="NewChat Icon" className="w-10 h-10" onClick={handleNewChatClick} />
         </div>
 
-        <div className="text-headline-4 font-bold mt-24 cursor-pointer text-center" onClick={() => handleSelectItem('new-chat')}>
+        <div className="text-headline-4 mt-24 cursor-pointer text-center" onClick={() => handleSelectItem('new-chat')}>
           New Chat
         </div>
         <div className="border-t border-monochrome-300 my-4 w-[calc(100%-32px)] mx-auto mt-8" />

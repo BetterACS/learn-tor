@@ -136,7 +136,7 @@ export default function Page() {
         )}
 
         <div className="lg:w-3/4 md:w-1/2 sm:w-full p-6 ml-6">
-          <p className="text-headline-4 mr-5 mb-4">Compare Universities List</p>
+          <p className="text-headline-4 mr-5 mb-4 ">Compare Universities List</p>
 
           <div className="grid sm:grid-cols-1 md:grid-cols-1 gap-6 lg:grid-cols-2">
             {state.universities.map((university) => (
