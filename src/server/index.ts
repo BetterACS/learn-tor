@@ -17,6 +17,9 @@ import getTags from './api/forum/getTags';
 import getTopTags from './api/forum/getTags';
 import addTags from './api/forum/addTags';
 import topicTags from './api/forum/topicTags';
+import createComment from './api/forum/createComment';
+import getAllComments from './api/forum/getAllComments';
+import likeComment from './api/forum/likeComment';
 
 export const appRouter = router({
 	...apiTest(),
@@ -37,6 +40,9 @@ export const appRouter = router({
     ...getTopTags,
     ...addTags(),
     ...topicTags(),
+    ...createComment(),
+    ...getAllComments(),
+    ...likeComment(),
 });
 const createCaller = createCallerFactory(appRouter);
 
