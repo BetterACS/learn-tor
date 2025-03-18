@@ -4,6 +4,17 @@ import Link from 'next/link';
 import { trpc } from '@/app/_trpc/client';
 import { AlertBox } from '@/components/index';
 const RegisterBlock = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+  
   const [formValues, setFormValues] = useState({
     username:"",
     email: "",
@@ -108,9 +119,9 @@ const RegisterBlock = () => {
               />
             </div>
             {/* Password */}
-            <div className="mb-8">
+            <div className="mb-8 relative">
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 placeholder="Password"
                 value={formValues.password}
@@ -118,11 +129,22 @@ const RegisterBlock = () => {
                 required
                 className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2"
+              >
+                <img
+                  src={showPassword ? "https://img.icons8.com/?size=100&id=85028&format=png&color=000000" : "https://img.icons8.com/?size=100&id=7225&format=png&color=000000"}
+                  alt="eye icon"
+                  className="w-6 h-6"
+                />
+              </button>
             </div>
             {/* Confirm Password */}
-            <div className="mb-8">
+            <div className="mb-8 relative">
               <input
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 name="confirmPassword"
                 placeholder="Confirm Password"
                 value={formValues.confirmPassword}
@@ -130,6 +152,17 @@ const RegisterBlock = () => {
                 required
                 className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
               />
+              <button
+                type="button"
+                onClick={toggleConfirmPasswordVisibility}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2"
+              >
+                <img
+                  src={showConfirmPassword ? "https://img.icons8.com/?size=100&id=85028&format=png&color=000000" : "https://img.icons8.com/?size=100&id=7225&format=png&color=000000"}
+                  alt="eye icon"
+                  className="w-6 h-6"
+                />
+              </button>
             </div>
             {/* Submit Button */}
             <button 

@@ -14,6 +14,7 @@ const LoginBlock = () => {
   const callbackUrl = searchParams.get('callbackUrl') || '/home';
   const [needVerify,setNeedVerify] = useState(searchParams.get('need-verify')||false);
   const [updated,setUpdated] = useState(searchParams.get('updated')||false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +33,10 @@ const LoginBlock = () => {
       console.log("callbackUrl", callbackUrl);
       router.push(`${callbackUrl}`);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -84,14 +89,25 @@ const LoginBlock = () => {
               />
             </div>
             {/* Password Input */}
-            <div className="mb-8">
+            <div className="mb-8 relative">
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Password"
                 className="border border-monochrome-1000 py-2 px-4 w-full rounded-[7px] focus:outline-none focus:ring-2 focus:ring-primary-600 h-[3.7rem]"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2"
+              >
+                <img
+                  src={showPassword ? "https://img.icons8.com/?size=100&id=85028&format=png&color=000000" : "https://img.icons8.com/?size=100&id=7225&format=png&color=000000"}
+                  alt="eye icon"
+                  className="w-6 h-6"
+                />
+              </button>
             </div>
             {/* Forgot Password */}
             <div className="mt-5 text-end mb-8">
