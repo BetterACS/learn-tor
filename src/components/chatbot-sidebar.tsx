@@ -1,29 +1,31 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import type { User, Chat } from '@/db/models';
+import { trpc } from '@/app/_trpc/client';
 
 export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onToggleSidebar: (isOpen: boolean) => void, onSelectItem: (item: string) => void }) {
+  const { data: session } = useSession();
+  const user_id = session?.user?.id;
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [chats, setChats] = useState<{ _id: string; name: string }[]>([]);
 
   const sidebarRef = useRef(null);
   const menuRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        sidebarRef.current && !sidebarRef.current.contains(event.target) &&
-        menuRef.current && !menuRef.current.contains(event.target)
-      ) {
-        setMenuOpen(null);
-      }
-    };
+  const { data: chatData, refetch: refetchChats } = trpc.chatBot.queryChat.useQuery({ user_id });
+  const createChatMutation = trpc.chatBot.createChat.useMutation();
+  const deleteChatMutation = trpc.chatBot.deleteChat.useMutation();
+  const renameChatMutation = trpc.chatBot.renameChat.useMutation();
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  useEffect(() => {
+    if (chatData) {
+      setChats(chatData);
+    }
+  }, [chatData]);
 
   const handleToggleSidebar = () => {
     const newSidebarState = !isSidebarOpen;
@@ -37,9 +39,12 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
     setMenuOpen(null);
   };
 
-  const handleNewChatClick = () => {
-    setSelectedItem(null);
-    onSelectItem('new-chat');
+  const handleNewChatClick = async () => {
+    const newChat = await createChatMutation.mutateAsync({ user_id });
+    if (newChat) {
+      setChats([...chats, { _id: newChat.chatId, name: 'New Chat' }]);
+      handleSelectItem(newChat.chatId);
+    }
   };
 
   const handleMenuToggle = (item: string, e: React.MouseEvent) => {
@@ -47,17 +52,19 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
     setMenuOpen(menuOpen === item ? null : item);
   };
 
-  const handleRename = (item: string) => {
+  const handleRename = async (item: string) => {
     const newName = prompt('กรุณาใส่ชื่อใหม่:', item);
     if (newName) {
-      console.log(`เปลี่ยนชื่อ ${item} เป็น ${newName}`);
+      await renameChatMutation.mutateAsync({ chatId: item, newName });
+      refetchChats();
     }
     setMenuOpen(null);
   };
 
-  const handleDelete = (item: string) => {
+  const handleDelete = async (item: string) => {
     if (confirm(`คุณต้องการลบ "${item}" ใช่ไหม?`)) {
-      console.log(`ลบแชท: ${item}`);
+      await deleteChatMutation.mutateAsync({ chatId: item });
+      refetchChats();
     }
     setMenuOpen(null);
   };
@@ -74,24 +81,24 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
       </button>
 
       {menuOpen === item && (
-      <div
-        ref={menuRef}
-        className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden divide-y divide-monochrome-300"
-      >
-        <button
-          className="w-full flex items-center justify-center px-5 py-4 hover:bg-monochrome-100 transition duration-150"
-          onClick={() => handleRename(item)}
+        <div
+          ref={menuRef}
+          className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden divide-y divide-monochrome-300"
         >
-          เปลี่ยนชื่อ
-        </button>
-        <button
-          className="w-full flex items-center justify-center px-5 py-4 hover:bg-monochrome-100 transition duration-150 text-red-600"
-          onClick={() => handleDelete(item)}
-        >
-          ลบ
-        </button>
-      </div>
-    )}
+          <button
+            className="w-full flex items-center justify-center px-5 py-4 hover:bg-monochrome-100 transition duration-150"
+            onClick={() => handleRename(item)}
+          >
+            เปลี่ยนชื่อ
+          </button>
+          <button
+            className="w-full flex items-center justify-center px-5 py-4 hover:bg-monochrome-100 transition duration-150 text-red-600"
+            onClick={() => handleDelete(item)}
+          >
+            ลบ
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -115,9 +122,9 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: { onTo
         <div className="border-t border-monochrome-300 my-4 w-[calc(100%-32px)] mx-auto mt-8" />
 
         <div className="text-primary-600 text-body-large font-bold mt-10 ml-12">Today</div>
-        <MenuItem item="Today-1" label="แนะนำรอบ Admission ให้หน่อย" />
-        <div className="text-primary-600 text-body-large font-bold mt-10 ml-12">Previous 2 Days</div>
-        <MenuItem item="Previous2-1" label="แนะนำรอบ Admission ให้หน่อย" />
+        {chats.map((chat) => (
+          <MenuItem key={chat._id} item={chat._id} label={chat.name} />
+        ))}
       </div>
     </div>
   );

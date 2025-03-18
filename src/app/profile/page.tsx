@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Navbar, Footer, EditButtons, InputField, ScoreInput } from '@/components/index';
+import { Navbar, Footer, EditButtons, InputField, ScoreInput, AlertBox } from '@/components/index';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import type { User, Score } from '@/db/models';
 import { trpc } from '@/app/_trpc/client';
+import { CldUploadWidget } from 'next-cloudinary';
 
 interface CustomSession {
   user?: {
@@ -14,14 +14,50 @@ interface CustomSession {
   };
 }
 
-const initialFormData = {
+interface FormData {
+  username: string;
+  email: string;
+  avatar: string; // ยังบันทึกไม่ได้
+  major: string; // ยังบันทึกไม่ได้
+  talent: string;
+  lesson_plan: string;
+  GPAX: string;
+  TGAT1: string;
+  TGAT2: string;
+  TGAT3: string;
+  TPAT2_1: string;
+  TPAT2_2: string;
+  TPAT2_3: string;
+  TPAT3: string;
+  TPAT4: string;
+  TPAT5: string;
+  A_MATH1: string;
+  A_MATH2: string;
+  A_SCIENCE: string;
+  A_PHYSIC: string;
+  A_BIOLOGY: string;
+  A_CHEMISTRY: string;
+  A_SOCIAL: string;
+  A_THAI: string;
+  A_ENGLISH: string;
+  A_FRANCE: string;
+  A_GERMANY: string;
+  A_JAPAN: string;
+  A_PALI: string;
+  A_CHINESE: string;
+  A_KOREAN: string;
+  A_SPANISH: string;
+}
+
+const initialFormData: FormData = {
   username: '',
   email: '',
-  major: '', // major ยังบันทึกไม่ได้ (ไม่ขึ้นใน db)
+  avatar: 'https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar.jpg',
+  major: '',
   talent: '',
   lesson_plan: '',
   GPAX: '',
-  TGAT1: '',  //คะแนนยังบันทึกไม่ได้ (ไม่ขึ้นใน db)
+  TGAT1: '',
   TGAT2: '',
   TGAT3: '',
   TPAT2_1: '',
@@ -50,52 +86,28 @@ const initialFormData = {
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState<'success' | 'error'>('success');
+  const [alertMessage, setAlertMessage] = useState('');
 
   const { data: session } = useSession() as { data: CustomSession | null };
   const userId = session?.user?.id;
 
-  const { data: userData, error: userError } = trpc.getUser.useQuery(
+  // tRPC Queries and Mutations
+  const { data: userData } = trpc.getUser.useQuery(
     { _id: userId || '' },
     { enabled: !!userId }
   );
-
   const editUserMutation = trpc.editUser.useMutation();
+  const updateAvatarMutation = trpc.updateAvatar.useMutation();
 
+  // Load user data into form
   useEffect(() => {
     if (userData?.data?.user) {
       setFormData({
-        username: userData.data.user.username || '',
-        email: userData.data.user.email || '',
-        major: userData.data.user.major || '',
-        talent: userData.data.user.talent || '',
-        lesson_plan: userData.data.user.lesson_plan || '',
-        GPAX: userData.data.user.GPAX || '',
-        TGAT1: userData.data.user.TGAT1 || '',
-        TGAT2: userData.data.user.TGAT2 || '',
-        TGAT3: userData.data.user.TGAT3 || '',
-        TPAT2_1: userData.data.user.TPAT2_1 || '',
-        TPAT2_2: userData.data.user.TPAT2_2 || '',
-        TPAT2_3: userData.data.user.TPAT2_3 || '',
-        TPAT3: userData.data.user.TPAT3 || '',
-        TPAT4: userData.data.user.TPAT4 || '',
-        TPAT5: userData.data.user.TPAT5 || '',
-        A_MATH1: userData.data.user.A_MATH1 || '',
-        A_MATH2: userData.data.user.A_MATH2 || '',
-        A_SCIENCE: userData.data.user.A_SCIENCE || '',
-        A_PHYSIC: userData.data.user.A_PHYSIC || '',
-        A_BIOLOGY: userData.data.user.A_BIOLOGY || '',
-        A_CHEMISTRY: userData.data.user.A_CHEMISTRY || '',
-        A_SOCIAL: userData.data.user.A_SOCIAL || '',
-        A_THAI: userData.data.user.A_THAI || '',
-        A_ENGLISH: userData.data.user.A_ENGLISH || '',
-        A_FRANCE: userData.data.user.A_FRANCE || '',
-        A_GERMANY: userData.data.user.A_GERMANY || '',
-        A_JAPAN: userData.data.user.A_JAPAN || '',
-        A_PALI: userData.data.user.A_PALI || '',
-        A_CHINESE: userData.data.user.A_CHINESE || '',
-        A_KOREAN: userData.data.user.A_KOREAN || '',
-        A_SPANISH: userData.data.user.A_SPANISH || '',
+        ...initialFormData,
+        ...userData.data.user,
       });
     }
   }, [userData]);
@@ -109,41 +121,69 @@ const UserProfile = () => {
       if (parts.length > 2 || (parts[1] && parts[1].length > 2)) return;
       const numericValue = parseFloat(validInput);
       if (numericValue > 4 || numericValue < 0) return;
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: validInput,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: validInput }));
       return;
     }
 
     if (name.startsWith('TGAT') || name.startsWith('TPAT') || name.startsWith('A_')) {
       const numericValue = parseFloat(value);
-      if (isNaN(numericValue)) return;
-      if (numericValue < 0 || numericValue > 100) return;
+      if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) return;
     }
 
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleEditClick = () => setIsEditing(true);
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
 
   const handleCancelClick = () => {
-    if (session?.user) {
+    if (userData?.data?.user) {
       setFormData({
         ...initialFormData,
-        username: session.user?.username || '',
-        email: session.user?.email || '',
+        ...userData.data.user,
       });
     }
     setIsEditing(false);
   };
 
+  const handleAvatarUpdate = (imageUrl: string) => {
+    if (!session?.user?.email) {
+      setAlertType('error');
+      setAlertMessage('Failed to update avatar. Please try again.');
+      setShowAlert(true);
+      return;
+    }
+
+    updateAvatarMutation.mutate(
+      { email: session.user.email, avatar: imageUrl },
+      {
+        onSuccess: (data) => {
+          if (data.status === 200) {
+            setAlertType('success');
+            setAlertMessage('Avatar updated successfully!');
+            setShowAlert(true);
+          } else {
+            setAlertType('error');
+            setAlertMessage('Failed to update avatar. Please try again.');
+            setShowAlert(true);
+          }
+        },
+        onError: (error) => {
+          console.error('Error updating avatar:', error);
+          setAlertType('error');
+          setAlertMessage('Failed to update avatar. Please try again.');
+          setShowAlert(true);
+        },
+      }
+    );
+  };
+
   const handleSaveClick = async () => {
     if (!session?.user?.email) {
-      alert('ไม่พบอีเมลของผู้ใช้');
+      setAlertType('error');
+      setAlertMessage('ไม่พบอีเมลของผู้ใช้');
+      setShowAlert(true);
       return;
     }
 
@@ -155,13 +195,19 @@ const UserProfile = () => {
 
       if (result.status === 200) {
         setIsEditing(false);
-        alert('Profile updated successfully!');
+        setAlertType('success');
+        setAlertMessage('Profile updated successfully!');
+        setShowAlert(true);
       } else {
-        alert('Failed to update profile. Please try again.');
+        setAlertType('error');
+        setAlertMessage('Failed to update profile. Please try again.');
+        setShowAlert(true);
       }
     } catch (error) {
-      // console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      console.error('Error updating profile:', error);
+      setAlertType('error');
+      setAlertMessage('Failed to update profile. Please try again.');
+      setShowAlert(true);
     }
   };
 
@@ -169,7 +215,37 @@ const UserProfile = () => {
     <div>
       <Navbar />
       <div className="pt-10 px-20 py-10">
-        <div className="text-primary-600 text-headline-3 font-bold mb-8">บัญชีและความปลอดภัย</div>
+        <div className="flex justify-between items-center mb-8">
+          <div className="text-primary-600 text-headline-3 font-bold">บัญชีและความปลอดภัย</div>
+          <div className="w-32 h-32 relative">
+            <img
+              src={formData.avatar}
+              alt="Avatar"
+              className="w-full h-full object-cover rounded-full aspect-ratio min-w-[96px] min-h-[96px]"
+            />
+            <CldUploadWidget
+              uploadPreset="learn-tor"
+              signatureEndpoint="/api/sign-image"
+              options={{ folder: 'learn-tor/avatars', publicId: `avatar-${Date.now()}` }}
+              onSuccess={(results) => {
+                if (results.info && typeof results.info !== 'string') {
+                  handleAvatarUpdate(results.info.secure_url);
+                }
+              }}
+            >
+              {({ open }) => (
+                <button
+                  onClick={() => open()}
+                  className="absolute bottom-0 right-0 bg-primary-600 text-monochrome-50 rounded-full p-2 hover:bg-primary-700 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 fill-current">
+                    <path d="M3 21v-2.586L14.828 6.586a2 2 0 0 1 2.828 0l1.172 1.172a2 2 0 0 1 0 2.828L7 21H3zM16.414 4.414a4 4 0 0 0-5.656 0L2 13.172V18h4.828l8.586-8.586a4 4 0 0 0 0-5.656l-1.172-1.172zM20 20h-8v2h8v-2z"/>
+                  </svg>
+                </button>
+              )}
+            </CldUploadWidget>
+          </div>
+        </div>
 
         <div className="text-monochrome-300 text-headline-6 mt-6 relative flex items-center whitespace-nowrap">
           ข้อมูลส่วนบุคคล
@@ -190,7 +266,6 @@ const UserProfile = () => {
           <InputField label="ความสนใจส่วนตัว" name="lesson_plan" value={formData.lesson_plan} disabled={!isEditing} onChange={handleChange} />
           <InputField label="GPAX" name="GPAX" value={formData.GPAX} disabled={!isEditing} onChange={handleChange} />
         </div>
-
         <div className="text-monochrome-300 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
           TGAT ความถนัดทั่วไป
           <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
@@ -249,6 +324,14 @@ const UserProfile = () => {
             </button>
           </Link>
         </div>
+
+        {showAlert && (
+          <AlertBox
+            alertType={alertType}
+            title={alertType === 'success' ? 'Success' : 'Error'}
+            message={alertMessage}
+          />
+        )}
       </div>
       <Footer />
     </div>

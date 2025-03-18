@@ -161,7 +161,7 @@ export default function Page() {
             Learntor มีฟีเจอร์อะไรเพื่อน้องๆบ้าง!!
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-12 md:px-24" style={{ gridTemplateRows: 'auto 1fr auto', alignItems: 'stretch' }}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 px-12 md:px-24" style={{ gridTemplateRows: 'auto 1fr auto', alignItems: 'stretch' }}>
           <div>
             <FeatureSection
               title="Compare Courses"
@@ -175,7 +175,7 @@ export default function Page() {
             <FeatureSection
               title="Chatbot"
               description="แชตบอตที่จะสามารถตอบข้อมูลเกี่ยวกับการเรียนต่อที่คุณต้องการได้อย่างรวดเร็วและทันใจ"
-              descriptionClassName="mb-14"
+              descriptionClassName="mb-20"
               img="/images/feature/chatbot.avif"
               link="/chatbot"
             />
@@ -184,7 +184,7 @@ export default function Page() {
             <FeatureSection
               title="TCAS Calculate"
               description="คำนวณคะแนน TCAS ที่ช่วยให้คุณทราบโอกาสในการสอบติดในคณะที่คุณต้องการ"
-              descriptionClassName="mb-14"
+              descriptionClassName="mb-20"
               img="/images/feature/calculate.avif"
               link="/tcascalculator"
             />
@@ -193,7 +193,7 @@ export default function Page() {
             <FeatureSection
               title="Forum"
               description="ฟอรั่มในการพูดคุยแลกเปลี่ยนประสบการณ์ แชร์คำแนะนำเกี่ยวกับการเตรียมตัวสอบและการเลือกคณะ"
-              descriptionClassName="mb-14"
+              descriptionClassName="mb-20"
               img="/images/feature/forum.avif"
               link="/forum"
             />

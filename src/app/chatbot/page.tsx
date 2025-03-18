@@ -4,10 +4,13 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Navbar, ChatbotSidebar, AlertBox } from '@/components/index';
 import clsx from 'clsx';
+import type { User, Chat } from '@/db/models';
+import { trpc } from '@/app/_trpc/client';
 
 export default function Page() {
   const { data: session } = useSession();
   const router = useRouter();
+  const user_id = session?.user?.id;
   const isLoggedIn = !!session;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -15,8 +18,11 @@ export default function Page() {
   const [input, setInput] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const chatMutation = trpc.chatBot.chatBot.useMutation();
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -25,48 +31,19 @@ export default function Page() {
   }, [messages]);
 
   const handleSidebarToggle = (isOpen: boolean) => setIsSidebarOpen(isOpen);
-  const handleSelectItem = (item: string) => {
-    const presetMessages: Record<string, { sender: 'user' | 'bot'; text: string }[]> = {
-      'new-chat': [],
-      'Today-1': [
-        { sender: 'user', text: 'แนะนำรอบ Admission ให้หน่อย' },
-        { sender: 'bot', text: `รอบการรับสมัคร Admission สำหรับนักเรียนที่ต้องการศึกษาต่อในระดับอุดมศึกษาภายในประเทศไทยโดยใช้ระบบ TCAS
-                (Thai University Central Admission System) จะมีหลายรอบที่เปิดรับสมัคร และแต่ละรอบมีคุณสมบัติและเกณฑ์การคัดเลือกที่แตกต่างกันไป
-                - รอบที่ 1 รอบ Portfolio
-                - รอบที่ 2 รอบ Quota
-                - รอบที่ 3 รอบ Admission
-                - รอบที่ 4 รอบ Direct Admission` },
-      ],
-      'Previous2-1': [
-        { sender: 'user', text: 'แนะนำรอบ Admission ให้หน่อย' },
-        { sender: 'bot', text: `รอบการรับสมัคร Admission สำหรับนักเรียนที่ต้องการศึกษาต่อในระดับอุดมศึกษาภายในประเทศไทยโดยใช้ระบบ TCAS
-                (Thai University Central Admission System) จะมีหลายรอบที่เปิดรับสมัคร และแต่ละรอบมีคุณสมบัติและเกณฑ์การคัดเลือกที่แตกต่างกันไป
-                - รอบที่ 1 รอบ Portfolio
-                - รอบที่ 2 รอบ Quota
-                - รอบที่ 3 รอบ Admission
-                - รอบที่ 4 รอบ Direct Admission` },
-      ],
-      'Previous2-2': [
-        { sender: 'user', text: 'ทำยังไงให้สอบติด' },
-        { sender: 'bot', text: `🔥 สรุปสูตรสอบติด
-          ✅ เลือกคณะให้ชัด → ดูว่าต้องใช้คะแนนอะไร
-          ✅ วางแผนอ่านหนังสือ & ฝึกทำข้อสอบเก่า
-          ✅ กระจายความเสี่ยง → สมัครรอบที่มีโอกาสมากที่สุด
-          ✅ เลือกอันดับ Admission ให้ฉลาด
-          ✅ เตรียมสอบสัมภาษณ์ให้ดี` },
-      ],
-      'Previous6-1': [
-        { sender: 'user', text: 'ค่าเทอมมหาลัยไหนแพงสุด' },
-        { sender: 'bot', text: `แพงสุด: หลักสูตรแพทย์-ทันตแพทย์ นานาชาติ (ค่าเทอมหลักล้านบาท)
-                 หลักสูตรอินเตอร์รัฐ: MUIC, จุฬาฯ BBA/INDA, ธรรมศาสตร์ BBA (~200,000 บาท/เทอม)
-                 เอกชน: ABAC, สแตมฟอร์ด, ม.กรุงเทพ (~70,000 - 120,000 บาท/เทอม)` },
-      ],
-    };
-
-    setMessages(presetMessages[item] || []);
+  const handleSelectItem = async (item: string) => {
+    setSelectedChatId(item);
+    if (item === 'new-chat') {
+      setMessages([]);
+    } else {
+      const chatDetail = await trpc.chatBot.queryChat.useQuery({ user_id, chatId: item });
+      if (chatDetail.data) {
+        setMessages(chatDetail.data.history);
+      }
+    }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!isLoggedIn) {
       router.push('/login');
       setShowAlert(true);
@@ -78,13 +55,17 @@ export default function Page() {
     setInput('');
     setIsBotTyping(true);
 
-    setTimeout(() => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: 'bot', text: 'ขออภัย บริการของเรายังไม่เปิดใช้งานตอนนี้ กรุณาลองใหม่อีกครั้งในภายหลัง' },
-      ]);
-      setIsBotTyping(false);
-    }, 1000);
+    const response = await chatMutation.mutateAsync({
+      user_id,
+      chatId: selectedChatId,
+      content: input,
+    });
+
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { sender: 'bot', text: response.message },
+    ]);
+    setIsBotTyping(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
