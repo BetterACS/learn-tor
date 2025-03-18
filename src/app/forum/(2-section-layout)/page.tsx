@@ -8,48 +8,8 @@ import { useSession } from 'next-auth/react';
 export default function Home() {
   const router = useRouter();
   const { data: session } = useSession();
-
-  const mockup_faculty = [
-    "แพทยฯ",
-    "เภสัชฯ",
-    "พยาบาลฯ",
-    "วิศวฯ",
-    "สถาปัตย์ฯ",
-    "วิทยาฯ",
-    "อักษรฯ - มนุษยฯ",
-    "บัญชี - บริหาร",
-    "ครุฯ - ศึกษาฯ",
-    "ทันตะฯ",
-    "สหเวชฯ",
-    "จิตวิทยา",
-    "นิเทศฯ",
-    "นิติฯ",
-    "รัฐฯ-สังคมฯ",
-    "ศิลปกรรมฯ"
-  ];
-
-  const mockup_universities = [
-    "เกษตรศาสตร์",
-    "ธรรมศาสตร์",
-    "จุฬาลงกรณ์",
-    "ลาดกระบัง",
-    "มหิดล",
-    "พระจอมเกล้าธนบุรี",
-    "ศรีนคริทรวิโรฒ",
-    "พระนครเหนือ",
-    "เชียงใหม่",
-    "แม่โจ้",
-    "สงขลานครินทร์",
-    "วลัยลักษณ์",
-    "แม่ฟ้าหลวง",
-    "บูรพา",
-    "พะเยา",
-    "สุโขทัยธรรมาธิราช",
-    "มหาสารคาม",
-    "อุบลราชธานี",
-    "รามคําแหง"
-  ];
   const { data: carousel_items, isLoading, isError } = trpc.queryTopic.useQuery();
+  const { data: allTags, isLoading: isLoadingTags, isError: isTagsError } = trpc.getTags.useQuery();
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading posts</div>;
@@ -121,7 +81,7 @@ export default function Home() {
           </div>
 
           <div className="w-full h-fit flex flex-wrap gap-2">
-            {mockup_faculty.map((key) => (
+            {allTags["คณะ"].map((key) => (
               <button name={key} onClick={handleTagClicked} key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
                 <p className="text-monochrome-600 group-hover:text-monochrome-50">{key}</p>
               </button>
@@ -141,7 +101,7 @@ export default function Home() {
           </div>
 
           <div className="w-full h-fit flex flex-wrap gap-2">
-            {mockup_universities.map((key) => (
+            {allTags["มหาวิทยาลัย"].map((key) => (
               <button name={key} onClick={handleTagClicked} key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
                 <p className="text-monochrome-600 group-hover:text-monochrome-50">{key}</p>
               </button>

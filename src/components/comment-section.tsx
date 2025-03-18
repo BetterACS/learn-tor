@@ -120,6 +120,7 @@ const CommentComponent = ({ comment }: CommentProps) => {
 )}
 
 export default function CommentSection() {
+  const [sortBy, setSortBy] = useState<string>("Newest");
   // mockup comment data
   // // if there aren't any comment (sort by will not display)
   // const comments: Comment[] = [];
@@ -228,7 +229,7 @@ export default function CommentSection() {
           <p className="text-monochrome-500 text-subtitle-large">
             Sort by: 
           </p>
-          <SortBy filters={["Newest", "Oldest", "Most Likes"]} />
+          <SortBy filters={["Newest", "Oldest", "Most Likes"]}  sortBy={sortBy} setSortBy={setSortBy}/>
         </div>
 
         {/* Comments */}

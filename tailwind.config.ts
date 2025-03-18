@@ -109,6 +109,7 @@ export default {
         'headline-4': ['2.125rem', { fontWeight: '400', letterSpacing: '0.25px' }],
         'headline-5': ['1.5rem', { fontWeight: '400', letterSpacing: '0px' }],
         'headline-6': ['1.25rem', { fontWeight: '500', letterSpacing: '0px' }],
+        'headline-7': ['1.125rem', { fontWeight: '500', letterSpacing: '0px' }],
         'body-large': ['1rem', { fontWeight: '400', letterSpacing: '0.5px' }],
         'body-small': ['0.875rem', { fontWeight: '400', letterSpacing: '0.25px' }],
         'subtitle-large': ['1rem', { fontWeight: '400', letterSpacing: '0.15px' }],
