@@ -19,6 +19,7 @@
     "@trpc/next": "^11.0.0-rc.682",
     "@trpc/react-query": "^11.0.0-rc.682",
     "@trpc/server": "^11.0.0-rc.682",
+    "axios": "^1.8.2",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",

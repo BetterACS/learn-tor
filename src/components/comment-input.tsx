@@ -17,6 +17,7 @@ export default function CommentInput({ topic_id, parent_id, isCommentClicked, se
   const [comment, setComment] = useState<string>('');
   const [rows, setRows] = useState<number>(1);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const trpcContext = trpc.useContext();  // สำหรับ invalidate query
 
   const mutation = trpc.createComment.useMutation({
     onSuccess: () => {
@@ -26,6 +27,8 @@ export default function CommentInput({ topic_id, parent_id, isCommentClicked, se
       if (setIsCommentClicked) {
         setIsCommentClicked(false);
       }
+      
+      trpcContext.getAllComments.invalidate({ topic_id: topic_id?.toString() || '' });
     },
     onError: (error) => {
       console.error('Error creating comment:', error);
@@ -64,6 +67,7 @@ export default function CommentInput({ topic_id, parent_id, isCommentClicked, se
       comment,
       parent_id: parent_id?.toString() || undefined,
     });
+    
   };
 
   return (

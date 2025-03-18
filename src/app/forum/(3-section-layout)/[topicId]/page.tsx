@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import { CommentSection, CommentInput } from '@/components/index';
+import { CommentSection, CommentInput, Comments } from '@/components/index';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { trpc } from '@/app/_trpc/client';
@@ -236,10 +236,9 @@ export default function Topic() {
         )}
         </div>
         <div>
-          <CommentSection
-          topicId='67adf79e39fbc02ce6ccf613'
-          userEmail='s37695@bj.ac.th'
-          />
+          {post?._id && session?.user?.email && (
+            <Comments topicId={post._id} userEmail={session.user.email} />
+          )}
         </div>
       </div>
     </div>

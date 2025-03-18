@@ -4,6 +4,7 @@ import { connectDB } from '@/server/db';
 import { CommentModel } from '@/db/models';
 import { UserModel } from '@/db/models';
 import { TopicModel } from '@/db/models';
+import mongoose from "mongoose";
 
 export default function createComment() {
     return {
@@ -41,7 +42,7 @@ export default function createComment() {
                         user_id: user._id,
                         topic_id,
                         comment,
-                        parent_id: parent_id || null,
+                        parent_id: parent_id ? new mongoose.Types.ObjectId(parent_id) : undefined,
                         n_like: 0,
                         created_at: new Date(),
                     });

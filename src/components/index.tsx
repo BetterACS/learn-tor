@@ -33,6 +33,7 @@ import Questionbox from '@/components/question';
 import CompareList from '@/components/comparelist';
 import PaginationButtons from '@/components/pagination';
 import AddTagPopup from '@/components/add-tag-popup';
+import Comments from '@/components/Comments';
 
 export {
   Test,
@@ -70,4 +71,5 @@ export {
   CompareList,
   PaginationButtons,
   AddTagPopup,
+  Comments,
 }
