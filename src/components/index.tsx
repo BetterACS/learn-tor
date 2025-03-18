@@ -33,6 +33,8 @@ import Questionbox from '@/components/question';
 import CompareList from '@/components/comparelist';
 import PaginationButtons from '@/components/pagination';
 import AddTagPopup from '@/components/add-tag-popup';
+import Inputcalculator from '@/components/inputcalculator';
+import ResultCalculator from '@/components/resultcalculator';
 import Comments from '@/components/Comments';
 
 export {
@@ -71,5 +73,7 @@ export {
   CompareList,
   PaginationButtons,
   AddTagPopup,
+  Inputcalculator,
+  ResultCalculator,
   Comments,
 }
