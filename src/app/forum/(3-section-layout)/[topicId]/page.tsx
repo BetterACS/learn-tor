@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import { CommentSection, CommentInput } from '@/components/index';
+import { CommentSection, CommentInput, Comments } from '@/components/index';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { trpc } from '@/app/_trpc/client';
@@ -231,10 +231,14 @@ export default function Topic() {
         </div>
         {/* Comment text area */}
         <div className="flex">
-          <CommentInput topic_id={null} parent_id={null} />
+        {post?._id && session?.user?.email && (
+          <CommentInput topic_id={post._id} parent_id={null} userEmail={session.user.email} />
+        )}
         </div>
         <div>
-          <CommentSection />
+          {post?._id && session?.user?.email && (
+            <Comments topicId={post._id} userEmail={session.user.email} />
+          )}
         </div>
       </div>
     </div>

@@ -35,6 +35,7 @@ import PaginationButtons from '@/components/pagination';
 import AddTagPopup from '@/components/add-tag-popup';
 import Inputcalculator from '@/components/inputcalculator';
 import ResultCalculator from '@/components/resultcalculator';
+import Comments from '@/components/Comments';
 
 export {
   Test,
@@ -74,4 +75,5 @@ export {
   AddTagPopup,
   Inputcalculator,
   ResultCalculator,
+  Comments,
 }
