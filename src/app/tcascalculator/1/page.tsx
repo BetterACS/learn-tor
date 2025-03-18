@@ -155,7 +155,7 @@ export default function Calculator1() {
                     </div>
                   </div>
                 ))}
-                {targets.length < 1 && (
+                {targets.length < 2 && (
                     <div 
                         className="flex items-center border border-dashed border-gray-400 rounded-lg py-3 px-4 cursor-pointer text-primary-600 text-center mt-4"
                         onClick={addTarget}

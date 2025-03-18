@@ -49,7 +49,7 @@ export default function ResultCalculator({ hideConfirmButton = false }) {
   const router = useRouter();
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [isScoreOpen, setIsScoreOpen] = useState(false);
-  const [score, setScore] = useState(80); // เปลี่ยนค่าคะแนนได้
+  const [score, setScore] = useState(100); // เปลี่ยนค่าคะแนนได้
   const [showDetails, setShowDetails] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
 
