@@ -13,7 +13,7 @@ export default function addScore(){
                 })
             )
             .mutation(async ({input}) => {
-                connectDB();
+                await connectDB();
                 const { email, scores } = input;
                 const user = await UserModel.findOne({ email: email });
 

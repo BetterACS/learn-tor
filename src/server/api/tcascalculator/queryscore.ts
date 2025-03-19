@@ -12,7 +12,7 @@ export default function queryScore(){
                 })
             )
             .mutation(async ({input}) => {
-                connectDB();
+                await connectDB();
                 const { email } = input;
                 const user = await UserModel.findOne({ email });
                 if (!user) {

@@ -14,7 +14,7 @@ export default function chatBot(){
                 })
             )
             .mutation(async ({input}) => {
-                connectDB();
+                await connectDB();
                 const { email, content, chatId} = input;
                 const time = new Date();
 
