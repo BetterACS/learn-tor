@@ -84,8 +84,8 @@ interface Score extends Document {
   TGAT1?: number;
   TGAT2?: number;
   TGAT3?: number;
-  TPAT2_1?: number;
-  TPAT2_2?: number;
+  TPAT21?: number;
+  TPAT22?: number;
   TPAT3?: number;
   TPAT4?: number;
   TPAT5?: number;
@@ -105,6 +105,7 @@ interface Score extends Document {
   A_CHINESE?: number;
   A_KOREAN?: number;
   A_SPANISH?: number;
+  SPEACIAL?: Array<Object>;
 }
 
 const ScoreSchema: Schema<Score> = new Schema({
@@ -112,8 +113,8 @@ const ScoreSchema: Schema<Score> = new Schema({
   TGAT1: { type: Number },
   TGAT2: { type: Number },
   TGAT3: { type: Number },
-  TPAT2_1: { type: Number },
-  TPAT2_2: { type: Number },
+  TPAT21: { type: Number },
+  TPAT22: { type: Number },
   TPAT3: { type: Number },
   TPAT4: { type: Number },
   TPAT5: { type: Number },
@@ -133,6 +134,7 @@ const ScoreSchema: Schema<Score> = new Schema({
   A_CHINESE: { type: Number },
   A_KOREAN: { type: Number },
   A_SPANISH: { type: Number },
+  SPEACIAL: { type: [Object], default: [] },
 });
 
 const ScoreModel = mongoose.models.Score || mongoose.model<Score>('Score', ScoreSchema);
