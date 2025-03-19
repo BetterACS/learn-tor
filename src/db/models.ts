@@ -281,6 +281,7 @@ const LikeCommentSchema: Schema<LikeComment> = new Schema({
 const LikeCommentModel = mongoose.models.LikeComment || mongoose.model<LikeComment>('LikeComment', LikeCommentSchema);
 
 interface TcasCalculator extends Document {
+  user_id: mongoose.Types.ObjectId;
   institution: string,
   faculty: string,
   program: string,
@@ -288,17 +289,24 @@ interface TcasCalculator extends Document {
   major: string,
   detail: string,
   description: string,
+  score_calculation_formula: Array<object>,
+  minimum_criteria: Array<object>,
+  admitted: number
   chance: number,
 }
 
 const TcasCalculatorSchema: Schema<TcasCalculator> = new Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   institution: { type: String, required: true },
   faculty: { type: String, required: true },
   program: { type: String, required: true },
   course_type: { type: String, required: true },
   major: { type: String, required: true },
-  detail: { type: String, required: true },
+  detail: { type: String },
   description: { type: String, required: true },
+  score_calculation_formula: { type: [Object] },
+  minimum_criteria: { type: [Object] },
+  admitted: { type: Number },
   chance: { type: Number },
 });
 
