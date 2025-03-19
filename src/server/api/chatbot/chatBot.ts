@@ -40,7 +40,7 @@ export default function chatBot(){
                         history: []
                     });
                 }
-
+                
                 try {
                     await chat.save();
                     console.log("Chat saved successfully",chat);
@@ -70,7 +70,7 @@ export default function chatBot(){
                     console.error("Error updating chat:", error);
                 }
 
-
+                
                 return {
                     status:200,
                     message: "Chat successfully saved",
