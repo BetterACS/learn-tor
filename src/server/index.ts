@@ -24,7 +24,6 @@ import likeComment from './api/forum/likeComment';
 import chatBot from './api/chatbot/chatBot';
 import createChat from './api/chatbot/createChat';
 import queryChat from './api/chatbot/queryChat';
-import addscore from './api/tcascalculator/addscore';
 import queryScore from './api/tcascalculator/queryscore';
 import addScore from './api/member-system/addScore';
 
@@ -54,6 +53,8 @@ export const appRouter = router({
     ...chatBot(),
     ...createChat(),
     ...queryChat(),
+    ...queryScore(),
+    ...addScore()
 });
 const createCaller = createCallerFactory(appRouter);
 
