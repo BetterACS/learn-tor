@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
-
+import { trpc } from '@/app/_trpc/client';
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -12,6 +12,21 @@ export default function Navbar() {
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const { data: session, status } = useSession();
+  const [avatar, setAvatar] = useState<string>("");
+
+
+  const userId = session?.user?.id;
+  const { data: userData } = trpc.getUser.useQuery(
+        { _id: userId || '' },
+        { enabled: !!userId }
+      );
+
+  useEffect(() => {
+        if (userData?.data && 'user' in userData.data) {
+          const { user} = userData.data;
+          setAvatar(user.avatar);
+        }
+      }, [userData]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -40,7 +55,7 @@ export default function Navbar() {
   return (
     <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-[40] text-big-button">
       <Link href="/" className="h-full w-[4rem] min-w-[4rem]">
-        <img src='/images/logo.avif' alt="Logo" />
+        <img src="/images/logo.avif" alt="Logo" />
       </Link>
 
       <div className="md:hidden flex items-center mr-6">
@@ -87,7 +102,7 @@ export default function Navbar() {
         {status === "authenticated" ? (
           <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
             <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-              <img src='/images/profile.avif' alt="Profile" />
+              <img src={avatar || "/images/profile.avif"} alt="Profile" />
             </button>
             {profileDropdownOpen && (
               <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
