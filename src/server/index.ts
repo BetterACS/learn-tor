@@ -21,6 +21,7 @@ import updateAvatar from './api/member-system/updateAvatar';
 import chatBot from './api/chatbot/chatBot';
 import createChat from './api/chatbot/createChat';
 import queryChat from './api/chatbot/queryChat';
+import addScore from './api/member-system/addScore';
 
 export const appRouter = router({
 	...apiTest(),
@@ -45,6 +46,7 @@ export const appRouter = router({
     ...chatBot(),
     ...createChat(),
     ...queryChat(),
+    ...addScore(),
 });
 const createCaller = createCallerFactory(appRouter);
 
