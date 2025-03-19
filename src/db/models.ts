@@ -280,6 +280,30 @@ const LikeCommentSchema: Schema<LikeComment> = new Schema({
 
 const LikeCommentModel = mongoose.models.LikeComment || mongoose.model<LikeComment>('LikeComment', LikeCommentSchema);
 
+interface TcasCalculator extends Document {
+  institution: string,
+  faculty: string,
+  program: string,
+  course_type: string,
+  major: string,
+  detail: string,
+  description: string,
+  chance: number,
+}
+
+const TcasCalculatorSchema: Schema<TcasCalculator> = new Schema({
+  institution: { type: String, required: true },
+  faculty: { type: String, required: true },
+  program: { type: String, required: true },
+  course_type: { type: String, required: true },
+  major: { type: String, required: true },
+  detail: { type: String, required: true },
+  description: { type: String, required: true },
+  chance: { type: Number },
+});
+
+const TcasCalculatorModel = mongoose.models.TcasCalculator || mongoose.model<TcasCalculator>('TcasCalculator', TcasCalculatorSchema);
+
 export {
   UserModel,
   TopicModel,
@@ -292,6 +316,7 @@ export {
   TagNameModel,
   TopicAndTagModel,
   LikeCommentModel,
+  TcasCalculatorModel,
   type Topic,
   type University,
   type User,
