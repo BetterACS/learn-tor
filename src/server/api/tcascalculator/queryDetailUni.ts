@@ -32,7 +32,7 @@ export default function queryDetail(){
                     const searchMajor = allData.filter(uni => uni.institution === institution && uni.faculty === faculty)
                     .map(uni => {
                         if (Array.isArray(uni.round_3)) {
-                            return uni.round_3.map(round => round.field_major).filter(field_major => field_major !== undefined);
+                            return uni.round_3.map((round: any) => round.field_major).filter((field_major: any) => field_major !== undefined);
                         }
                         return [];
                     })
@@ -47,14 +47,14 @@ export default function queryDetail(){
                     const searchAdmission = allData.filter(uni => 
                         uni.institution === institution &&
                         uni.faculty === faculty &&
-                        uni.round_3.some(round => round.field_major === major))
+                        uni.round_3.some((round: any) => round.field_major === major))
 
                     .map(uni => {
                         if (Array.isArray(uni.round_3)) {
                             return uni.round_3
-                            .filter(round => round.field_major === major)
-                            .map(round => round.description)
-                            .filter(description => description !== undefined);
+                            .filter((round: any) => round.field_major === major)
+                            .map((round: any) => round.description)
+                            .filter((description: any) => description !== undefined);
                         }
                         return [];
                     })
@@ -66,14 +66,6 @@ export default function queryDetail(){
 
                 // คณะทั้งหมด
                 // const facultyResult = Array.from(new Set(allData.map(uni => uni.faculty)));
-
-                return {
-                    institution,
-                    faculty,
-                    major,
-                    uniqueAdmission
-                };
-
             })
     }
 }
