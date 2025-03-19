@@ -10,32 +10,51 @@ export default function queryDetail(){
                 z.object({
                     institution: z.string().optional(),
                     faculty: z.string().optional(),
-                    program: z.string().optional()
+                    major: z.string().optional()
                 })
             )
             .mutation(async ({input}) => {
                 await connectDB();
-                const { institution, faculty, program } = input;
+                const { institution, faculty, major } = input;
                 const allData = await UniversityModel.find({});
                 if (!institution) {
                     const universityName = Array.from(new Set(allData.map(uni => uni.institution)));
                     return universityName;
+                    
                 }else if (institution && !faculty) {
                     // คณะที่มีในมหาลัยนั้นๆ
                     const searchFaculty = allData.filter(uni => uni.institution === institution).map(uni => uni.faculty);
                     const uniqueFaculty = Array.from(new Set(searchFaculty));
                     return uniqueFaculty;
-                }else if (institution && faculty && !program) {
+
+                }else if (institution && faculty && !major) {
                     // โปรแกรมที่มีในคณะนั้นๆ
-                    const searchProgram = allData.filter(uni => uni.institution === institution && uni.faculty === faculty).map(uni => uni.program);
-                    const uniqueProgram = Array.from(new Set(searchProgram));
-                    return uniqueProgram;
-                }else if (institution && faculty && program) {
-                    // รูปแบบการรับ
-                    const searchAdmission = allData.filter(uni => uni.institution === institution && uni.faculty === faculty && uni.program === program)
+                    const searchMajor = allData.filter(uni => uni.institution === institution && uni.faculty === faculty)
                     .map(uni => {
                         if (Array.isArray(uni.round_3)) {
-                            return uni.round_3.map(round => round.description).filter(description => description !== undefined);
+                            return uni.round_3.map(round => round.field_major).filter(field_major => field_major !== undefined);
+                        }
+                        return [];
+                    })
+                    .flat()
+                    .filter(field_major => field_major !== null && field_major !== undefined);
+
+                    const uniqueMajor = Array.from(new Set(searchMajor));
+                    return uniqueMajor;
+
+                }else if (institution && faculty && major) {
+                    // รูปแบบการรับ
+                    const searchAdmission = allData.filter(uni => 
+                        uni.institution === institution &&
+                        uni.faculty === faculty &&
+                        uni.round_3.some(round => round.field_major === major))
+
+                    .map(uni => {
+                        if (Array.isArray(uni.round_3)) {
+                            return uni.round_3
+                            .filter(round => round.field_major === major)
+                            .map(round => round.description)
+                            .filter(description => description !== undefined);
                         }
                         return [];
                     })
@@ -45,14 +64,13 @@ export default function queryDetail(){
                     return uniqueAdmission;
                 }
 
-                // คณะและโปรแกรมทั้งหมด
+                // คณะทั้งหมด
                 // const facultyResult = Array.from(new Set(allData.map(uni => uni.faculty)));
-                // const programResult = Array.from(new Set(allData.map(uni => uni.program)));
 
                 return {
                     institution,
                     faculty,
-                    program,
+                    major,
                     uniqueAdmission
                 };
 
