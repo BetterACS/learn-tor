@@ -14,40 +14,40 @@
     };
   }
 
-  interface FormData {
-    username: string;
-    email: string;
-    avatar: string; // บันทึกเข้า db แสดงขึ้นหน้าโปรไฟล์ได้ แต่ยังเรียกขึ้น navbar ไม่ได้
-    major: string; // ยังบันทึกไม่ได้ (เป็นตัวที่ตอนแรกไม่มีใน model แล้วพึ่งถูกเพิ่มเข้าไปไม่แน่ใจว่าเป็นเพราะส่วนนี้ไหม)
-    talent: string;
-    lesson_plan: string;
-    GPAX: string;
-    TGAT1: string; // tgat tpat alevel ยังบันทึกไม่ได้
-    TGAT2: string;
-    TGAT3: string;
-    TPAT2_1: string;
-    TPAT2_2: string;
-    TPAT2_3: string;
-    TPAT3: string;
-    TPAT4: string;
-    TPAT5: string;
-    A_MATH1: string;
-    A_MATH2: string;
-    A_SCIENCE: string;
-    A_PHYSIC: string;
-    A_BIOLOGY: string;
-    A_CHEMISTRY: string;
-    A_SOCIAL: string;
-    A_THAI: string;
-    A_ENGLISH: string;
-    A_FRANCE: string;
-    A_GERMANY: string;
-    A_JAPAN: string;
-    A_PALI: string;
-    A_CHINESE: string;
-    A_KOREAN: string;
-    A_SPANISH: string;
-  }
+interface FormData {
+  username: string;
+  email: string;
+  avatar: string;
+  major: string;
+  talent: string;
+  lesson_plan: string;
+  GPAX: string;
+  TGAT1: string;
+  TGAT2: string;
+  TGAT3: string;
+  TPAT2_1: string;
+  TPAT2_2: string;
+  TPAT2_3: string;
+  TPAT3: string;
+  TPAT4: string;
+  TPAT5: string;
+  A_MATH1: string;
+  A_MATH2: string;
+  A_SCIENCE: string;
+  A_PHYSIC: string;
+  A_BIOLOGY: string;
+  A_CHEMISTRY: string;
+  A_SOCIAL: string;
+  A_THAI: string;
+  A_ENGLISH: string;
+  A_FRANCE: string;
+  A_GERMANY: string;
+  A_JAPAN: string;
+  A_PALI: string;
+  A_CHINESE: string;
+  A_KOREAN: string;
+  A_SPANISH: string;
+}
 
   const initialFormData: FormData = {
     username: '',

@@ -4,6 +4,15 @@ import { useState, useRef, useEffect } from 'react';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { trpc } from '@/app/_trpc/client';
+interface CustomSession {
+  user?: {
+    id?: string;
+    username?: string;
+    email?: string;
+    avatar?: string;
+  };
+}
+
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -11,7 +20,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession() as { data: CustomSession | null };
   const [avatar, setAvatar] = useState<string>("");
 
 
@@ -128,12 +137,15 @@ export default function Navbar() {
         <div className="lg:hidden fixed top-[5.25rem] left-0 w-full bg-primary-600 py-8 z-50">
           <div className="text-monochrome-50">
             <div className="flex flex-col gap-4">
-              <div className="text-center px-5">
+              <div className="text-center">
                 {status === "authenticated" && (
                   <Link href="/profile">
-                    <div className="flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
-                      <img src='/images/profile.avif' className="w-[3.5rem] h-[3.5rem] rounded-full" />
-                      <span className="text-monochrome-50">Username</span>
+                    <div className="px-5 flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
+                      <img
+                        src={session?.user?.avatar || '/images/profile.avif'}
+                        className="w-[3.5rem] h-[3.5rem] rounded-full object-cover"
+                      />
+                      <span className="text-monochrome-50 ml-4">{session?.user?.username || 'Profile'}</span>
                     </div>
                   </Link>
                 )}
