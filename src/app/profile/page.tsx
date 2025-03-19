@@ -100,15 +100,56 @@ const UserProfile = () => {
     { enabled: !!userId }
   );
   const editUserMutation = trpc.editUser.useMutation();
+  const addScore = trpc.addScore.useMutation();
   const updateAvatarMutation = trpc.updateAvatar.useMutation();
 
   // Load user data into form
   useEffect(() => {
-    if (userData?.data?.user) {
-      setFormData({
-        ...initialFormData,
-        ...userData.data.user,
-      });
+    if (userData?.data && 'user' in userData.data && 'scores' in userData.data) {
+      const { user, scores } = userData.data;
+  
+      // Set user-related data
+      setFormData(prevData => ({
+        ...prevData,
+        username: user?.username || '',
+        email: user?.email || '',
+        avatar: user?.avatar || 'https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar.jpg',
+        major: user?.major || '',
+        talent: user?.talent || '',
+        lesson_plan: user?.lesson_plan || '',
+        GPAX: user?.GPAX || '',
+      }));
+  
+      // Set scores-related data
+      setFormData(prevData => ({
+        ...prevData,
+
+        TGAT1: scores?.TGAT1 || '',
+        TGAT2: scores?.TGAT2 || '',
+        TGAT3: scores?.TGAT3 || '',
+        TPAT2_1: scores?.TPAT2_1 || '',
+        TPAT2_2: scores?.TPAT2_2 || '',
+        TPAT2_3: scores?.TPAT2_3 || '',
+        TPAT3: scores?.TPAT3 || '',
+        TPAT4: scores?.TPAT4 || '',
+        TPAT5: scores?.TPAT5 || '',
+        A_MATH1: scores?.A_MATH1 || '',
+        A_MATH2: scores?.A_MATH2 || '',
+        A_SCIENCE: scores?.A_SCIENCE || '',
+        A_PHYSIC: scores?.A_PHYSIC || '',
+        A_BIOLOGY: scores?.A_BIOLOGY || '',
+        A_CHEMISTRY: scores?.A_CHEMISTRY || '',
+        A_SOCIAL: scores?.A_SOCIAL || '',
+        A_THAI: scores?.A_THAI || '',
+        A_ENGLISH: scores?.A_ENGLISH || '',
+        A_FRANCE: scores?.A_FRANCE || '',
+        A_GERMANY: scores?.A_GERMANY || '',
+        A_JAPAN: scores?.A_JAPAN || '',
+        A_PALI: scores?.A_PALI || '',
+        A_CHINESE: scores?.A_CHINESE || '',
+        A_KOREAN: scores?.A_KOREAN || '',
+        A_SPANISH: scores?.A_SPANISH || '',
+      }));
     }
   }, [userData]);
 
@@ -191,6 +232,36 @@ const UserProfile = () => {
       const result = await editUserMutation.mutateAsync({
         email: session.user.email,
         updates: formData,
+      });
+      const scoreResult = await addScore.mutateAsync({
+        email: session.user.email,
+        scores: {
+          TGAT1: formData.TGAT1,
+          TGAT2: formData.TGAT2,
+          TGAT3: formData.TGAT3,
+          TPAT2_1: formData.TPAT2_1,
+          TPAT2_2: formData.TPAT2_2,
+          TPAT2_3: formData.TPAT2_3,
+          TPAT3: formData.TPAT3,
+          TPAT4: formData.TPAT4,
+          TPAT5: formData.TPAT5,
+          A_MATH1: formData.A_MATH1,
+          A_MATH2: formData.A_MATH2,
+          A_SCIENCE: formData.A_SCIENCE,
+          A_PHYSIC: formData.A_PHYSIC,
+          A_BIOLOGY: formData.A_BIOLOGY,
+          A_CHEMISTRY: formData.A_CHEMISTRY,
+          A_SOCIAL: formData.A_SOCIAL,
+          A_THAI: formData.A_THAI,
+          A_ENGLISH: formData.A_ENGLISH,
+          A_FRANCE: formData.A_FRANCE,
+          A_GERMANY: formData.A_GERMANY,
+          A_JAPAN: formData.A_JAPAN,
+          A_PALI: formData.A_PALI,
+          A_CHINESE: formData.A_CHINESE,
+          A_KOREAN: formData.A_KOREAN,
+          A_SPANISH: formData.A_SPANISH,
+        },
       });
 
       if (result.status === 200) {
