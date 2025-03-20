@@ -1,4 +1,7 @@
-'use client';
+"use client";
+import * as React from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 import { useState, useRef, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -131,6 +134,14 @@ export default function Page() {
                   </div>
                 </div>
               ))}
+              {isBotTyping && (
+                <div className="flex justify-start gap-2 w-full">
+                  <img src="images/logofooter.avif" alt="Bot Logo" className="w-16 h-16 md:ml-32 lg:ml-56 mt-6" />
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, ml: 2 }}>
+                    <CircularProgress size={24} />
+                  </Box>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
           )}

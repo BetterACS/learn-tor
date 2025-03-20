@@ -222,7 +222,7 @@ const ComparisonCriteria = ({
     <>
       <p className="text-headline-4 mb-8 mt-8 text-center">What do you need to compare?</p>
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 justify-center items-center text-headline-6 md:ml-6 lg:ml-64">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 justify-center items-center text-headline-6 md:ml-10 lg:ml-72">
         {Object.keys(criteriaLabels).map((criteria, index) => (
           <div key={index} className="flex items-center justify-start space-x-2">
             <input
@@ -277,6 +277,18 @@ const ComparisonResults = ({
   selectedCriteria: string[];
   criteriaLabels: { [key: string]: string };
 }) => {
+  const [currentRound3Indices, setCurrentRound3Indices] = useState<number[]>(
+    universities.map(() => 0)
+  );
+
+  const handleRound3IndexChange = (universityIndex: number, newIndex: number) => {
+    setCurrentRound3Indices((prevIndices) => {
+      const updatedIndices = [...prevIndices];
+      updatedIndices[universityIndex] = newIndex;
+      return updatedIndices;
+    });
+  };
+
   const formatCriteriaValue = (value: any) => {
     if (value === null || value === undefined) {
       return <span>-</span>;
@@ -304,59 +316,156 @@ const ComparisonResults = ({
     return <span>{typeof value === 'string' ? value : '-'}</span>;
   };
 
-  const renderCriteriaValue = (university: any, criteriaKey: string) => {
+  const renderCriteriaValue = (university: any, criteriaKey: string, universityIndex: number) => {
     if (criteriaKey.startsWith('round_')) {
       const roundData = university[criteriaKey];
       if (!roundData || roundData.length === 0) {
         return <p>-</p>;
       }
-
+  
+      // ดึงข้อมูลที่แสดงอยู่ในหน้าปัจจุบัน
+      const currentData = universities.map((u, idx) => {
+        const round = u[criteriaKey];
+        if (!round || round.length === 0) return null;
+        const currentIndex = currentRound3Indices[idx];
+        return round[currentIndex] ?? null; // ใช้ Nullish Coalescing เพื่อป้องกัน undefined
+      }).filter(item => item !== null);
+  
+      // คำนวณค่าสูงสุด, ต่ำสุด, และค่ากลางจากข้อมูลที่แสดงอยู่ในหน้าปัจจุบัน
+      const currentMaxScores = currentData.map(item => item?.max_score).filter(score => score !== undefined && score !== null);
+      const currentMinScores = currentData.map(item => item?.min_score).filter(score => score !== undefined && score !== null);
+      const currentAcceptanceRates = currentData.map(item => item?.acceptance_rate).filter(rate => rate !== undefined && rate !== null);
+  
+      // คำนวณค่าสูงสุดและต่ำสุด
+      const maxOfMaxScores = currentMaxScores.length > 0 ? Math.max(...currentMaxScores) : null;
+      const minOfMaxScores = currentMaxScores.length > 0 ? Math.min(...currentMaxScores) : null;
+      const maxOfMinScores = currentMinScores.length > 0 ? Math.max(...currentMinScores) : null;
+      const minOfMinScores = currentMinScores.length > 0 ? Math.min(...currentMinScores) : null;
+      const maxOfAcceptanceRates = currentAcceptanceRates.length > 0 ? Math.max(...currentAcceptanceRates) : null;
+      const minOfAcceptanceRates = currentAcceptanceRates.length > 0 ? Math.min(...currentAcceptanceRates) : null;
+  
+      // คำนวณค่ากลาง (median)
+      const getMedian = (values: number[]) => {
+        if (values.length === 0) return null;
+        const sorted = [...values].sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+      };
+  
+      const medianOfMaxScores = getMedian(currentMaxScores);
+      const medianOfMinScores = getMedian(currentMinScores);
+      const medianOfAcceptanceRates = getMedian(currentAcceptanceRates);
+  
+      // ฟังก์ชันกำหนดสี
+      const getColor = (value: number, maxValue: number | null, minValue: number | null, medianValue: number | null) => {
+        if (maxValue !== null && Math.abs(value - maxValue) < 0.01) return 'green'; // สีเขียวสำหรับค่าสูงสุด
+        if (minValue !== null && Math.abs(value - minValue) < 0.01) return 'red'; // สีแดงสำหรับค่าต่ำสุด
+        if (medianValue !== null && Math.abs(value - medianValue) < 0.01) return 'orange'; // สีส้มสำหรับค่ากลาง
+        return 'black'; // สีดำสำหรับค่าอื่นๆ
+      };
+  
       const uniqueRoundData = roundData.filter((value: any, index: number, self: any[]) =>
-        index === self.findIndex((t: any) => (
-          JSON.stringify(t) === JSON.stringify(value)
-        ))
+        index === self.findIndex((t: any) => JSON.stringify(t) === JSON.stringify(value))
       );
-
+  
       return (
-        <div>
+        <div className="relative">
           {uniqueRoundData.length > 0 ? (
-            uniqueRoundData.map((item: any, idx: number) => {
-              if (criteriaKey === 'round_3') {
-                const {
-                  register,
-                  passed,
-                  max_score,
-                  min_score,
-                  acceptance_rate,
-                  enrollment_rate,
-                } = item;
-                const enrollment_count = Math.round((passed * parseFloat(enrollment_rate)) / 100);
-
-                return (
-                  <div key={idx} className="mb-4">
-                    <p>
-                      <span>สมัครสอบ: </span> {register || '-'}<br />
-                      <span>ผ่าน: </span> {passed || '-'}<br />
-                      <span>คะแนนสูงสุด: </span> {max_score || '-'}<br />
-                      <span>คะแนนต่ำสุด: </span> {min_score || '-'}<br />
-                      <span>อัตราการรับเข้าเรียน: </span> {acceptance_rate || '-'}<br />
-                      <span>อัตราการลงทะเบียน: </span> {enrollment_rate || '-'}<br />
-                      <span>จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count || '-'}<br />
-                    </p>
-                  </div>
-                );
-              } else {
-                return (
-                  <div key={idx} className="mb-4">
-                    <pre className="whitespace-pre-wrap text-left">
-                      {JSON.stringify(item, null, 2)
-                        .replace(/\\n/g, '\n')
-                        .replace(/^\s+/g, '')}
-                    </pre>
-                  </div>
-                );
-              }
-            })
+            criteriaKey === 'round_3' ? (
+              <>
+                <div className="absolute top-0 right-0 mr-4 flex space-x-2">
+                  <button
+                    onClick={() =>
+                      handleRound3IndexChange(
+                        universityIndex,
+                        (currentRound3Indices[universityIndex] - 1 + uniqueRoundData.length) % uniqueRoundData.length
+                      )
+                    }
+                    disabled={currentRound3Indices[universityIndex] === 0}
+                    className="px-2 py-2 mt-4 bg-gray-200 z-10 text-body-large rounded-lg disabled:opacity-20 hover:bg-monochrome-200"
+                  >
+                    ย้อนกลับ
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleRound3IndexChange(
+                        universityIndex,
+                        (currentRound3Indices[universityIndex] + 1) % uniqueRoundData.length
+                      )
+                    }
+                    disabled={currentRound3Indices[universityIndex] === uniqueRoundData.length - 1}
+                    className="px-2 py-2 mt-4 bg-gray-200 z-10 text-body-large rounded-lg disabled:opacity-20 hover:bg-monochrome-200"
+                  >
+                    ถัดไป
+                  </button>
+                </div>
+                {uniqueRoundData.map((item: any, idx: number) => {
+                  if (idx === currentRound3Indices[universityIndex]) {
+                    const {
+                      register,
+                      passed,
+                      max_score,
+                      min_score,
+                      acceptance_rate,
+                      enrollment_rate,
+                      criterion,
+                    } = item ?? {}; // ใช้ Nullish Coalescing เพื่อป้องกัน undefined
+  
+                    const enrollment_count = Math.round((passed * parseFloat(enrollment_rate ?? 0)) / 100);
+  
+                    return (
+                      <div key={idx} className="mb-4 p-4 border border-gray-200 rounded-lg shadow-sm">
+                        <p className="font-semibold text-primary-700 text-headline-5 mb-2">
+                          {university.program} (รูปแบบที่ {idx + 1})
+                        </p>
+                        <p className="break-words overflow-wrap text-body-large">
+                          <span style={{ whiteSpace: 'pre-wrap' }}>
+                            {criterion ? (() => {
+                              const text = criterion.replace(/ข้อมูลพื้นฐาน\s*/, '').split("คะแนนขั้นต่ำ")[0];
+                              const lines = text.split("\n");
+                              return (
+                                <>
+                                  <span className="font-bold text-headline-7">{lines[0]}</span><br /><br />
+                                  {lines.slice(2).join("\n")}
+                                </>
+                              );
+                            })() : '-'}
+                          </span><br />
+                          <span>สถิติการรับเข้าเรียน</span><br />
+                          <span>  &nbsp;- สมัครสอบ: </span> {register ?? '-'}<br />
+                          <span>  &nbsp;- ผ่าน: </span> {passed ?? '-'}<br />
+                          <span>  &nbsp;- คะแนนสูงสุด: </span>
+                          <span style={{ color: getColor(max_score ?? 0, maxOfMaxScores, minOfMaxScores, medianOfMaxScores) }}>
+                            {max_score ?? '-'}
+                          </span><br />
+                          <span>  &nbsp;- คะแนนต่ำสุด: </span>
+                          <span style={{ color: getColor(min_score ?? 0, maxOfMinScores, minOfMinScores, medianOfMinScores) }}>
+                            {min_score ?? '-'}
+                          </span><br />
+                          <span>  &nbsp;- อัตราการรับเข้าเรียน: </span>
+                          <span style={{ color: getColor(acceptance_rate ?? 0, maxOfAcceptanceRates, minOfAcceptanceRates, medianOfAcceptanceRates) }}>
+                            {acceptance_rate ?? '-'}
+                          </span><br />
+                          <span>  &nbsp;- อัตราการลงทะเบียน: </span> {enrollment_rate ?? '-'}<br />
+                          <span>  &nbsp;- จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count ?? '-'}<br />
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </>
+            ) : (
+              uniqueRoundData.map((item: any, idx: number) => (
+                <div key={idx} className="mb-4">
+                  <pre className="whitespace-pre-wrap text-left">
+                    {JSON.stringify(item, null, 2)
+                      .replace(/\\n/g, '\n')
+                      .replace(/^\s+/g, '')}
+                  </pre>
+                </div>
+              ))
+            )
           ) : (
             <p>-</p>
           )}
@@ -386,7 +495,7 @@ const ComparisonResults = ({
               <div className={`grid gap-4 ${universities.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                 {universities.map((university, index) => (
                   <div key={index} className="text-headline-6">
-                    {renderCriteriaValue(university, criteria)}
+                    {renderCriteriaValue(university, criteria, index)}
                   </div>
                 ))}
               </div>
