@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/index';
+import { trpc } from '@/app/_trpc/client';
 
 interface AddTagPopupProps {
   isPopupOpen: boolean;
@@ -13,81 +14,19 @@ interface AddTagPopupProps {
 export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags }: AddTagPopupProps) {
   // const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
-  // const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [tagList, setTagList] = useState<Record<"ทั่วไป" | "มหาวิทยาลัย" | "คณะ", string[]>>({
-    "ทั่วไป": ["TCAS", "Portfolio", "แนะนำคณะและมหาวิทยาลัย", "การเตรียมตัวสอบ"],
-    "มหาวิทยาลัย": [
-      "เกษตรศาสตร์",
-      "ธรรมศาสตร์",
-      "จุฬาลงกรณ์",
-      "ลาดกระบัง",
-      "มหิดล",
-      "พระจอมเกล้าธนบุรี",
-      "ศรีนคริทรวิโรฒ",
-      "พระนครเหนือ",
-      "เชียงใหม่",
-      "แม่โจ้",
-      "สงขลานครินทร์",
-      "วลัยลักษณ์",
-      "แม่ฟ้าหลวง",
-      "บูรพา",
-      "พะเยา",
-      "สุโขทัยธรรมาธิราช",
-      "มหาสารคาม",
-      "อุบลราชธานี",
-      "รามคําแหง"
-    ],
-    "คณะ": [
-      "แพทยฯ",
-      "เภสัชฯ",
-      "พยาบาลฯ",
-      "วิศวฯ",
-      "สถาปัตย์ฯ",
-      "วิทยาฯ",
-      "อักษรฯ - มนุษยฯ",
-      "บัญชี - บริหาร",
-      "ครุฯ - ศึกษาฯ",
-      "ทันตะฯ",
-      "สหเวชฯ",
-      "จิตวิทยา",
-      "นิเทศฯ",
-      "นิติฯ",
-      "รัฐฯ-สังคมฯ",
-      "ศิลปกรรมฯ"
-    ],
-  });
-
+  const [tagList, setTagList] = useState({});
   const [newTag, setNewTag] = useState<{ [key in keyof typeof tagList]?: string }>({});
   const [activeCategory, setActiveCategory] = useState<keyof typeof tagList | null>(null);
+  const [tagSearchTerm, setTagSearchTerm] = useState('');
+  const { data, isLoading, isError } = trpc.getSearchTags.useQuery({ 
+    query: tagSearchTerm
+  });
 
   const popupRef = useRef<HTMLDivElement | null>(null);
 
-  // const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setSearchTerm(e.target.value);
-  // };
-
-  // const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === 'Enter' && searchTerm.trim()) {
-  //     const query = JSON.stringify(selectedTags);
-  //     router.push(`/forum/search/${encodeURIComponent(searchTerm)}?query=${encodeURIComponent(query)}`);
-  //     setIsPopupOpen(false);
-  //   }
-  // };
-
-  // Handle icon click to search
-  // const handleSearch = () => {
-  //   const query = JSON.stringify(selectedTags);
-  //   router.push(`/forum/search/${encodeURIComponent(searchTerm)}?query=${encodeURIComponent(query)}`);
-  //   setIsPopupOpen(false);
-  //   setSearchTerm('');
-  // };
-
-  // Handle pressing enter to search
-  // const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === 'Enter') {
-  //     handleSearch();
-  //   }
-  // };
+  const handleTagSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagSearchTerm(e.target.value);
+  };
 
   const handleAddTag = (category: keyof typeof tagList) => {
     if (newTag[category]?.trim()) {
@@ -107,6 +46,12 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
         : [...prevTags, tag] // Add if not present
     );
   };
+
+  useEffect(() => {
+    if (isLoading) return;
+    setTagList(data);
+    console.log(data);
+  }, [isLoading, data]);
 
   // Handle clicks outside to close the popup
   useEffect(() => {
@@ -156,6 +101,8 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
               type="text"
               className="w-full bg-transparent outline-none text-body-large text-monochrome-950 placeholder-monochrome-600 caret-monochrome-600 mr-2 flex-1"
               placeholder="Search tag here"
+              onChange={handleTagSearchChange}
+              value={tagSearchTerm}
             />
             <button className="w-auto pl-2">
               <svg

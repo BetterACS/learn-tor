@@ -1,4 +1,4 @@
-import { TopicModel, TopicAndTagModel, TagNameModel, UserModel } from "@/db/models";
+import { TopicModel, TopicAndTagModel, TagNameModel, UserModel, BookmarkModel } from "@/db/models";
 import { connectDB } from "@/server/db";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
@@ -207,6 +207,109 @@ const getTopics = {
       } catch (error) {
         console.log("Error fetching user topics:", error);
         return { status: 500, data: { message: "Failed to fetch user topics" } };
+      }
+    }),
+  queryMyBookmark: publicProcedure
+    .input(
+      z.object({
+        email: z.string(),
+        sortBy: z.string(),
+        limit: z.number().default(6),
+        page: z.number().min(1).default(1)
+      })
+    )
+    .query(async ({ input }) => {
+      const { email, sortBy, limit, page } = input;
+      try {
+        await connectDB();
+  
+        // Find the user by email
+        const user = await UserModel.findOne({ email }).select("_id");
+        if (!user) {
+          return { status: 404, data: { message: "User not found" } };
+        }
+  
+        const sortOptions: Record<string, any> = {
+          Newest: { created_at: -1 },
+          Oldest: { created_at: 1 },
+          Popular: { n_like: -1, created_at: -1 },
+        };
+  
+        // Find bookmarks by the user
+        const bookmarks = await BookmarkModel.aggregate([
+          { $match: { user_id: user._id } },
+          {
+            $lookup: {
+              from: "topics",
+              localField: "topic_id",
+              foreignField: "_id",
+              as: "topicDetails",
+            },
+          },
+          { $unwind: { path: "$topicDetails", preserveNullAndEmptyArrays: true } },
+          {
+            $lookup: {
+              from: "topicandtags",
+              localField: "topicDetails._id",
+              foreignField: "topic_id",
+              as: "tags",
+            },
+          },
+          { $unwind: { path: "$tags", preserveNullAndEmptyArrays: true } },
+          {
+            $lookup: {
+              from: "tagnames",
+              localField: "tags.tag_id",
+              foreignField: "_id",
+              as: "tagDetails",
+            },
+          },
+          { $unwind: { path: "$tagDetails", preserveNullAndEmptyArrays: true } },
+          {
+            $group: {
+              _id: "$topicDetails._id",
+              title: { $first: "$topicDetails.title" },
+              body: { $first: "$topicDetails.body" },
+              user_id: { $first: "$topicDetails.user_id" },
+              created_at: { $first: "$topicDetails.created_at" },
+              n_like: { $first: "$topicDetails.n_like" },
+              img: { $first: "$topicDetails.img" },
+              tags: { $push: "$tagDetails.tagname" },
+            },
+          },
+          {
+            $facet: {
+              totalCount: [{ $count: "count" }], // Count total items before pagination
+              paginatedResults: [
+                { $sort: sortOptions[sortBy] || { created_at: -1 } },
+                { $skip: (page - 1) * limit },
+                { $limit: limit },
+              ],
+            },
+          },
+        ]);
+  
+        const totalResultsCount = bookmarks[0]?.totalCount[0]?.count || 0;
+        const resultTopics = bookmarks[0]?.paginatedResults || [];
+  
+        if (!resultTopics || resultTopics.length === 0) {
+          return { status: 400, data: { message: "No bookmarks found" } };
+        }
+  
+        const topicWithUser = await TopicModel.populate(resultTopics, {
+          path: 'user_id',
+          select: 'username',
+        });
+  
+        return {
+          status: 200,
+          data: topicWithUser,
+          totalResults: totalResultsCount,
+          maxPage: Math.ceil(totalResultsCount / limit),
+        };
+      } catch (error) {
+        console.log("Error fetching bookmarked topics:", error);
+        return { status: 500, data: { message: "Failed to fetch bookmarked topics" } };
       }
     }),
   queryTopicById: publicProcedure

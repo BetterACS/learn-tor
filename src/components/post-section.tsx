@@ -9,6 +9,7 @@ interface PostSectionProps {
   searchTerm?: string;
   filterTags?: Record<string, "included" | "excluded">;
   myTopic?: boolean;
+  myBookmark?: boolean;
 }
 
 interface Post {
@@ -22,7 +23,7 @@ interface Post {
   isLiked : boolean
 }
 
-export default function PostSection({ searchTerm, filterTags, myTopic=false }: PostSectionProps) {
+export default function PostSection({ searchTerm, filterTags, myTopic=false, myBookmark=false }: PostSectionProps) {
   const { data: session, status } = useSession();
   const [sortBy, setSortBy] = useState<string>("Newest");
   const [posts, setPosts] = useState<Post[] | []>([]);
@@ -37,13 +38,20 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false }: P
         limit: limit,
         page: currentPage
       })
-    : trpc.searchQuery.useQuery({ 
+    : myBookmark ? 
+      trpc.queryMyBookmark.useQuery({ 
+        email: session?.user?.email,
+        sortBy: sortBy,
+        limit: limit,
+        page: currentPage
+      }) : 
+      trpc.searchQuery.useQuery({ 
         searchTerm: searchTerm || '',
         filterTags: filterTags || {},
         sortBy: sortBy,
         limit: limit,
         page: currentPage
-      });
+      })
 
   const { data, isLoading, isError, refetch } = queryData;
 

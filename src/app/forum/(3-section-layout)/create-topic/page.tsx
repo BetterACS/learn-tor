@@ -60,7 +60,7 @@ export default function CreateTopic() {
       setError("Title is required");
     } 
     else{
-      await mutation.mutate(
+      mutation.mutate(
         { 
           title: postData.title,
           body: postData.body,
