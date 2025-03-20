@@ -16,7 +16,7 @@ export default function likeComment() {
       .mutation(async ({ input }) => {
         await connectDB();
         const { comment_id, email, status } = input;
-
+        
         const user = await UserModel.findOne({ email });
         if (!user) {
           return { status: 404, data: { message: 'User not found' } };
@@ -24,11 +24,19 @@ export default function likeComment() {
 
         const userId = user._id;
 
+        // เมื่อไลค์คอมเมนต์แล้ว
         if (status) {
           const existingLike = await LikeCommentModel.findOne({ user_id: userId, comment_id });
           if (existingLike) {
             const updatedComment = await CommentModel.findById(comment_id);
-            return { status: 200, data: { message: 'Already liked', n_like: updatedComment?.n_like || 0 } };
+            return { 
+              status: 200, 
+              data: { 
+                message: 'Already liked', 
+                n_like: updatedComment?.n_like || 0, 
+                state: true  // ระบุว่าไลค์แล้ว
+              } 
+            };
           }
 
           const newLike = new LikeCommentModel({ user_id: userId, comment_id });
@@ -41,12 +49,17 @@ export default function likeComment() {
             );
             return {
               status: 200,
-              data: { message: 'LikeComment Success', n_like: updatedComment?.n_like || 0, state: true },
+              data: { 
+                message: 'LikeComment Success', 
+                n_like: updatedComment?.n_like || 0, 
+                state: true // ตั้งค่าค่าสถานะเป็น true 
+              },
             };
           } catch (error) {
             return { status: 500, data: { message: 'Failed to LikeComment' } };
           }
         } else {
+          // เมื่อ un-like
           try {
             const deletedLike = await LikeCommentModel.findOneAndDelete({ user_id: userId, comment_id });
             if (!deletedLike) return { status: 404, data: { message: 'LikeComment not found' } };
@@ -59,7 +72,11 @@ export default function likeComment() {
 
             return {
               status: 200,
-              data: { message: 'LikeComment removed successfully', n_like: updatedComment?.n_like || 0, state: false },
+              data: { 
+                message: 'LikeComment removed successfully', 
+                n_like: updatedComment?.n_like || 0, 
+                state: false // ระบุว่า unliked
+              },
             };
           } catch (error) {
             return { status: 500, data: { message: 'Failed to remove LikeComment' } };
