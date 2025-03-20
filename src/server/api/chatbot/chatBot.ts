@@ -97,7 +97,8 @@ export default function chatBot(){
                 return {
                     status:200,
                     message: "Chat successfully saved",
-                    chat
+                    chat,
+                    ChatId: chat._id
                 };
             })
     }
