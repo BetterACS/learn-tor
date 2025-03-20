@@ -59,25 +59,25 @@ export default function chatBot(){
                     chat.history.push({ role: "user", content ,time: time });
                     console.log("History before saving:", chat.history);
                     
-                    const formattedData = chat.history.map(({ role, content }: { role: string; content: string }) => ({
+                    const formattedData = {
+                        q: chat.history.map(({ role, content }: { role: string; content: string }) => ({
                         role,
                         content,
-                      }));
+                      }))};
 
-                    const data = (JSON.stringify(formattedData, null, 2));
-                    const url = `${CHAT_BOT_API_URL}${data}`;
+                    if (!CHAT_BOT_API_URL) {
+                        return{status:200,message:"CHAT_BOT_API_URL is not defined"};
+                    }
+                    
+                    const response = await axios.post(CHAT_BOT_API_URL, formattedData);
 
-                    await axios.get(url)
-                        .then((response) => {
-                            console.log("Response:", response.data);
-                            const responseData = response.data.data;
-                            console.log("Response data:", responseData);
-                            chat.history.push({ role: "assistance", content: responseData , time: time});
-                            console.log("History after saving:", chat.history);
-                        })
-                        .catch((error) => {
-                            console.error("Error:", error);
-                        });
+                    if (response.data && response.data.data) {
+                        const responseData = response.data.data;
+                        chat.history.push({ role: "assistant", content: responseData, time });
+                    } else {
+                        console.error("Unexpected response format:", response.data);
+                    }
+                    
                 }catch(error){
                     console.error("Error pushing history:", error);
                 }
