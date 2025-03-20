@@ -1,7 +1,7 @@
 "use client";
 
 import { trpc } from "@/app/_trpc/client";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { CommentSection, CommentInput, SortBy} from '@/components/index';
@@ -45,29 +45,40 @@ const buildCommentTree = (comments: Comment[]) => {
 const CommentItem = ({ comment, postId, userEmail }: { comment: Comment & { children: Comment[] }, postId: string, userEmail: string }) => {
   const [showInput, setShowInput] = useState(false);
   const [isCommentClicked, setIsCommentClicked] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-
+  const [isLiked, setIsLiked] = useState<boolean | undefined>(undefined);
+  const [likesCount, setLikesCount] = useState(comment.n_like || 0);
 
   const [buttonStates, setButtonStates] = useState<Record<string, { liked: boolean, isClicked: boolean }>>({
     like: { liked: isLiked ?? false , isClicked: false },
   });
 
-  const [likesCount, setLikesCount] = useState(comment.n_like || 0);
-  
   const likeCommentMutation = trpc.likeComment.useMutation();
-  
+  const checkLikeMutation = trpc.checkLike.useMutation();
 
+  useEffect(() => {
+    if (isLiked !== undefined) {
+      setButtonStates((prev) => ({
+        ...prev,
+        like: {
+          liked: isLiked, 
+          isClicked: false,
+        },
+      }));
+    }
+  }, [isLiked]);
+  
   const handleLike = async () => {
     try {
       const res = await likeCommentMutation.mutateAsync({
         comment_id: comment._id,
         email: userEmail,
-        status: !isLiked,
+        status: !isLiked,  // Toggle like status
       });
-
+  
       if (res.status === 200) {
         setLikesCount(res.data.n_like);
-        setIsLiked(res.data.state); // true = liked, false = unliked
+        setIsLiked(res.data.state);
+        localStorage.setItem(`likeStatus-${comment._id}`, JSON.stringify(res.data.state));  // Store the new like status
       } else {
         console.error('Like failed:', res.data.message);
       }
@@ -79,7 +90,7 @@ const CommentItem = ({ comment, postId, userEmail }: { comment: Comment & { chil
   const handleToggleInput = () => {
     setShowInput(prev => {
       const newState = !prev;
-      setIsCommentClicked(newState); // ให้สอดคล้องกัน
+      setIsCommentClicked(newState); 
       return newState;
     });
   };
@@ -204,7 +215,7 @@ const Comments = ({ topicId, userEmail }: { topicId: string, userEmail: string }
   const { data, isLoading, error } = trpc.getAllComments.useQuery(
     { topic_id: topicId, sortOrder }, // ส่งค่าของ sortOrder ไป
     {
-      enabled: !!topicId, // เมื่อ topicId ไม่ว่าง才ทำการ query
+      enabled: !!topicId, 
     }
   );
   

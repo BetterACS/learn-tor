@@ -35,7 +35,9 @@ export default function addScore(){
                     user_id: user_id,
                     ...scores,
                   });
-                  return {status:200,data:{ message: "Score added", newScore }};
+
+                  return {status:200,data:{ message: "Score added", newScore }}
+
                 }
             })
     };
