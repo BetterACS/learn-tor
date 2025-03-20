@@ -13,7 +13,7 @@ const config: Config.InitialOptions = {
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.[jt]sx?$",
     extensionsToTreatAsEsm: [".ts", ".tsx"],
-    transformIgnorePatterns: ['node_modules/(?!(jose)/)'], // Transpile `jose`
+    transformIgnorePatterns: ['node_modules/(?!(jose)/)','/node_modules/(?!react-markdown)'], // Transpile `jose`
     transform: {
       "^.+\\.(ts|tsx)$": "ts-jest",
     },
