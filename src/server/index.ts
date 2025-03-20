@@ -22,6 +22,16 @@ import updateTags from './api/forum/update';
 import checkTopicOwner from './api/forum/getTopics';
 import deleteTopic from './api/forum/deleteTopic';
 import getSearchTags from './api/forum/getTags';
+import updateAvatar from './api/member-system/updateAvatar';
+import createComment from './api/forum/createComment';
+import getAllComments from './api/forum/getAllComments';
+import likeComment from './api/forum/likeComment';
+import chatBot from './api/chatbot/chatBot';
+import createChat from './api/chatbot/createChat';
+import queryChat from './api/chatbot/queryChat';
+import queryScore from './api/tcascalculator/queryscore';
+import addScore from './api/member-system/addScore';
+import university  from './api/university';
 
 export const appRouter = router({
 	...apiTest(),
@@ -47,6 +57,16 @@ export const appRouter = router({
     ...checkTopicOwner,
     ...deleteTopic,
     ...getSearchTags,
+    ...updateAvatar(),
+    ...createComment(),
+    ...getAllComments(),
+    ...likeComment(),
+    ...chatBot(),
+    ...createChat(),
+    ...queryChat(),
+    ...queryScore(),
+    ...university(),
+    ...addScore()
 });
 const createCaller = createCallerFactory(appRouter);
 

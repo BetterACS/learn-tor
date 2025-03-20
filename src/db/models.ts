@@ -4,9 +4,9 @@ import { objectInputType } from 'zod';
 
 // User Schema
 interface User extends Document {
-  _id: mongoose.Types.ObjectId;
   username: string;
   email: string;
+  major?: string;
   talent?: string;
   GPAX?: number;
   lesson_plan?: string;
@@ -19,9 +19,9 @@ interface User extends Document {
 }
 
 const UserSchema: Schema<User> = new Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
   username: { type: String, required: true },
   email: { type: String, required: true },
+  major: { type: String},
   talent: { type: String },
   GPAX: { type: Number },
   lesson_plan: { type: String },
@@ -38,7 +38,6 @@ const UserModel = mongoose.models.User || mongoose.model<User>('User', UserSchem
 
 // Topic Schema
 interface Topic extends Document {
-  _id: mongoose.Types.ObjectId;
   title: string;
   body: string;
   user_id: mongoose.Types.ObjectId;
@@ -50,7 +49,6 @@ interface Topic extends Document {
 }
 
 const TopicSchema: Schema<Topic> = new Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
   title: { type: String, required: true },
   body: { type: String },
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -144,6 +142,7 @@ interface Comment extends Document {
   parent_id?: mongoose.Types.ObjectId;
   comment: string;
   n_like?: number;
+  created_at: Date;
 }
 
 const CommentSchema: Schema<Comment> = new Schema({
@@ -152,6 +151,7 @@ const CommentSchema: Schema<Comment> = new Schema({
   parent_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
   comment: { type: String, required: true },
   n_like: { type: Number, default: 0 },
+  created_at: { type: Date, default: Date.now },
 });
 
 const CommentModel = mongoose.models.Comment || mongoose.model<Comment>('Comment', CommentSchema);
@@ -239,6 +239,7 @@ const LikeSchema: Schema<LikeTopic> = new Schema({
 
 const LikeTopicModel = mongoose.models.LikeTopic || mongoose.model<LikeTopic>('LikeTopic', LikeSchema)
 
+// Tagname Schema
 interface TagName extends Document {
   tagname: string,
   category: string
@@ -251,6 +252,7 @@ const TagNameSchema: Schema<TagName> = new Schema({
 
 const TagNameModel = mongoose.models.TagName || mongoose.model<TagName>('TagName', TagNameSchema)
 
+// Tag and Topic Schema
 interface TopicAndTag extends Document{
   topic_id: mongoose.Types.ObjectId;
   tag_id: mongoose.Types.ObjectId;
@@ -263,6 +265,19 @@ const TopicAndTagSchema: Schema<TopicAndTag> = new Schema({
 
 const TopicAndTagModel = mongoose.models.TopicAndTag || mongoose.model<TopicAndTag>('TopicAndTag', TopicAndTagSchema)
 
+// LikeComment Schema
+interface LikeComment extends Document {
+  user_id: mongoose.Types.ObjectId;
+  comment_id: mongoose.Types.ObjectId;
+}
+
+const LikeCommentSchema: Schema<LikeComment> = new Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  comment_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: true },
+});
+
+const LikeCommentModel = mongoose.models.LikeComment || mongoose.model<LikeComment>('LikeComment', LikeCommentSchema);
+
 export {
   UserModel,
   TopicModel,
@@ -274,6 +289,7 @@ export {
   LikeTopicModel,
   TagNameModel,
   TopicAndTagModel,
+  LikeCommentModel,
   type Topic,
   type University,
   type User,
