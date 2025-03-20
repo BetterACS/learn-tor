@@ -86,11 +86,11 @@ export default function universityQueries() {
 
                     // สร้าง query object แบบไดนามิก
                     const query: Record<string, any> = {};
-                    if (institution) query.institution = { $regex: new RegExp(institution, "i") };
-                    if (faculty) query.faculty = { $regex: new RegExp(faculty, "i") };
-                    if (program) query.program = { $regex: new RegExp(program, "i") };
-                    if (course_type) query.course_type = { $regex: new RegExp(course_type, "i") };
-                    if (campus) query.campus = { $regex: new RegExp(campus, "i") };
+                    if (institution) query.institution = { $regex: new RegExp(escapeRegex(institution), "i") };
+                    if (faculty) query.faculty = { $regex: new RegExp(escapeRegex(faculty), "i") };
+                    if (program) query.program = { $regex: new RegExp(escapeRegex(program), "i") };
+                    if (course_type) query.course_type = { $regex: new RegExp(escapeRegex(course_type), "i") };
+                    if (campus) query.campus = { $regex: new RegExp(escapeRegex(campus), "i") };
                     console.log("admission",admissionType)
                     if (admissionType) {
                         const escapedAdmissionType = escapeRegex(admissionType);
@@ -102,13 +102,12 @@ export default function universityQueries() {
                     }
 
                     // Query เพื่อหาข้อมูลที่ตรงกับเงื่อนไขทั้งหมด
-                    const unique_universities = await UniversityModel.find(query).distinct("institution")
-                    ;
+                    const unique_universities = await UniversityModel.find(query).distinct("institution");
                     const unique_faculties = await UniversityModel.find(query).distinct("faculty");
                     const unique_programs = await UniversityModel.find(query).distinct("program");
                     const unique_course_types = await UniversityModel.find(query).distinct("course_type");
                     const unique_campuses = await UniversityModel.find(query).distinct("campus");
-                    // const unique_admissionTypes = await UniversityModel.find(query).distinct("round_3.admission_type")
+
                     const universities = await UniversityModel.find(query);
                     const unique_admissionTypes = [
                         ...new Set(
@@ -129,7 +128,7 @@ export default function universityQueries() {
                         unique_campuses.length === 1 &&
                         unique_admissionTypes.length === 1
                     ) {
-                        const result = await UniversityModel.countDocuments(query);
+                        
                         return {
                             status: 200,
                             data: {
