@@ -17,6 +17,7 @@ import getTags from './api/forum/getTags';
 import getTopTags from './api/forum/getTags';
 import addTags from './api/forum/addTags';
 import topicTags from './api/forum/topicTags';
+import updateAvatar from './api/member-system/updateAvatar';
 import createComment from './api/forum/createComment';
 import getAllComments from './api/forum/getAllComments';
 import likeComment from './api/forum/likeComment';
@@ -24,11 +25,15 @@ import chatBot from './api/chatbot/chatBot';
 import createChat from './api/chatbot/createChat';
 import queryChat from './api/chatbot/queryChat';
 import queryScore from './api/tcascalculator/queryscore';
+import queryDetail from './api/tcascalculator/queryDetailUni';
 import checkScore from './api/tcascalculator/checkScore';
 import saveResult from './api/tcascalculator/saveResult';
 import userChatBot from './api/chatbot/userChatBot';
 import editRoom from './api/chatbot/editRoom';
 import requireScore from './api/tcascalculator/requireScore';
+import addScore from './api/member-system/addScore';
+import university  from './api/university';
+
 
 export const appRouter = router({
 	...apiTest(),
@@ -49,6 +54,7 @@ export const appRouter = router({
     ...getTopTags,
     ...addTags(),
     ...topicTags(),
+    ...updateAvatar(),
     ...createComment(),
     ...getAllComments(),
     ...likeComment(),
@@ -61,7 +67,8 @@ export const appRouter = router({
     ...userChatBot(),
     ...editRoom(),
     ...requireScore(),
-
+    ...university(),
+    ...addScore()
 });
 const createCaller = createCallerFactory(appRouter);
 

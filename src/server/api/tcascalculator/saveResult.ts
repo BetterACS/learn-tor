@@ -11,29 +11,36 @@ export default function saveResult(){
                     email: z.string().email(),
                     institution: z.string(),
                     faculty: z.string(),
-                    major: z.string(),
-                    admission: z.string(),
+                    admission_type: z.string(),
+                    campus: z.string(),
+                    program: z.string(),
+                    course_type: z.string(),
+                   
                 })
             )
             .mutation(async ({input}) => {
                 await connectDB();
-                const { email, institution, faculty, major, admission } = input;
+                const { email, institution, faculty, admission_type, campus, program, course_type } = input;
                 const user = await UserModel.findOne({ email: email });
                 if (!user) {
-                  throw new Error("User not found");
+                    return {status:400,data:{ message: "User not found" }};
                 }
                 const user_id = user._id;
                 
                 const allData = await UniversityModel.find({});
                 const searchData = allData.filter(uni =>
                     uni.institution === institution &&
-                    uni.faculty === faculty 
+                    uni.faculty === faculty &&
+                    uni.campus === campus &&
+                    uni.program === program &&
+                    uni.course_type === course_type
+        
                 );
 
                 const searchAdmissionDetails = searchData.map(uni => {
                     // ตรวจสอบ round_3 ตรงกับเงื่อนไข
                     const roundMatch = uni.round_3.filter((round: any) =>
-                        round.field_major === major && round.description === admission
+                        round.admission_type === admission_type
                     );
 
                     if (roundMatch.length > 0) {
@@ -56,10 +63,8 @@ export default function saveResult(){
                     return null;
                 }).filter((uni) => uni !== null);
 
-                const program = searchAdmissionDetails[0]?.program || "";
-                const course_type = searchAdmissionDetails[0]?.course_type || "";
-                const detail = searchAdmissionDetails[0]?.round_3[0]?.detail || "";
-                const description = searchAdmissionDetails[0]?.round_3[0]?.description || "";
+                const program_ = searchAdmissionDetails[0]?.program || "";
+                const course_type_ = searchAdmissionDetails[0]?.course_type || "";
                 const score_calculation_formula = searchAdmissionDetails[0]?.round_3[0]?.score_calculation_formula || "";
                 const minimum_criteria = searchAdmissionDetails[0]?.round_3[0]?.minimum_criteria || "";
                 const admitted = searchAdmissionDetails[0]?.round_3[0]?.admitted || "";
@@ -68,18 +73,17 @@ export default function saveResult(){
                     user_id: user_id,
                     institution: institution,
                     faculty: faculty,
-                    program: program,
-                    course_type: course_type,
-                    major: major,
-                    detail: detail,
-                    description: description,
+                    program: program_,
+                    course_type: course_type_,
+                    admission_type: admission_type,
+                    campus: campus,
                     score_calculation_formula: score_calculation_formula,
                     minimum_criteria: minimum_criteria,
                     admitted: admitted,
                     chance: 100,// รอคำนวณ
                 });
 
-                return {message: "Save result success", status: 200, data: searchAdmissionDetails};
+                return { status: 200, data: {searchAdmissionDetails,message: "Save result success"}};
                 
             })
     };

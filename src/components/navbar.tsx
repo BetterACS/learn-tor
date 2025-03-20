@@ -3,16 +3,39 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
+import { trpc } from '@/app/_trpc/client';
+interface CustomSession {
+  user?: {
+    id?: string;
+    username?: string;
+    email?: string;
+    avatar?: string;
+  };
+}
 
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession() as { data: CustomSession | null };
+  const [avatar, setAvatar] = useState<string>("");
+
+
+  const userId = session?.user?.id;
+  const { data: userData } = trpc.getUser.useQuery(
+        { _id: userId || '' },
+        { enabled: !!userId }
+      );
+
+  useEffect(() => {
+        if (userData?.data && 'user' in userData.data) {
+          const { user} = userData.data;
+          setAvatar(user.avatar);
+        }
+      }, [userData]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -35,13 +58,13 @@ export default function Navbar() {
 
   const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    signOut({ callbackUrl: '/login' }); 
+    signOut({ callbackUrl: '/login' });
   };
 
   return (
-    <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-20 text-big-button">
+    <div className="h-[5.25rem] w-full sticky top-0 bg-primary-600 flex justify-between items-center px-[3%] py-3 z-[40] text-big-button">
       <Link href="/" className="h-full w-[4rem] min-w-[4rem]">
-        <img src='/images/logo.avif' alt="Logo" />
+        <img src="/images/logo.avif" alt="Logo" />
       </Link>
 
       <div className="md:hidden flex items-center mr-6">
@@ -88,7 +111,7 @@ export default function Navbar() {
         {status === "authenticated" ? (
           <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
             <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-              <img src='/images/profile.avif' alt="Profile" />
+              <img src={avatar || "/images/profile.avif"} alt="Profile" />
             </button>
             {profileDropdownOpen && (
               <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
@@ -111,15 +134,18 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="lg:hidden absolute top-[5.25rem] left-0 w-full bg-primary-600 py-8">
+        <div className="lg:hidden fixed top-[5.25rem] left-0 w-full bg-primary-600 py-8 z-50">
           <div className="text-monochrome-50">
             <div className="flex flex-col gap-4">
-              <div className="text-center px-5">
+              <div className="text-center">
                 {status === "authenticated" && (
                   <Link href="/profile">
-                    <div className="flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
-                      <img src='/images/profile.avif' className="w-[3.5rem] h-[3.5rem] rounded-full" />
-                      <span className="text-monochrome-50">Username</span>
+                    <div className="px-5 flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
+                      <img
+                        src={session?.user?.avatar || '/images/profile.avif'}
+                        className="w-[3.5rem] h-[3.5rem] rounded-full object-cover"
+                      />
+                      <span className="text-monochrome-50 ml-4">{session?.user?.username || 'Profile'}</span>
                     </div>
                   </Link>
                 )}

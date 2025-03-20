@@ -36,6 +36,7 @@ import AddTagPopup from '@/components/add-tag-popup';
 import Inputcalculator from '@/components/inputcalculator';
 import ResultCalculator from '@/components/resultcalculator';
 import Comments from '@/components/Comments';
+import SearchableDropdown from './SearchableDropdown';
 
 export {
   Test,
@@ -76,4 +77,5 @@ export {
   Inputcalculator,
   ResultCalculator,
   Comments,
+  SearchableDropdown,
 }

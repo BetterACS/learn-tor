@@ -16,7 +16,7 @@ interface PostProps {
     body: string, 
     created_at: string, 
     n_like: number, 
-    user_id: { username: string }, 
+    user_id: { username: string, avatar?: string }, 
     isLiked : boolean
   };
 }
@@ -59,7 +59,7 @@ export default function Post({ post }: PostProps) {
       {/* Username Section */}
       <div className="flex content-center items-center gap-2">
         <div className="size-10">
-          <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
+          <img src={post?.user_id && 'avatar' in post.user_id ? post.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
         </div>
         <p className="text-body-large font-bold">
           {post.user_id.username}

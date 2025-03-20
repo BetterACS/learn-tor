@@ -6,7 +6,7 @@ const queryTopic = {
     queryTopic: publicProcedure.query(async () => {
         await connectDB();
         const topics = await TopicModel.find();
-        const topicUser = await TopicModel.populate(topics, { path: 'user_id', select: 'username' }); 
+        const topicUser = await TopicModel.populate(topics, { path: 'user_id', select: 'username avatar' }); 
         return topicUser;
     })
 };
