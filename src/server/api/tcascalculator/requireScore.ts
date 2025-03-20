@@ -95,7 +95,7 @@ export default function requireScore() {
                     
                     return {
                         status:"200",
-                        data:extractedData
+                        data: {message:"successful load data",requireScore:extractedData}
                     };
 
                 }catch(error){
