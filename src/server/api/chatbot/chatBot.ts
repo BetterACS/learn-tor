@@ -2,6 +2,7 @@ import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod'
 import { connectDB } from "@/server/db";
 import { ChatModel, UserModel } from "@/db/models";
+import axios from "axios";
 
 export default function chatBot(){
     return{
@@ -49,16 +50,38 @@ export default function chatBot(){
                 if (!Array.isArray(chat.history)) {
                     chat.history = [];
                 }
+                try{
+                    chat.history.push({ role: "user", content ,time: time });
+                    console.log("History before saving:", chat.history);
+                    
+                    const formattedData = chat.history.map(({ role, content }: { role: string; content: string }) => ({
+                        role,
+                        content,
+                      }));
+                      console.log("Formatted data:", formattedData);
+                    const data = (JSON.stringify(formattedData, null, 2));
+                    const url = `http://52.63.146.101/chat/?q=${data}`;
 
-                chat.history.push({ role: "user", content ,time: time });
-                
-                console.log("History before saving:", chat.history);
+                    console.log("URL:", url);
 
-                const botResponse = "This is a bot response"; // ตัวอย่างการตอบจากบอท
-                chat.history.push({ role: "assistance", content: botResponse , time: time});
+                    await axios.get(url)
+                        .then((response) => {
+                            console.log("Response:", response.data);
+                            const responseData = response.data.data;
+                            console.log("Response data:", responseData);
+                            chat.history.push({ role: "assistance", content: responseData , time: time});
+                            console.log("History after saving:", chat.history);
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                        });
+                }catch(error){
+                    console.error("Error pushing history:", error);
+                }
 
                 try {
                     // ใช้ updateOne แทน save
+                    console.log("Chat before update11111111111111111:", chat);
                     const updatedChat = await ChatModel.updateOne(
                         { _id: chat._id },
                         { $set: { history: chat.history } }
