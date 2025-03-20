@@ -323,29 +323,42 @@ const ComparisonResults = ({
         return <p>-</p>;
       }
   
-      // คำนวณค่าสูงสุดและต่ำสุดจาก roundData ของมหาวิทยาลัยทั้งหมด
-      const allMaxScores = universities.flatMap(u => 
-        u[criteriaKey]?.map((item: any) => item.max_score) || []
-      ).filter(score => score !== undefined && score !== null);
+      // ดึงข้อมูลที่แสดงอยู่ในหน้าปัจจุบัน
+      const currentData = universities.map((u, idx) => {
+        const round = u[criteriaKey];
+        if (!round || round.length === 0) return null;
+        const currentIndex = currentRound3Indices[idx];
+        return round[currentIndex];
+      }).filter(item => item !== null);
   
-      const allMinScores = universities.flatMap(u => 
-        u[criteriaKey]?.map((item: any) => item.min_score) || []
-      ).filter(score => score !== undefined && score !== null);
+      // คำนวณค่าสูงสุด, ต่ำสุด, และค่ากลางจากข้อมูลที่แสดงอยู่ในหน้าปัจจุบัน
+      const currentMaxScores = currentData.map(item => item.max_score).filter(score => score !== undefined && score !== null);
+      const currentMinScores = currentData.map(item => item.min_score).filter(score => score !== undefined && score !== null);
+      const currentAcceptanceRates = currentData.map(item => item.acceptance_rate).filter(rate => rate !== undefined && rate !== null);
   
-      const allAcceptanceRates = universities.flatMap(u => 
-        u[criteriaKey]?.map((item: any) => item.acceptance_rate) || []
-      ).filter(rate => rate !== undefined && rate !== null);
+      // คำนวณค่าสูงสุดและต่ำสุด
+      const maxOfMaxScores = Math.max(...currentMaxScores);
+      const minOfMinScores = Math.min(...currentMinScores);
+      const maxOfAcceptanceRates = Math.max(...currentAcceptanceRates);
+      const minOfAcceptanceRates = Math.min(...currentAcceptanceRates);
   
-      const maxOfMaxScores = Math.max(...allMaxScores);
-      const minOfMinScores = Math.min(...allMinScores);
-      const maxOfAcceptanceRates = Math.max(...allAcceptanceRates);
-      const minOfAcceptanceRates = Math.min(...allAcceptanceRates);
+      // คำนวณค่ากลาง (median)
+      const getMedian = (values: number[]) => {
+        const sorted = [...values].sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+      };
   
-      const getColor = (value, maxValue, minValue, meanValue) => {
-        if (value === maxValue) return 'green';
-        if (value === minValue) return 'red';
-        if (value === meanValue) return 'orange';
-        return 'black';
+      const medianOfMaxScores = getMedian(currentMaxScores);
+      const medianOfMinScores = getMedian(currentMinScores);
+      const medianOfAcceptanceRates = getMedian(currentAcceptanceRates);
+  
+      // ฟังก์ชันกำหนดสี
+      const getColor = (value: number, maxValue: number, minValue: number, medianValue: number) => {
+        if (Math.abs(value - maxValue) < 0.01) return 'green'; // สีเขียวสำหรับค่าสูงสุด
+        if (Math.abs(value - minValue) < 0.01) return 'red'; // สีแดงสำหรับค่าต่ำสุด
+        if (Math.abs(value - medianValue) < 0.01) return 'orange'; // สีส้มสำหรับค่ากลาง
+        return 'black'; // สีดำสำหรับค่าอื่นๆ
       };
   
       const uniqueRoundData = roundData.filter((value: any, index: number, self: any[]) =>
@@ -402,7 +415,7 @@ const ComparisonResults = ({
                           {university.program} (รูปแบบที่ {idx + 1})
                         </p>
                         <p className="break-words overflow-wrap text-body-large">
-                        <span style={{ whiteSpace: 'pre-wrap' }}>
+                          <span style={{ whiteSpace: 'pre-wrap' }}>
                             {criterion ? (() => {
                               const text = criterion.replace(/ข้อมูลพื้นฐาน\s*/, '').split("คะแนนขั้นต่ำ")[0];
                               const lines = text.split("\n");
@@ -418,15 +431,15 @@ const ComparisonResults = ({
                           <span>  &nbsp;- สมัครสอบ: </span> {register || '-'}<br />
                           <span>  &nbsp;- ผ่าน: </span> {passed || '-'}<br />
                           <span>  &nbsp;- คะแนนสูงสุด: </span>
-                          <span style={{ color: getColor(max_score, maxOfMaxScores, minOfMinScores) }}>
+                          <span style={{ color: getColor(max_score, maxOfMaxScores, minOfMinScores, medianOfMaxScores) }}>
                             {max_score || '-'}
                           </span><br />
                           <span>  &nbsp;- คะแนนต่ำสุด: </span>
-                          <span style={{ color: getColor(min_score, maxOfMaxScores, minOfMinScores) }}>
+                          <span style={{ color: getColor(min_score, maxOfMaxScores, minOfMinScores, medianOfMinScores) }}>
                             {min_score || '-'}
                           </span><br />
                           <span>  &nbsp;- อัตราการรับเข้าเรียน: </span>
-                          <span style={{ color: getColor(acceptance_rate, maxOfAcceptanceRates, minOfAcceptanceRates) }}>
+                          <span style={{ color: getColor(acceptance_rate, maxOfAcceptanceRates, minOfAcceptanceRates, medianOfAcceptanceRates) }}>
                             {acceptance_rate || '-'}
                           </span><br />
                           <span>  &nbsp;- อัตราการลงทะเบียน: </span> {enrollment_rate || '-'}<br />
