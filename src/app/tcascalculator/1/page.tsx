@@ -1,7 +1,8 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar, Footer, Calculator, SearchableDropdown } from '@/components/index';
+import { trpc } from '@/app/_trpc/client';
 
 interface Target {
   university: string;
@@ -15,6 +16,55 @@ interface Target {
 export default function Calculator1() {
   const [targets, setTargets] = useState<Target[]>([]);
   const router = useRouter();
+
+  // Options ที่ดึงมาจาก API
+  const [universityOptions, setUniversityOptions] = useState<string[]>([]);
+  const [facultyOptions, setFacultyOptions] = useState<string[]>([]);
+  const [campusOptions, setCampusOptions] = useState<string[]>([]);
+  const [majorOptions, setMajorOptions] = useState<string[]>([]);
+  const [languageOptions, setLanguageOptions] = useState<string[]>([]);
+  const [examTypeOptions, setExamTypeOptions] = useState<string[]>([]);
+
+  // tRPC Mutation
+  const fetchMutation = trpc.getFilteredUniversities.useMutation({
+    onSuccess: (res) => {
+      const data = res.data;
+      setUniversityOptions(data.unique_universities || []);
+      setFacultyOptions(data.unique_faculties || []);
+      setCampusOptions(data.unique_campuses || []);
+      setMajorOptions(data.unique_programs || []);
+      setLanguageOptions(data.unique_course_types || []);
+      setExamTypeOptions(data.unique_admissionTypes || []);
+    },
+    onError: (error) => {
+      console.error("Fetch options error:", error);
+    },
+  });
+
+  // ดึงข้อมูล options
+  const fetchOptions = (target: Partial<Target>) => {
+    fetchMutation.mutate({
+      institution: target.university || "",
+      faculty: target.faculty || "",
+      program: target.major || "",
+      course_type: target.language || "",
+      campus: target.campus || "",
+      admissionType: target.examType || "",
+    });
+  };
+
+  // เรียกตอนโหลดครั้งแรก
+  useEffect(() => {
+    fetchOptions({});
+  }, []);
+
+  // เรียกเมื่อ target เปลี่ยน
+  useEffect(() => {
+    if (targets.length > 0) {
+      const latestTarget = targets[targets.length - 1];
+      fetchOptions(latestTarget);
+    }
+  }, [targets]);
 
   const handleBackClick = () => {
     router.push('/tcascalculator');
@@ -37,14 +87,6 @@ export default function Calculator1() {
       },
     ]);
   };
-
-  // options
-  const universityOptions = [ "จุฬาลงกรณ์มหาวิทยาลัย","มหาวิทยาลัยธรรมศาสตร์","มหาวิทยาลัยมหิดล","มหาวิทยาลัยศิลปากร","มหาวิทยาลัยเกษตรศาสตร์","มหาวิทยาลัยเชียงใหม่","มหาวิทยาลัยขอนแก่น"]; 
-  const facultyOptions = ["วิศวกรรมศาสตร์", "วิทยาศาสตร์", "บริหารธุรกิจ"];
-  const campusOptions = ["บางเขน", "ศาลายา", "รังสิต", "ท่าพระจันทร์"];
-  const majorOptions = ["วิศวกรรมทั่วไป", "วิศวกรรมคอมพิวเตอร์"];
-  const languageOptions = ["ภาษาไทย", "ภาษาอังกฤษ"];
-  const examTypeOptions = ["เลือกสอบ TPAT3", "เลือกสอบ GPAX"];
 
   const updateTarget = (index: number, field: keyof Target, value: string) => {
     const updatedTargets = [...targets];
@@ -102,7 +144,7 @@ export default function Calculator1() {
                   onClick={() => removeTarget(index)}
                 >
                   <svg aria-hidden="true" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 laptop:h-6 laptop:w-6">
-                        <path d="M177.1 48h93.7c2.7 0 5.2 1.3 6.7 3.6l19 28.4h-145l19-28.4c1.5-2.2 4-3.6 6.7-3.6zM354.2 80L317.5 24.9C307.1 9.4 289.6 0 270.9 0H177.1c-18.7 0-36.2 9.4-46.6 24.9L93.8 80H80.1 32 24C10.7 80 0 90.7 0 104s10.7 24 24 24H35.6L59.6 452.7c2.5 33.4 30.3 59.3 63.8 59.3H324.6c33.5 0 61.3-25.9 63.8-59.3L412.4 128H424c13.3 0 24-10.7 24-24s-10.7-24-24-24h-8H367.9 354.2z" fill="currentColor"></path>
+                    <path d="..." fill="currentColor"></path>
                   </svg>
                 </button>
 
@@ -126,7 +168,6 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "campus", val)}
                       options={campusOptions}
                       placeholder="เลือกวิทยาเขต"
-                      disabled={!target.university}
                     />
                   </div>
 
@@ -138,7 +179,6 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "faculty", val)}
                       options={facultyOptions}
                       placeholder="เลือกคณะ"
-                      disabled={!target.university || !target.campus}
                     />
                   </div>
 
@@ -150,7 +190,6 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "major", val)}
                       options={majorOptions}
                       placeholder="เลือกสาขา"
-                      disabled={!target.university || !target.campus || !target.faculty}
                     />
                   </div>
 
@@ -162,7 +201,6 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "language", val)}
                       options={languageOptions}
                       placeholder="เลือกภาษา"
-                      disabled={!target.university || !target.campus || !target.faculty || !target.major}
                     />
                   </div>
 
@@ -174,7 +212,6 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "examType", val)}
                       options={examTypeOptions}
                       placeholder="เลือกรูปแบบการรับ"
-                      disabled={!target.university || !target.campus || !target.faculty || !target.major || !target.language}
                     />
                   </div>
                 </div>
