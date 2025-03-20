@@ -21,6 +21,7 @@ import updateTopic from './api/forum/update';
 import updateTags from './api/forum/update';
 import checkTopicOwner from './api/forum/getTopics';
 import deleteTopic from './api/forum/deleteTopic';
+import getSearchTags from './api/forum/getTags';
 
 export const appRouter = router({
 	...apiTest(),
@@ -45,6 +46,7 @@ export const appRouter = router({
     ...updateTags,
     ...checkTopicOwner,
     ...deleteTopic,
+    ...getSearchTags,
 });
 const createCaller = createCallerFactory(appRouter);
 

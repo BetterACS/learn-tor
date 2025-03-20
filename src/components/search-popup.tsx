@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { trpc } from '@/app/_trpc/client';
 
 interface SearchPopupProps {
   isPopupOpen: boolean;
@@ -10,59 +11,30 @@ interface SearchPopupProps {
 };
 
 export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTerm, searchTerm }: SearchPopupProps) {
-  // const [searchTerm, setSearchTerm] = useState('');
+  const [tagSearchTerm, setTagSearchTerm] = useState('');
   const router = useRouter();
   const [selectedTags, setSelectedTags] = useState<{ [key: string]: 'included' | 'excluded' }>({});
-  const [tagList, setTagList] = useState<Record<"ทั่วไป" | "มหาวิทยาลัย" | "คณะ", string[]>>({
-    "ทั่วไป": ["TCAS", "Portfolio", "แนะนำคณะและมหาวิทยาลัย", "การเตรียมตัวสอบ"],
-    "มหาวิทยาลัย": [
-      "เกษตรศาสตร์",
-      "ธรรมศาสตร์",
-      "จุฬาลงกรณ์",
-      "ลาดกระบัง",
-      "มหิดล",
-      "พระจอมเกล้าธนบุรี",
-      "ศรีนคริทรวิโรฒ",
-      "พระนครเหนือ",
-      "เชียงใหม่",
-      "แม่โจ้",
-      "สงขลานครินทร์",
-      "วลัยลักษณ์",
-      "แม่ฟ้าหลวง",
-      "บูรพา",
-      "พะเยา",
-      "สุโขทัยธรรมาธิราช",
-      "มหาสารคาม",
-      "อุบลราชธานี",
-      "รามคําแหง"
-    ],
-    "คณะ": [
-      "แพทยฯ",
-      "เภสัชฯ",
-      "พยาบาลฯ",
-      "วิศวฯ",
-      "สถาปัตย์ฯ",
-      "วิทยาฯ",
-      "อักษรฯ - มนุษยฯ",
-      "บัญชี - บริหาร",
-      "ครุฯ - ศึกษาฯ",
-      "ทันตะฯ",
-      "สหเวชฯ",
-      "จิตวิทยา",
-      "นิเทศฯ",
-      "นิติฯ",
-      "รัฐฯ-สังคมฯ",
-      "ศิลปกรรมฯ"
-    ],
-  });
-
+  const [tagList, setTagList] = useState({});
   const [newTag, setNewTag] = useState<{ [key in keyof typeof tagList]?: string }>({});
   const [activeCategory, setActiveCategory] = useState<keyof typeof tagList | null>(null);
-
   const popupRef = useRef<HTMLDivElement | null>(null);
+
+  const { data, isLoading, isError } = trpc.getSearchTags.useQuery({ 
+    query: tagSearchTerm
+  });
+  
+  useEffect(() => {
+    if (isLoading) return;
+    setTagList(data);
+    console.log(data);
+  }, [isLoading, data]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleTagSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagSearchTerm(e.target.value);
   };
 
   // const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -167,13 +139,8 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTer
           </div>
           }
           {/* Search tag area */}
-          <div className="h-fit w-full flex py-2 px-3 bg-monochrome-100 rounded-md divide-x divide-monochrome-600">
-            <input
-              type="text"
-              className="w-full bg-transparent outline-none text-body-large text-monochrome-950 placeholder-monochrome-600 caret-monochrome-600 mr-2 flex-1"
-              placeholder="Search tag here"
-            />
-            <button className="w-auto pl-2">
+          <div className="h-fit w-full flex py-2 px-3 bg-monochrome-100 rounded-md">
+            <div className="w-auto pr-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 height="24px"
@@ -185,16 +152,23 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTer
                   className="fill-monochrome-600"
                 />
               </svg>
-            </button>
+            </div>
+            <input
+              type="text"
+              className="w-full bg-transparent outline-none text-body-large text-monochrome-950 placeholder-monochrome-600 caret-monochrome-600 mr-2 flex-1"
+              placeholder="Search tag here"
+              onChange={handleTagSearchChange}
+              value={tagSearchTerm}
+            />
           </div>
           {/* Tag display area */}
-          {Object.entries(tagList).map(([category, tags]) => (
+          {tagList && Object.entries(tagList).map(([category, tags]) => (
             <div key={category} className="mb-4 divide-y divide-monochrome-300">
               {/* Category Title */}
               <h3 className="text-headline-6">{category}</h3>
               {/* Tags */}
               <div className="flex flex-wrap gap-2 pt-3 items-center">
-                {tags.map((tag) => (
+                {tags?.map((tag) => (
                   <span
                     key={tag}
                     onClick={() => toggleTagSelection(tag)}
