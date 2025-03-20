@@ -222,7 +222,7 @@ const ComparisonCriteria = ({
     <>
       <p className="text-headline-4 mb-8 mt-8 text-center">What do you need to compare?</p>
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 justify-center items-center text-headline-6 md:ml-6 lg:ml-64">
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 justify-center items-center text-headline-6 md:ml-10 lg:ml-72">
         {Object.keys(criteriaLabels).map((criteria, index) => (
           <div key={index} className="flex items-center justify-start space-x-2">
             <input
@@ -277,6 +277,18 @@ const ComparisonResults = ({
   selectedCriteria: string[];
   criteriaLabels: { [key: string]: string };
 }) => {
+  const [currentRound3Indices, setCurrentRound3Indices] = useState<number[]>(
+    universities.map(() => 0)
+  );
+
+  const handleRound3IndexChange = (universityIndex: number, newIndex: number) => {
+    setCurrentRound3Indices((prevIndices) => {
+      const updatedIndices = [...prevIndices];
+      updatedIndices[universityIndex] = newIndex;
+      return updatedIndices;
+    });
+  };
+
   const formatCriteriaValue = (value: any) => {
     if (value === null || value === undefined) {
       return <span>-</span>;
@@ -304,7 +316,7 @@ const ComparisonResults = ({
     return <span>{typeof value === 'string' ? value : '-'}</span>;
   };
 
-  const renderCriteriaValue = (university: any, criteriaKey: string) => {
+  const renderCriteriaValue = (university: any, criteriaKey: string, universityIndex: number) => {
     if (criteriaKey.startsWith('round_')) {
       const roundData = university[criteriaKey];
       if (!roundData || roundData.length === 0) {
@@ -312,51 +324,96 @@ const ComparisonResults = ({
       }
 
       const uniqueRoundData = roundData.filter((value: any, index: number, self: any[]) =>
-        index === self.findIndex((t: any) => (
-          JSON.stringify(t) === JSON.stringify(value)
-        ))
+        index === self.findIndex((t: any) => JSON.stringify(t) === JSON.stringify(value))
       );
 
       return (
-        <div>
+        <div className="relative">
           {uniqueRoundData.length > 0 ? (
-            uniqueRoundData.map((item: any, idx: number) => {
-              if (criteriaKey === 'round_3') {
-                const {
-                  register,
-                  passed,
-                  max_score,
-                  min_score,
-                  acceptance_rate,
-                  enrollment_rate,
-                } = item;
-                const enrollment_count = Math.round((passed * parseFloat(enrollment_rate)) / 100);
+            criteriaKey === 'round_3' ? (
+              <>
+                <div className="absolute top-0 right-0 flex space-x-2">
+                  <button
+                    onClick={() =>
+                      handleRound3IndexChange(
+                        universityIndex,
+                        (currentRound3Indices[universityIndex] - 1 + uniqueRoundData.length) % uniqueRoundData.length
+                      )
+                    }
+                    disabled={currentRound3Indices[universityIndex] === 0}
+                    className="px-2 py-2 bg-gray-200 text-headline-6 rounded-lg disabled:opacity-50  hover:bg-monochrome-200"
+                  >
+                    ย้อนกลับ
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleRound3IndexChange(
+                        universityIndex,
+                        (currentRound3Indices[universityIndex] + 1) % uniqueRoundData.length
+                      )
+                    }
+                    disabled={currentRound3Indices[universityIndex] === uniqueRoundData.length - 1}
+                    className="px-2 py-2 bg-gray-200 text-headline-6 rounded-lg disabled:opacity-50 hover:bg-monochrome-200"
+                  >
+                    ถัดไป
+                  </button>
+                </div>
+                {uniqueRoundData.map((item: any, idx: number) => {
+                  if (idx === currentRound3Indices[universityIndex]) {
+                    const {
+                      register,
+                      passed,
+                      max_score,
+                      min_score,
+                      acceptance_rate,
+                      enrollment_rate,
+                      criterion,
+                    } = item;
+                    const enrollment_count = Math.round((passed * parseFloat(enrollment_rate)) / 100);
 
-                return (
-                  <div key={idx} className="mb-4">
-                    <p>
-                      <span>สมัครสอบ: </span> {register || '-'}<br />
-                      <span>ผ่าน: </span> {passed || '-'}<br />
-                      <span>คะแนนสูงสุด: </span> {max_score || '-'}<br />
-                      <span>คะแนนต่ำสุด: </span> {min_score || '-'}<br />
-                      <span>อัตราการรับเข้าเรียน: </span> {acceptance_rate || '-'}<br />
-                      <span>อัตราการลงทะเบียน: </span> {enrollment_rate || '-'}<br />
-                      <span>จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count || '-'}<br />
-                    </p>
-                  </div>
-                );
-              } else {
-                return (
-                  <div key={idx} className="mb-4">
-                    <pre className="whitespace-pre-wrap text-left">
-                      {JSON.stringify(item, null, 2)
-                        .replace(/\\n/g, '\n')
-                        .replace(/^\s+/g, '')}
-                    </pre>
-                  </div>
-                );
-              }
-            })
+                    return (
+                      <div key={idx} className="mb-4 p-4 border border-gray-200 rounded-lg shadow-sm">
+                        <p className="font-semibold text-primary-700 text-headline-5 mb-2">
+                          {university.program} (รูปแบบที่ {idx + 1})
+                        </p>
+                        <p className="break-words overflow-wrap">
+                          <span style={{ whiteSpace: 'pre-wrap' }}>
+                            {criterion ? (() => {
+                              const text = criterion.replace(/ข้อมูลพื้นฐาน\s*/, '').split("คะแนนขั้นต่ำ")[0];
+                              const lines = text.split("\n");
+                              return (
+                                <>
+                                  <b>{lines[0]}</b><br />
+                                  {lines.slice(1).join("\n")}
+                                </>
+                              );
+                            })() : '-'}
+                          </span><br />
+                          <span>- สมัครสอบ: </span> {register || '-'}<br />
+                          <span>- ผ่าน: </span> {passed || '-'}<br />
+                          <span>- คะแนนสูงสุด: </span> {max_score || '-'}<br />
+                          <span>- คะแนนต่ำสุด: </span> {min_score || '-'}<br />
+                          <span>- อัตราการรับเข้าเรียน: </span> {acceptance_rate || '-'}<br />
+                          <span>- อัตราการลงทะเบียน: </span> {enrollment_rate || '-'}<br />
+                          <span>- จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count || '-'}<br />
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </>
+            ) : (
+              uniqueRoundData.map((item: any, idx: number) => (
+                <div key={idx} className="mb-4">
+                  <pre className="whitespace-pre-wrap text-left">
+                    {JSON.stringify(item, null, 2)
+                      .replace(/\\n/g, '\n')
+                      .replace(/^\s+/g, '')}
+                  </pre>
+                </div>
+              ))
+            )
           ) : (
             <p>-</p>
           )}
@@ -386,7 +443,7 @@ const ComparisonResults = ({
               <div className={`grid gap-4 ${universities.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                 {universities.map((university, index) => (
                   <div key={index} className="text-headline-6">
-                    {renderCriteriaValue(university, criteria)}
+                    {renderCriteriaValue(university, criteria, index)}
                   </div>
                 ))}
               </div>

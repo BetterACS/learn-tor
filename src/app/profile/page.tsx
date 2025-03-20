@@ -201,7 +201,7 @@ interface FormData {
         setShowAlert(true);
         return;
       }
-
+    
       updateAvatarMutation.mutate(
         { email: sessionRef.current.user.email, avatar: imageUrl },
         {
@@ -314,23 +314,36 @@ interface FormData {
                 onSuccess={(results) => {
                   if (results.info && typeof results.info !== 'string') {
                     const { secure_url, coordinates } = results.info;
-              
-                    // Check if cropping coordinates are available
+                
+                    if (!secure_url) {
+                      console.error("No secure URL found in results:", results);
+                      setAlertType('error');
+                      setAlertMessage('Failed to upload image. Please try again.');
+                      setShowAlert(true);
+                      return;
+                    }
+                
                     if (coordinates?.custom?.[0]?.length === 4) {
-                      const [x, y, width, height] = coordinates.custom[0]; 
+                      const [x, y, width, height] = coordinates.custom[0];
                 
                       const croppedUrl = secure_url.replace(
                         '/upload/',
                         `/upload/c_crop,w_${width},h_${height},x_${x},y_${y}/`
                       );
                 
-                      handleAvatarUpdate(croppedUrl); 
+                      handleAvatarUpdate(croppedUrl);
                     } else {
-                      console.error("No cropping coordinates found:", results);
-                      handleAvatarUpdate(secure_url); // Fallback to original URL
+                      console.log("No cropping coordinates found, using original image URL.");
+                      setAlertType('info');
+                      setAlertMessage('No cropping coordinates found, using original image.');
+                      setShowAlert(true);
+                      handleAvatarUpdate(secure_url);
                     }
                   } else {
                     console.error("Unexpected results structure:", results);
+                    setAlertType('error');
+                    setAlertMessage('Failed to upload image. Please try again.');
+                    setShowAlert(true);
                   }
                 }}
               >

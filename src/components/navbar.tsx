@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { trpc } from '@/app/_trpc/client';
+
 interface CustomSession {
   user?: {
     id?: string;
@@ -23,19 +24,18 @@ export default function Navbar() {
   const { data: session, status } = useSession() as { data: CustomSession | null };
   const [avatar, setAvatar] = useState<string>("");
 
-
   const userId = session?.user?.id;
   const { data: userData } = trpc.getUser.useQuery(
-        { _id: userId || '' },
-        { enabled: !!userId }
-      );
+    { _id: userId || '' },
+    { enabled: !!userId }
+  );
 
   useEffect(() => {
-        if (userData?.data && 'user' in userData.data) {
-          const { user} = userData.data;
-          setAvatar(user.avatar);
-        }
-      }, [userData]);
+    if (userData?.data && 'user' in userData.data) {
+      const { user } = userData.data;
+      setAvatar(user.avatar);
+    }
+  }, [userData]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -109,9 +109,16 @@ export default function Navbar() {
         <Link href="/chatbot" className="block px-5 py-4 transition duration-150">Chatbot</Link>
 
         {status === "authenticated" ? (
-          <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
-            <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-              <img src={avatar || "/images/profile.avif"} alt="Profile" />
+          <div className="relative" ref={profileDropdownRef}>
+            <button
+              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+              className="rounded-full w-[3.5rem] min-w-[3.5rem]"
+            >
+              <img
+                src={avatar || "/images/profile.avif"}
+                alt="Profile"
+                className="w-[3.5rem] h-[3.5rem] rounded-full ml-4 object-cover"
+              />
             </button>
             {profileDropdownOpen && (
               <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
@@ -142,7 +149,7 @@ export default function Navbar() {
                   <Link href="/profile">
                     <div className="px-5 flex justify-start items-center gap-2 cursor-pointer hover:bg-primary-700 transition duration-150">
                       <img
-                        src={session?.user?.avatar || '/images/profile.avif'}
+                        src={avatar || '/images/profile.avif'}
                         className="w-[3.5rem] h-[3.5rem] rounded-full object-cover"
                       />
                       <span className="text-monochrome-50 ml-4">{session?.user?.username || 'Profile'}</span>
