@@ -3,6 +3,11 @@ import { z } from 'zod'
 import { connectDB } from "@/server/db";
 import { ChatModel, UserModel } from "@/db/models";
 import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const CHAT_BOT_API_URL = process.env.CHAT_BOT_API_URL;
 
 export default function chatBot(){
     return{
@@ -60,7 +65,7 @@ export default function chatBot(){
                       }));
 
                     const data = (JSON.stringify(formattedData, null, 2));
-                    const url = `http://52.63.146.101/chat/?q=${data}`;
+                    const url = `${CHAT_BOT_API_URL}${data}`;
 
                     await axios.get(url)
                         .then((response) => {
