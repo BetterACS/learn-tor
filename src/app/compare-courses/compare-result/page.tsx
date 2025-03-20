@@ -328,22 +328,25 @@ const ComparisonResults = ({
         const round = u[criteriaKey];
         if (!round || round.length === 0) return null;
         const currentIndex = currentRound3Indices[idx];
-        return round[currentIndex];
+        return round[currentIndex] ?? null; // ใช้ Nullish Coalescing เพื่อป้องกัน undefined
       }).filter(item => item !== null);
   
       // คำนวณค่าสูงสุด, ต่ำสุด, และค่ากลางจากข้อมูลที่แสดงอยู่ในหน้าปัจจุบัน
-      const currentMaxScores = currentData.map(item => item.max_score).filter(score => score !== undefined && score !== null);
-      const currentMinScores = currentData.map(item => item.min_score).filter(score => score !== undefined && score !== null);
-      const currentAcceptanceRates = currentData.map(item => item.acceptance_rate).filter(rate => rate !== undefined && rate !== null);
+      const currentMaxScores = currentData.map(item => item?.max_score).filter(score => score !== undefined && score !== null);
+      const currentMinScores = currentData.map(item => item?.min_score).filter(score => score !== undefined && score !== null);
+      const currentAcceptanceRates = currentData.map(item => item?.acceptance_rate).filter(rate => rate !== undefined && rate !== null);
   
       // คำนวณค่าสูงสุดและต่ำสุด
-      const maxOfMaxScores = Math.max(...currentMaxScores);
-      const minOfMinScores = Math.min(...currentMinScores);
-      const maxOfAcceptanceRates = Math.max(...currentAcceptanceRates);
-      const minOfAcceptanceRates = Math.min(...currentAcceptanceRates);
+      const maxOfMaxScores = currentMaxScores.length > 0 ? Math.max(...currentMaxScores) : null;
+      const minOfMaxScores = currentMaxScores.length > 0 ? Math.min(...currentMaxScores) : null;
+      const maxOfMinScores = currentMinScores.length > 0 ? Math.max(...currentMinScores) : null;
+      const minOfMinScores = currentMinScores.length > 0 ? Math.min(...currentMinScores) : null;
+      const maxOfAcceptanceRates = currentAcceptanceRates.length > 0 ? Math.max(...currentAcceptanceRates) : null;
+      const minOfAcceptanceRates = currentAcceptanceRates.length > 0 ? Math.min(...currentAcceptanceRates) : null;
   
       // คำนวณค่ากลาง (median)
       const getMedian = (values: number[]) => {
+        if (values.length === 0) return null;
         const sorted = [...values].sort((a, b) => a - b);
         const mid = Math.floor(sorted.length / 2);
         return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
@@ -354,10 +357,10 @@ const ComparisonResults = ({
       const medianOfAcceptanceRates = getMedian(currentAcceptanceRates);
   
       // ฟังก์ชันกำหนดสี
-      const getColor = (value: number, maxValue: number, minValue: number, medianValue: number) => {
-        if (Math.abs(value - maxValue) < 0.01) return 'green'; // สีเขียวสำหรับค่าสูงสุด
-        if (Math.abs(value - minValue) < 0.01) return 'red'; // สีแดงสำหรับค่าต่ำสุด
-        if (Math.abs(value - medianValue) < 0.01) return 'orange'; // สีส้มสำหรับค่ากลาง
+      const getColor = (value: number, maxValue: number | null, minValue: number | null, medianValue: number | null) => {
+        if (maxValue !== null && Math.abs(value - maxValue) < 0.01) return 'green'; // สีเขียวสำหรับค่าสูงสุด
+        if (minValue !== null && Math.abs(value - minValue) < 0.01) return 'red'; // สีแดงสำหรับค่าต่ำสุด
+        if (medianValue !== null && Math.abs(value - medianValue) < 0.01) return 'orange'; // สีส้มสำหรับค่ากลาง
         return 'black'; // สีดำสำหรับค่าอื่นๆ
       };
   
@@ -406,8 +409,9 @@ const ComparisonResults = ({
                       acceptance_rate,
                       enrollment_rate,
                       criterion,
-                    } = item;
-                    const enrollment_count = Math.round((passed * parseFloat(enrollment_rate)) / 100);
+                    } = item ?? {}; // ใช้ Nullish Coalescing เพื่อป้องกัน undefined
+  
+                    const enrollment_count = Math.round((passed * parseFloat(enrollment_rate ?? 0)) / 100);
   
                     return (
                       <div key={idx} className="mb-4 p-4 border border-gray-200 rounded-lg shadow-sm">
@@ -428,22 +432,22 @@ const ComparisonResults = ({
                             })() : '-'}
                           </span><br />
                           <span>สถิติการรับเข้าเรียน</span><br />
-                          <span>  &nbsp;- สมัครสอบ: </span> {register || '-'}<br />
-                          <span>  &nbsp;- ผ่าน: </span> {passed || '-'}<br />
+                          <span>  &nbsp;- สมัครสอบ: </span> {register ?? '-'}<br />
+                          <span>  &nbsp;- ผ่าน: </span> {passed ?? '-'}<br />
                           <span>  &nbsp;- คะแนนสูงสุด: </span>
-                          <span style={{ color: getColor(max_score, maxOfMaxScores, minOfMinScores, medianOfMaxScores) }}>
-                            {max_score || '-'}
+                          <span style={{ color: getColor(max_score ?? 0, maxOfMaxScores, minOfMaxScores, medianOfMaxScores) }}>
+                            {max_score ?? '-'}
                           </span><br />
                           <span>  &nbsp;- คะแนนต่ำสุด: </span>
-                          <span style={{ color: getColor(min_score, maxOfMaxScores, minOfMinScores, medianOfMinScores) }}>
-                            {min_score || '-'}
+                          <span style={{ color: getColor(min_score ?? 0, maxOfMinScores, minOfMinScores, medianOfMinScores) }}>
+                            {min_score ?? '-'}
                           </span><br />
                           <span>  &nbsp;- อัตราการรับเข้าเรียน: </span>
-                          <span style={{ color: getColor(acceptance_rate, maxOfAcceptanceRates, minOfAcceptanceRates, medianOfAcceptanceRates) }}>
-                            {acceptance_rate || '-'}
+                          <span style={{ color: getColor(acceptance_rate ?? 0, maxOfAcceptanceRates, minOfAcceptanceRates, medianOfAcceptanceRates) }}>
+                            {acceptance_rate ?? '-'}
                           </span><br />
-                          <span>  &nbsp;- อัตราการลงทะเบียน: </span> {enrollment_rate || '-'}<br />
-                          <span>  &nbsp;- จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count || '-'}<br />
+                          <span>  &nbsp;- อัตราการลงทะเบียน: </span> {enrollment_rate ?? '-'}<br />
+                          <span>  &nbsp;- จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count ?? '-'}<br />
                         </p>
                       </div>
                     );
