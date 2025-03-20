@@ -30,6 +30,7 @@ import checkScore from './api/tcascalculator/checkScore';
 import saveResult from './api/tcascalculator/saveResult';
 import userChatBot from './api/chatbot/userChatBot';
 import editRoom from './api/chatbot/editRoom';
+import requireScore from './api/tcascalculator/requireScore';
 
 export const appRouter = router({
 	...apiTest(),
@@ -63,6 +64,7 @@ export const appRouter = router({
     ...saveResult(),
     ...userChatBot(),
     ...editRoom(),
+    ...requireScore(),
     
 });
 const createCaller = createCallerFactory(appRouter);
