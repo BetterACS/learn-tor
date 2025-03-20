@@ -322,17 +322,42 @@ const ComparisonResults = ({
       if (!roundData || roundData.length === 0) {
         return <p>-</p>;
       }
-
+  
+      // คำนวณค่าสูงสุดและต่ำสุดจาก roundData ของมหาวิทยาลัยทั้งหมด
+      const allMaxScores = universities.flatMap(u => 
+        u[criteriaKey]?.map((item: any) => item.max_score) || []
+      ).filter(score => score !== undefined && score !== null);
+  
+      const allMinScores = universities.flatMap(u => 
+        u[criteriaKey]?.map((item: any) => item.min_score) || []
+      ).filter(score => score !== undefined && score !== null);
+  
+      const allAcceptanceRates = universities.flatMap(u => 
+        u[criteriaKey]?.map((item: any) => item.acceptance_rate) || []
+      ).filter(rate => rate !== undefined && rate !== null);
+  
+      const maxOfMaxScores = Math.max(...allMaxScores);
+      const minOfMinScores = Math.min(...allMinScores);
+      const maxOfAcceptanceRates = Math.max(...allAcceptanceRates);
+      const minOfAcceptanceRates = Math.min(...allAcceptanceRates);
+  
+      const getColor = (value, maxValue, minValue, meanValue) => {
+        if (value === maxValue) return 'green';
+        if (value === minValue) return 'red';
+        if (value === meanValue) return 'orange';
+        return 'black';
+      };
+  
       const uniqueRoundData = roundData.filter((value: any, index: number, self: any[]) =>
         index === self.findIndex((t: any) => JSON.stringify(t) === JSON.stringify(value))
       );
-
+  
       return (
         <div className="relative">
           {uniqueRoundData.length > 0 ? (
             criteriaKey === 'round_3' ? (
               <>
-                <div className="absolute top-0 right-0 flex space-x-2">
+                <div className="absolute top-0 right-0 mr-4 flex space-x-2">
                   <button
                     onClick={() =>
                       handleRound3IndexChange(
@@ -341,7 +366,7 @@ const ComparisonResults = ({
                       )
                     }
                     disabled={currentRound3Indices[universityIndex] === 0}
-                    className="px-2 py-2 bg-gray-200 text-headline-6 rounded-lg disabled:opacity-50  hover:bg-monochrome-200"
+                    className="px-2 py-2 mt-4 bg-gray-200 z-10 text-body-large rounded-lg disabled:opacity-20 hover:bg-monochrome-200"
                   >
                     ย้อนกลับ
                   </button>
@@ -353,7 +378,7 @@ const ComparisonResults = ({
                       )
                     }
                     disabled={currentRound3Indices[universityIndex] === uniqueRoundData.length - 1}
-                    className="px-2 py-2 bg-gray-200 text-headline-6 rounded-lg disabled:opacity-50 hover:bg-monochrome-200"
+                    className="px-2 py-2 mt-4 bg-gray-200 z-10 text-body-large rounded-lg disabled:opacity-20 hover:bg-monochrome-200"
                   >
                     ถัดไป
                   </button>
@@ -370,32 +395,42 @@ const ComparisonResults = ({
                       criterion,
                     } = item;
                     const enrollment_count = Math.round((passed * parseFloat(enrollment_rate)) / 100);
-
+  
                     return (
                       <div key={idx} className="mb-4 p-4 border border-gray-200 rounded-lg shadow-sm">
                         <p className="font-semibold text-primary-700 text-headline-5 mb-2">
                           {university.program} (รูปแบบที่ {idx + 1})
                         </p>
-                        <p className="break-words overflow-wrap">
-                          <span style={{ whiteSpace: 'pre-wrap' }}>
+                        <p className="break-words overflow-wrap text-body-large">
+                        <span style={{ whiteSpace: 'pre-wrap' }}>
                             {criterion ? (() => {
                               const text = criterion.replace(/ข้อมูลพื้นฐาน\s*/, '').split("คะแนนขั้นต่ำ")[0];
                               const lines = text.split("\n");
                               return (
                                 <>
-                                  <b>{lines[0]}</b><br />
-                                  {lines.slice(1).join("\n")}
+                                  <span className="font-bold text-headline-7">{lines[0]}</span><br /><br />
+                                  {lines.slice(2).join("\n")}
                                 </>
                               );
                             })() : '-'}
                           </span><br />
-                          <span>- สมัครสอบ: </span> {register || '-'}<br />
-                          <span>- ผ่าน: </span> {passed || '-'}<br />
-                          <span>- คะแนนสูงสุด: </span> {max_score || '-'}<br />
-                          <span>- คะแนนต่ำสุด: </span> {min_score || '-'}<br />
-                          <span>- อัตราการรับเข้าเรียน: </span> {acceptance_rate || '-'}<br />
-                          <span>- อัตราการลงทะเบียน: </span> {enrollment_rate || '-'}<br />
-                          <span>- จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count || '-'}<br />
+                          <span>สถิติการรับเข้าเรียน</span><br />
+                          <span>  &nbsp;- สมัครสอบ: </span> {register || '-'}<br />
+                          <span>  &nbsp;- ผ่าน: </span> {passed || '-'}<br />
+                          <span>  &nbsp;- คะแนนสูงสุด: </span>
+                          <span style={{ color: getColor(max_score, maxOfMaxScores, minOfMinScores) }}>
+                            {max_score || '-'}
+                          </span><br />
+                          <span>  &nbsp;- คะแนนต่ำสุด: </span>
+                          <span style={{ color: getColor(min_score, maxOfMaxScores, minOfMinScores) }}>
+                            {min_score || '-'}
+                          </span><br />
+                          <span>  &nbsp;- อัตราการรับเข้าเรียน: </span>
+                          <span style={{ color: getColor(acceptance_rate, maxOfAcceptanceRates, minOfAcceptanceRates) }}>
+                            {acceptance_rate || '-'}
+                          </span><br />
+                          <span>  &nbsp;- อัตราการลงทะเบียน: </span> {enrollment_rate || '-'}<br />
+                          <span>  &nbsp;- จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count || '-'}<br />
                         </p>
                       </div>
                     );
