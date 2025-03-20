@@ -30,7 +30,7 @@ export default function InfoCard({
   return (
     <div className="relative flex flex-col w-full bg-monochrome-50 shadow-lg rounded-lg overflow-hidden">
       <div className="relative flex items-center">
-        <div className="relative w-full md:w-[150px] h-[200px]">
+        <div className="relative w-[120px] h-full">
           <Image
             src={image}
             alt={`Image of ${university}`}

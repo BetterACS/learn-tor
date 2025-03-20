@@ -7,6 +7,7 @@ interface User extends Document {
   _id: mongoose.Types.ObjectId;
   username: string;
   email: string;
+  major?: string;
   talent?: string;
   GPAX?: number;
   lesson_plan?: string;
@@ -22,6 +23,7 @@ const UserSchema: Schema<User> = new Schema({
   _id: { type: mongoose.Schema.Types.ObjectId, required: true },
   username: { type: String, required: true },
   email: { type: String, required: true },
+  major: { type: String},
   talent: { type: String },
   GPAX: { type: Number },
   lesson_plan: { type: String },
