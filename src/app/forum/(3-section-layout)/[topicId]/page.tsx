@@ -205,7 +205,7 @@ export default function Topic() {
           <div className="text-headline-6 w-full">{post.body}</div>
           {post.img && 
             <div className="h-[25rem] w-full">
-              <img src={post.img || null} className="w-full h-full object-cover"/>
+              <img src={post.img || null} className="w-full h-full object-contain bg-monochrome-950"/>
             </div>
           }
           <div className="flex gap-2 self-start">

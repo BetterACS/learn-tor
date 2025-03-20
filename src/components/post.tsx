@@ -112,7 +112,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ post }, ref) => {
         
         {post.img && post.img.trim() !== "" && (
           <div className="h-[25rem] w-full">
-            <img src={post.img} className="w-full h-full object-cover"/>
+            <img src={post.img} className="w-full h-full object-contain bg-monochrome-950"/>
           </div>
         )}
 
