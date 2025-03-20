@@ -162,7 +162,7 @@ const getTopics = {
             );
           });
 
-          const topicUser = await TopicModel.populate(filteredTopics, { path: 'user_id', select: 'username' }); 
+          const topicUser = await TopicModel.populate(filteredTopics, { path: 'user_id', select: 'username avatar' }); 
 
           if (!filteredTopics.length) {
             return { status: 400, data: { message: "No matching topics found" } };
@@ -242,7 +242,7 @@ const getTopics = {
           { $sort: sortOptions[sortBy] || { created_at: -1 } },
         ]);
 
-        const topicUser = await TopicModel.populate(topics, { path: 'user_id', select: 'username' }); 
+        const topicUser = await TopicModel.populate(topics, { path: 'user_id', select: 'username avatar' }); 
   
         if (!topics || topics.length === 0) {
           return { status: 400, data: { message: "No topics found for this user" } };

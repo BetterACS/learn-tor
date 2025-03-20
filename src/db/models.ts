@@ -7,6 +7,7 @@ interface User extends Document {
   _id: mongoose.Types.ObjectId;
   username: string;
   email: string;
+  major?: string;
   talent?: string;
   GPAX?: number;
   lesson_plan?: string;
@@ -22,6 +23,7 @@ const UserSchema: Schema<User> = new Schema({
   _id: { type: mongoose.Schema.Types.ObjectId, required: true },
   username: { type: String, required: true },
   email: { type: String, required: true },
+  major: { type: String},
   talent: { type: String },
   GPAX: { type: Number },
   lesson_plan: { type: String },
@@ -288,9 +290,8 @@ interface TcasCalculator extends Document {
   faculty: string,
   program: string,
   course_type: string,
-  major: string,
-  detail: string,
-  description: string,
+  campus:string,
+  admission_type: string,
   score_calculation_formula: Array<object>,
   minimum_criteria: Array<object>,
   admitted: number
@@ -303,9 +304,8 @@ const TcasCalculatorSchema: Schema<TcasCalculator> = new Schema({
   faculty: { type: String, required: true },
   program: { type: String, required: true },
   course_type: { type: String, required: true },
-  major: { type: String, required: true },
-  detail: { type: String },
-  description: { type: String, required: true },
+  campus: { type: String, required: true },
+  admission_type: { type: String, required: true },
   score_calculation_formula: { type: [Object] },
   minimum_criteria: { type: [Object] },
   admitted: { type: Number },

@@ -9,7 +9,7 @@ export default function addScore(){
             .input(
                 z.object({
                     email: z.string().email(),
-                    scores: z.record(z.number().optional())
+                    scores: z.record(z.any().optional())
                 })
             )
             .mutation(async ({input}) => {
@@ -20,7 +20,7 @@ export default function addScore(){
                 if (!user) {
                   throw new Error("User not found");
                 }
-                
+
                 const user_id = user._id;
                 const oldScore = await ScoreModel.findOne({ user_id: user_id });
                 if (oldScore) {
@@ -35,7 +35,7 @@ export default function addScore(){
                     user_id: user_id,
                     ...scores,
                   });
-                  return newScore;
+                  return {status:200,data:{ message: "Score added", newScore }};
                 }
             })
     };

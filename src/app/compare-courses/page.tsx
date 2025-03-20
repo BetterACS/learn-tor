@@ -119,7 +119,7 @@ export default function Page() {
       <Navbar />
       <div className="flex flex-1">
         <div className="sm:w-full md:w-1/2 lg:w-1/4">
-          <CompareSidebar 
+          <CompareSidebar
             onToggleSidebar={(isOpen) => handleStateUpdate('isSidebarOpen', isOpen)}
             onAddToCompare={handleAddToCompare}
             onSearchChange={handleSearchChange}
@@ -135,8 +135,8 @@ export default function Page() {
           />
         )}
 
-        <div className="lg:w-3/4 p-6 ml-6">
-          <p className="text-headline-4 mr-5 mb-4">Compare Universities List</p>
+        <div className="lg:w-3/4 md:w-1/2 sm:w-full p-6 ml-6">
+          <p className="text-headline-4 mr-5 mb-4 ">Compare Universities List</p>
 
           <div className="grid sm:grid-cols-1 md:grid-cols-1 gap-6 lg:grid-cols-2">
             {state.universities.map((university) => (

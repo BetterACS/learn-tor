@@ -1,5 +1,4 @@
 'use client';
-
 import React from 'react';
 import type { University } from '@/db/models';
 
@@ -14,7 +13,7 @@ interface CompareListProps {
   isCompareListOpen: boolean;
   handleRemoveItem: (index: number) => void;
   handleCompare: () => void;
-  handleAddItem: (item:  University) => void;
+  handleAddItem: (item: University) => void;
 }
 
 const CompareList: React.FC<CompareListProps> = ({
@@ -25,7 +24,7 @@ const CompareList: React.FC<CompareListProps> = ({
   handleAddItem,
 }) => {
   const maxItems = 3;
-  
+
   return (
     <div
       className={`absolute h-[195px] bottom-0 right-0 bg-monochrome-50 p-4 shadow-lg rounded-b-lg w-[360px] overflow-hidden transition-all duration-600 ${
@@ -62,7 +61,7 @@ const CompareList: React.FC<CompareListProps> = ({
 
       <div className="border-t border-monochrome-300 absolute bottom-16 left-2 right-2"></div>
 
-      {selectedItems.length > 0 && (
+      {selectedItems.length > 1 && (
         <button
           className="absolute bottom-4 right-4 bg-primary-600 text-monochrome-50 py-2 px-4 rounded-lg hover:bg-primary-700 transition-all"
           onClick={handleCompare}

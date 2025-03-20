@@ -18,12 +18,12 @@ export default function userChatBot(){
             // ค้นหาผู้ใช้จากอีเมล
                 const user = await UserModel.findOne({ email });
                 if (!user) {
-                throw new Error("User not found");
+                    return {status:400,data:{ message: "User not found" }};
                 }
                 const user_id = user._id;
 
                 const allChat = await ChatModel.find({ user_id: user_id });
-                return allChat;
+                return {status:200,data:{ allChat: allChat,message: "Chat found" }};
             })
     }
 }
