@@ -58,11 +58,9 @@ export default function chatBot(){
                         role,
                         content,
                       }));
-                      console.log("Formatted data:", formattedData);
+
                     const data = (JSON.stringify(formattedData, null, 2));
                     const url = `http://52.63.146.101/chat/?q=${data}`;
-
-                    console.log("URL:", url);
 
                     await axios.get(url)
                         .then((response) => {
@@ -81,7 +79,6 @@ export default function chatBot(){
 
                 try {
                     // ใช้ updateOne แทน save
-                    console.log("Chat before update11111111111111111:", chat);
                     const updatedChat = await ChatModel.updateOne(
                         { _id: chat._id },
                         { $set: { history: chat.history } }
