@@ -166,6 +166,27 @@ export default function EditTopic() {
     }
   };
 
+  const deleteTopicMutation = trpc.deleteTopic.useMutation();
+  const handleOnClickDelete = () => {
+    deleteTopicMutation.mutate(
+      {
+        topicId: topicId,
+        email: session?.user?.email || '',
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Delete successfully" + data);
+          setSuccess(data.data.message);
+          router.push(`/forum`)
+        },
+        onError: (error) => {
+          console.error("Delete error:", error);
+          setError(error.message);
+        },
+      }
+    );
+  };
+
   return (
     <div className="relative h-full w-full">
       <p className="text-headline-3 mb-6">
@@ -300,6 +321,12 @@ export default function EditTopic() {
             onClick={handleOnClickSave}
           />
         </div>
+
+        <Button
+          button_name="Delete"
+          variant="red"
+          onClick={handleOnClickDelete}
+        />
 
         {isPopupOpen && (
           <AddTagPopup

@@ -64,11 +64,25 @@ export default function Sidebar() {
         <h1 className="text-headline-5">
           Forum
         </h1>
-        <div className="flex flex-col pl-4 gap-4 text-headline-6">
-          {topTags.map((item) => (
-            <button name={item} onClick={handleTagClicked} key={item} className="hover:underline w-fit text-start">{item}</button>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="animate-pulse w-full flex flex-col pl-4 gap-4 text-headline-6">
+            <div className="w-fit text-start text-transparent bg-monochrome-100 rounded-md">Placeholder</div>
+            <div className="w-fit text-start text-transparent bg-monochrome-100 rounded-md">Placeholderrrr</div>
+            <div className="w-fit text-start text-transparent bg-monochrome-100 rounded-md">Placeholderrr</div>
+            <div className="w-fit text-start text-transparent bg-monochrome-100 rounded-md">Placeholderrrrr</div>
+            <div className="w-fit text-start text-transparent bg-monochrome-100 rounded-md">Placeholderr</div>
+            <div className="w-fit text-start text-transparent bg-monochrome-100 rounded-md">Placeholderr</div>
+            <div className="w-fit text-start text-transparent bg-monochrome-100 rounded-md">Placeholderrrrrr</div>
+            <div className="w-fit text-start text-transparent bg-monochrome-100 rounded-md">Placeholder</div>
+          </div>
+        ) : (
+          <div className="w-full flex flex-col pl-4 gap-4 text-headline-6">
+            {topTags.map((item) => (
+              <button name={item} onClick={handleTagClicked} key={item} className="hover:underline w-fit text-start">{item}</button>
+            ))}
+          </div>
+        )}
+        
       </div>
     </div>
   );
