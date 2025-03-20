@@ -5,7 +5,7 @@ import verified from './api/member-system/verified';
 import editUser from './api/member-system/editUser';
 import resetVerificationToken from './api/member-system/resetVerificationToken';
 import getJWT from './api/getJWT';
-import getTopics from './api/search-post/getTopics';
+import getTopics from './api/forum/getTopics';
 import universityQueries from './api/university'
 import { createCallerFactory, router } from './trpc';
 import createTopic from './api/forum/createTopic';

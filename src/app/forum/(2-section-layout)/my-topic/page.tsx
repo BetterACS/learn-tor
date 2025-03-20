@@ -11,13 +11,12 @@ export default function MyTopic() {
     sortBy: 'Newest',
   });
 
-  console.log(data);
   return (
     <div className="flex flex-col gap-4 divide-y divide-primary-600">
       <div className="flex justify-between text-headline-3 text-primary-600">
         <p>Topic ของฉัน</p>
-        {data?.data?.length && (
-          <p>{data.data.length} หัวข้อ</p>
+        {data?.totalResults && (
+          <p>{data.totalResults} หัวข้อ</p>
         )}
       </div>
       <div className="pt-5">
