@@ -3,6 +3,7 @@ import { connectDB } from "@/server/db";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
 import logError from "@/utils/logError";
+import { Types } from 'mongoose';
 
 const getTopics = {
   searchQuery: publicProcedure
@@ -118,96 +119,178 @@ const getTopics = {
       }
     }),
   queryMyTopic: publicProcedure
-  .input(
-    z.object({
-      email: z.string(),
-      sortBy: z.string(),  // Sorting by Newest, Oldest, or Popular
-      limit: z.number().default(6),
-      page: z.number().min(1).default(1)
-    })
-  )
-  .query(async ({ input }) => {
-    const { email, sortBy, limit, page } = input;
-    try {
-      await connectDB();
+    .input(
+      z.object({
+        email: z.string(),
+        sortBy: z.string(),  // Sorting by Newest, Oldest, or Popular
+        limit: z.number().default(6),
+        page: z.number().min(1).default(1)
+      })
+    )
+    .query(async ({ input }) => {
+      const { email, sortBy, limit, page } = input;
+      try {
+        await connectDB();
 
-      // Find the user by email
-      const user = await UserModel.findOne({ email }).select("_id");
-      if (!user) {
-        return { status: 404, data: { message: "User not found" } };
-      }
-
-      const sortOptions: Record<string, any> = {
-        Newest: { created_at: -1 },
-        Oldest: { created_at: 1 },
-        Popular: { n_like: -1, created_at: -1 },
-      };
-
-      // Find topics created by the user
-      const topics = await TopicModel.aggregate([
-        { $match: { user_id: user._id } },
-        {
-          $lookup: {
-            from: "topicandtags",
-            localField: "_id",
-            foreignField: "topic_id",
-            as: "tags",
-          },
-        },
-        { $unwind: { path: "$tags", preserveNullAndEmptyArrays: true } },
-        {
-          $lookup: {
-            from: "tagnames",
-            localField: "tags.tag_id",
-            foreignField: "_id",
-            as: "tagDetails",
-          },
-        },
-        { $unwind: { path: "$tagDetails", preserveNullAndEmptyArrays: true } },
-        {
-          $group: {
-            _id: "$_id",
-            title: { $first: "$title" },
-            body: { $first: "$body" },
-            user_id: { $first: "$user_id" },
-            created_at: { $first: "$created_at" },
-            n_like: { $first: "$n_like" },
-            img: { $first: "$img" },
-            tags: { $push: "$tagDetails.tagname" },
-          },
-        },
-        {
-          $facet: {
-            totalCount: [{ $count: "count" }], // Count total items before pagination
-            paginatedResults: [
-              { $sort: sortOptions[sortBy] || { created_at: -1 } },
-              { $skip: (page - 1) * limit },
-              { $limit: limit },
-            ],
-          },
-        },
-      ]);
-
-      const totalResultsCount = topics[0]?.totalCount[0]?.count || 0;
-        const resultTopics = topics[0]?.paginatedResults || [];
-        
-        if (!resultTopics || resultTopics.length === 0) {
-          return { status: 400, data: { message: "Topic not found" } };
+        // Find the user by email
+        const user = await UserModel.findOne({ email }).select("_id");
+        if (!user) {
+          return { status: 404, data: { message: "User not found" } };
         }
 
-        const topicWUser = await TopicModel.populate(resultTopics, { path: 'user_id', select: 'username' }); 
-        
+        const sortOptions: Record<string, any> = {
+          Newest: { created_at: -1 },
+          Oldest: { created_at: 1 },
+          Popular: { n_like: -1, created_at: -1 },
+        };
+
+        // Find topics created by the user
+        const topics = await TopicModel.aggregate([
+          { $match: { user_id: user._id } },
+          {
+            $lookup: {
+              from: "topicandtags",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "tags",
+            },
+          },
+          { $unwind: { path: "$tags", preserveNullAndEmptyArrays: true } },
+          {
+            $lookup: {
+              from: "tagnames",
+              localField: "tags.tag_id",
+              foreignField: "_id",
+              as: "tagDetails",
+            },
+          },
+          { $unwind: { path: "$tagDetails", preserveNullAndEmptyArrays: true } },
+          {
+            $group: {
+              _id: "$_id",
+              title: { $first: "$title" },
+              body: { $first: "$body" },
+              user_id: { $first: "$user_id" },
+              created_at: { $first: "$created_at" },
+              n_like: { $first: "$n_like" },
+              img: { $first: "$img" },
+              tags: { $push: "$tagDetails.tagname" },
+            },
+          },
+          {
+            $facet: {
+              totalCount: [{ $count: "count" }], // Count total items before pagination
+              paginatedResults: [
+                { $sort: sortOptions[sortBy] || { created_at: -1 } },
+                { $skip: (page - 1) * limit },
+                { $limit: limit },
+              ],
+            },
+          },
+        ]);
+
+        const totalResultsCount = topics[0]?.totalCount[0]?.count || 0;
+          const resultTopics = topics[0]?.paginatedResults || [];
+          
+          if (!resultTopics || resultTopics.length === 0) {
+            return { status: 400, data: { message: "Topic not found" } };
+          }
+
+          const topicWUser = await TopicModel.populate(resultTopics, { path: 'user_id', select: 'username' }); 
+          
+          return { 
+            status: 200, 
+            data: topicWUser, 
+            totalResults: totalResultsCount,
+            maxPage: Math.ceil(totalResultsCount / limit)
+          };
+      } catch (error) {
+        console.log("Error fetching user topics:", error);
+        return { status: 500, data: { message: "Failed to fetch user topics" } };
+      }
+    }),
+  queryTopicById: publicProcedure
+    .input(
+      z.object({
+        Id: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { Id } = input;
+      try {
+        const topic = await TopicModel.aggregate([
+          { $match: { _id: new Types.ObjectId(Id) } },
+          {
+            $lookup: {
+              from: "topicandtags",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "tags",
+            },
+          },
+          { $unwind: { path: "$tags", preserveNullAndEmptyArrays: true } },
+          {
+            $lookup: {
+              from: "tagnames",
+              localField: "tags.tag_id",
+              foreignField: "_id",
+              as: "tagDetails",
+            },
+          },
+          { $unwind: { path: "$tagDetails", preserveNullAndEmptyArrays: true } },
+          {
+            $group: {
+              _id: "$_id",
+              title: { $first: "$title" },
+              body: { $first: "$body" },
+              user_id: { $first: "$user_id" },
+              created_at: { $first: "$created_at" },
+              n_like: { $first: "$n_like" },
+              img: { $first: "$img" },
+              tags: { $push: "$tagDetails.tagname" },
+            },
+          }
+        ])
+        console.log(topic);
         return { 
           status: 200, 
-          data: topicWUser, 
-          totalResults: totalResultsCount,
-          maxPage: Math.ceil(totalResultsCount / limit)
+          data: topic
         };
-    } catch (error) {
-      console.log("Error fetching user topics:", error);
-      return { status: 500, data: { message: "Failed to fetch user topics" } };
-    }
-  }),
+      } catch (error) {
+        return { status: 500, data: { message: "Failed to fetch topic by id" } };
+      }
+      
+    }),
+  checkTopicOwner: publicProcedure
+    .input(
+      z.object({
+        email: z.string(),
+        topicId: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { email, topicId } = input;
+      try {
+        await connectDB();
+
+        const user = await UserModel.findOne({ email }).select("_id");
+        if (!user) {
+          return { status: 404, data: { message: "User not found", permission: false } };
+        }
+  
+        const topic = await TopicModel.findOne({ _id: topicId, user_id: user._id });
+
+        if (!topic) return { status: 404, data: { message: "No permission", permission: false } };
+
+        return { 
+          status: 200, 
+          data: { message: "Has permission", permission: true }
+        };
+      } catch (error) {
+        return { status: 500, data: { message: "Failed to fetch topic by id", permission: false } };
+      }
+      
+    }),
 }
 
 export default getTopics;

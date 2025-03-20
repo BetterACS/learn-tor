@@ -1,8 +1,10 @@
 'use client';
 import { useState, useRef, useEffect, forwardRef } from 'react';
+import { useRouter } from 'next/navigation'
 import Link from 'next/link';
 import { PostInteractionBar } from '@/components/index';
 import dayjs from 'dayjs';
+import { useSession } from 'next-auth/react';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { trpc } from '@/app/_trpc/client';
 
@@ -10,7 +12,7 @@ dayjs.extend(relativeTime);
 
 interface PostProps {
   post: { 
-    _id: number, 
+    _id: string, 
     img: string, 
     title: string, 
     body: string, 
@@ -22,6 +24,13 @@ interface PostProps {
 }
 
 const Post = forwardRef<HTMLDivElement, PostProps>(({ post }, ref) => {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const topicOwnership = trpc.checkTopicOwner.useQuery({ 
+    email: session?.user?.email || '',
+    topicId: post._id,
+  });
+  const { data, isLoading, isError, refetch } = topicOwnership;
   const topicTagsMutation = trpc.topicTags.useMutation();
   const [tags, setTags] = useState<string[]>([]);
 
@@ -29,7 +38,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ post }, ref) => {
   const onCommentClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     // event.preventDefault();
     // const query = JSON.stringify(post);
-    // router.push(`/forum/${post.id}?${query}`);
+    // router.push(`/forum/${post._id}?${query}`);
   }
 
   useEffect(() => {
@@ -54,21 +63,28 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ post }, ref) => {
     <Link
     href={{ pathname: `/forum/${post._id}`,
     query: JSON.stringify({ ...post, tags: tags })}}
-    className="h-full w-full bg-monochrome-50 drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] rounded-xl"
+    className="h-full w-full bg-monochrome-50 drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] rounded-xl cursor-default"
     >
       <div ref={ref} className="h-full w-full pt-6 pb-3 px-8 flex flex-col gap-3 text-start">
         {/* Username Section */}
-        <div className="flex content-center items-center gap-2">
-          <div className="size-10">
-            <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
+        <div className="flex justify-between content-center items-center">
+          <div className="flex content-center items-center gap-2">
+            <div className="size-10">
+              <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
+            </div>
+            <p className="text-body-large font-bold">
+              {post.user_id.username}
+            </p>
+            <p className="text-subtitle-small">•</p>
+            <p className="text-subtitle-small text-monochrome-400">
+              {dayjs(post.created_at).fromNow()}
+            </p>
           </div>
-          <p className="text-body-large font-bold">
-            {post.user_id.username}
-          </p>
-          <p className="text-subtitle-small">•</p>
-          <p className="text-subtitle-small text-monochrome-400">
-            {dayjs(post.created_at).fromNow()}
-          </p>
+          {data?.data.permission && (
+            <button onClick={(e) => {router.push(`forum/edit-topic/${post._id}`); e.preventDefault();}} className="text-primary-600 underline cursor-pointer">
+            edit
+          </button>
+          )}
         </div>
         {/* Body */}
         <div className="flex flex-col gap-2">

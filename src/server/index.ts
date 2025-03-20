@@ -17,6 +17,9 @@ import getTags from './api/forum/getTags';
 import getTopTags from './api/forum/getTags';
 import addTags from './api/forum/addTags';
 import topicTags from './api/forum/topicTags';
+import updateTopic from './api/forum/update';
+import updateTags from './api/forum/update';
+import checkTopicOwner from './api/forum/getTopics';
 
 export const appRouter = router({
 	...apiTest(),
@@ -37,6 +40,9 @@ export const appRouter = router({
     ...getTopTags,
     ...addTags(),
     ...topicTags(),
+    ...updateTopic,
+    ...updateTags,
+    ...checkTopicOwner,
 });
 const createCaller = createCallerFactory(appRouter);
 
