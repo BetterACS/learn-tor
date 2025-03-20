@@ -8,15 +8,14 @@ export default function saveResult(){
         saveResult: publicProcedure
             .input(
                 z.object({
-                    email: z.string().email(),
+                    email: z.string(),
                     institution: z.string(),
-                    faculty: z.string(),
-                    admission_type: z.string(),
                     campus: z.string(),
+                    faculty: z.string(),
                     program: z.string(),
                     course_type: z.string(),
-                   
-                })
+                    admission_type: z.string(),
+                  })
             )
             .mutation(async ({input}) => {
                 await connectDB();
@@ -27,63 +26,67 @@ export default function saveResult(){
                 }
                 const user_id = user._id;
                 
-                const allData = await UniversityModel.find({});
-                const searchData = allData.filter(uni =>
-                    uni.institution === institution &&
-                    uni.faculty === faculty &&
-                    uni.campus === campus &&
-                    uni.program === program &&
-                    uni.course_type === course_type
-        
-                );
-
-                const searchAdmissionDetails = searchData.map(uni => {
-                    // ตรวจสอบ round_3 ตรงกับเงื่อนไข
-                    const roundMatch = uni.round_3.filter((round: any) =>
-                        round.admission_type === admission_type
-                    );
-
-                    if (roundMatch.length > 0) {
+                const universities = await UniversityModel.find({
+                    institution,
+                    campus,
+                    faculty,
+                    program,
+                    course_type,
+                    "round_3.admission_type": admission_type,
+                  });
+                console.log(universities);
+                if (universities.length === 0) {
+                    return { status: 400, data: { message: "University not found" } };
+                }
+                const searchAdmissionDetails = universities.map(uni => {
+                    if (Array.isArray(uni.round_3)) {
+                        const roundMatch = uni.round_3.filter((round: any) =>
+                            round.admission_type === admission_type
+                        );
                         return {
                             institution: uni.institution,
-                            campus: uni.campus,
                             faculty: uni.faculty,
                             program: uni.program,
                             course_type: uni.course_type,
-                            course_id: uni.course_id,
-                            logo: uni.logo,
-                            image: uni.image,
-                            round_1: uni.round_1,
-                            round_2: uni.round_2,
-                            round_3: roundMatch,
-                            round_4: uni.round_4,
-                            view_today: uni.view_today,
+                            admission_type: admission_type,
+                            campus: uni.campus,
+                            round_3: roundMatch
                         };
                     }
                     return null;
-                }).filter((uni) => uni !== null);
-
-                const program_ = searchAdmissionDetails[0]?.program || "";
-                const course_type_ = searchAdmissionDetails[0]?.course_type || "";
-                const score_calculation_formula = searchAdmissionDetails[0]?.round_3[0]?.score_calculation_formula || "";
-                const minimum_criteria = searchAdmissionDetails[0]?.round_3[0]?.minimum_criteria || "";
-                const admitted = searchAdmissionDetails[0]?.round_3[0]?.admitted || "";
-
-                await TcasCalculatorModel.create({
-                    user_id: user_id,
-                    institution: institution,
-                    faculty: faculty,
-                    program: program_,
-                    course_type: course_type_,
-                    admission_type: admission_type,
-                    campus: campus,
-                    score_calculation_formula: score_calculation_formula,
-                    minimum_criteria: minimum_criteria,
-                    admitted: admitted,
-                    chance: 100,// รอคำนวณ
                 });
 
-                return { status: 200, data: {searchAdmissionDetails,message: "Save result success"}};
+                const inputInstitution = searchAdmissionDetails[0]?.institution || "";
+                const inputCampus = searchAdmissionDetails[0]?.campus || "";
+                const inputFaculty = searchAdmissionDetails[0]?.faculty || "";
+                const inputProgram = searchAdmissionDetails[0]?.program || "";
+                const inputCourse_type = searchAdmissionDetails[0]?.course_type || "";
+                const inputAdmission_type = searchAdmissionDetails[0]?.admission_type || "";
+                const inputScoreCalculationFormula = searchAdmissionDetails[0]?.round_3[0]?.score_calculation_formula || {};
+                const inputMinimumCriteria = searchAdmissionDetails[0]?.round_3[0]?.minimum_criteria || {};
+                const inputAdmitted = searchAdmissionDetails[0]?.round_3[0]?.admitted || "";
+                try{
+                    await TcasCalculatorModel.create({
+                        user_id: user_id,
+                        institution: inputInstitution,
+                        campus: inputCampus,
+                        faculty: inputFaculty,
+                        program: inputProgram,
+                        course_type: inputCourse_type,
+                        admission_type: inputAdmission_type,
+                        score_calculation_formula: inputScoreCalculationFormula,
+                        minimum_criteria: inputMinimumCriteria,
+                        admitted: inputAdmitted,
+                        chance: 100,// รอคำนวณ
+                    });
+                    return { status: 200, data: { message: "Save result success" } };
+                }catch(error){
+                    console.error("Error save result:", error);
+                    return { status: 500, data: { message: "Internal Server Error" } };
+                }
+                
+
+                // return { status: 200, data: {searchAdmissionDetails,message: "Save result success"}};
                 
             })
     };
