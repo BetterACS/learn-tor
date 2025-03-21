@@ -86,11 +86,11 @@ export default function universityQueries() {
 
                     // สร้าง query object แบบไดนามิก
                     const query: Record<string, any> = {};
-                    if (institution) query.institution = { $regex: new RegExp(institution, "i") };
-                    if (faculty) query.faculty = { $regex: new RegExp(faculty, "i") };
-                    if (program) query.program = { $regex: new RegExp(program, "i") };
-                    if (course_type) query.course_type = { $regex: new RegExp(course_type, "i") };
-                    if (campus) query.campus = { $regex: new RegExp(campus, "i") };
+                    if (institution) query.institution = { $regex: new RegExp(escapeRegex(institution), "i") };
+                    if (faculty) query.faculty = { $regex: new RegExp(escapeRegex(faculty), "i") };
+                    if (program) query.program = { $regex: new RegExp(escapeRegex(program), "i") };
+                    if (course_type) query.course_type = { $regex: new RegExp(escapeRegex(course_type), "i") };
+                    if (campus) query.campus = { $regex: new RegExp(escapeRegex(campus), "i") };
                     console.log("admission",admissionType)
                     if (admissionType) {
                         const escapedAdmissionType = escapeRegex(admissionType);
