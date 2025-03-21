@@ -1,90 +1,108 @@
-'use client';
+"use client";
+import * as React from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 import { useState, useRef, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Navbar, ChatbotSidebar, AlertBox } from '@/components/index';
+import { Navbar, ChatbotSidebar, AlertBox,ChatComponent } from '@/components/index';
 import clsx from 'clsx';
+import { trpc } from '@/app/_trpc/client';
+
+// เผื่อไว้ใช้
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+};
 
 export default function Page() {
   const { data: session } = useSession();
   const router = useRouter();
   const isLoggedIn = !!session;
-
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; text: string }[]>([]);
+  const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; text: string; time: string }[]>([]);
+
+  
   const [input, setInput] = useState('');
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-
+  const [chatId, setChatId] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
+  const [refreshKey, setRefreshKey] = useState(0);
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
-
+  const mutationQueryChat = trpc.queryChat.useMutation();
   const handleSidebarToggle = (isOpen: boolean) => setIsSidebarOpen(isOpen);
   const handleSelectItem = (item: string) => {
-    const presetMessages: Record<string, { sender: 'user' | 'bot'; text: string }[]> = {
-      'new-chat': [],
-      'Today-1': [
-        { sender: 'user', text: 'แนะนำรอบ Admission ให้หน่อย' },
-        { sender: 'bot', text: `รอบการรับสมัคร Admission สำหรับนักเรียนที่ต้องการศึกษาต่อในระดับอุดมศึกษาภายในประเทศไทยโดยใช้ระบบ TCAS
-                (Thai University Central Admission System) จะมีหลายรอบที่เปิดรับสมัคร และแต่ละรอบมีคุณสมบัติและเกณฑ์การคัดเลือกที่แตกต่างกันไป
-                - รอบที่ 1 รอบ Portfolio
-                - รอบที่ 2 รอบ Quota
-                - รอบที่ 3 รอบ Admission
-                - รอบที่ 4 รอบ Direct Admission` },
-      ],
-      'Previous2-1': [
-        { sender: 'user', text: 'แนะนำรอบ Admission ให้หน่อย' },
-        { sender: 'bot', text: `รอบการรับสมัคร Admission สำหรับนักเรียนที่ต้องการศึกษาต่อในระดับอุดมศึกษาภายในประเทศไทยโดยใช้ระบบ TCAS
-                (Thai University Central Admission System) จะมีหลายรอบที่เปิดรับสมัคร และแต่ละรอบมีคุณสมบัติและเกณฑ์การคัดเลือกที่แตกต่างกันไป
-                - รอบที่ 1 รอบ Portfolio
-                - รอบที่ 2 รอบ Quota
-                - รอบที่ 3 รอบ Admission
-                - รอบที่ 4 รอบ Direct Admission` },
-      ],
-      'Previous2-2': [
-        { sender: 'user', text: 'ทำยังไงให้สอบติด' },
-        { sender: 'bot', text: `🔥 สรุปสูตรสอบติด
-          ✅ เลือกคณะให้ชัด → ดูว่าต้องใช้คะแนนอะไร
-          ✅ วางแผนอ่านหนังสือ & ฝึกทำข้อสอบเก่า
-          ✅ กระจายความเสี่ยง → สมัครรอบที่มีโอกาสมากที่สุด
-          ✅ เลือกอันดับ Admission ให้ฉลาด
-          ✅ เตรียมสอบสัมภาษณ์ให้ดี` },
-      ],
-      'Previous6-1': [
-        { sender: 'user', text: 'ค่าเทอมมหาลัยไหนแพงสุด' },
-        { sender: 'bot', text: `แพงสุด: หลักสูตรแพทย์-ทันตแพทย์ นานาชาติ (ค่าเทอมหลักล้านบาท)
-                 หลักสูตรอินเตอร์รัฐ: MUIC, จุฬาฯ BBA/INDA, ธรรมศาสตร์ BBA (~200,000 บาท/เทอม)
-                 เอกชน: ABAC, สแตมฟอร์ด, ม.กรุงเทพ (~70,000 - 120,000 บาท/เทอม)` },
-      ],
-    };
 
-    setMessages(presetMessages[item] || []);
-  };
-
-  const handleSendMessage = () => {
-    if (!isLoggedIn) {
-      router.push('/login');
-      setShowAlert(true);
+    if(item === 'new-chat'){
+      setMessages([]);
+      setChatId('');
       return;
     }
-    if (input.trim() === '' || isBotTyping) return;
 
-    setMessages((prevMessages) => [...prevMessages, { sender: 'user', text: input }]);
+    mutationQueryChat.mutate({ email: session?.user?.email as string, chatId: item },{
+      onSuccess: (data) => {
+        if(data){
+          console.log("data",data.history);
+          // setMessages(data.history.map((msg: any) => ({ role: msg.role, text: msg.content })));
+          setMessages(data.history)
+          setChatId(item);
+        }
+      },
+      onError: (error) => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { role: 'assistant', text: 'ขออภัย บริการของเรายังไม่เปิดใช้งานตอนนี้ กรุณาลองใหม่อีกครั้งในภายหลัง' ,time: new Date().toISOString()},
+        ]);}})
+  };
+  const mutationChat = trpc.chatBot.useMutation();
+  const handleSendMessage = () => {
+    if (input.trim() === '' || isBotTyping) return;
+    setMessages((prevMessages) => [...prevMessages, { role: 'user', content: input, time: new Date().toISOString() }]);
+    console.log("input",input)
     setInput('');
     setIsBotTyping(true);
+    if (chatId === '') {
+      setRefreshKey(prev => prev + 1);
+    }
+    mutationChat.mutate({ email: session?.user?.email as string, content: input,chatId:chatId },{
+      onSuccess: (data) => {
+        if(data){
+          
+          if ('chat' in data) {
+            console.log("data",data.chat.history[data.chat.history.length-1]);
+            setMessages((prevMessages) => [...prevMessages, data.chat.history[data.chat.history.length-1]]);
+          }
+          setIsBotTyping(false);
+        }
+      },
+      onError: (error) => {
+        setMessages((prevMessages) => [
+              ...prevMessages,
+              { role: 'assistant', context: 'ขออภัย บริการของเรายังไม่เปิดใช้งานตอนนี้ กรุณาลองใหม่อีกครั้งในภายหลัง' ,time: new Date().toISOString()},
+            ]);
+        setIsBotTyping(false);
+        
+      }
+    })
 
-    setTimeout(() => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: 'bot', text: 'ขออภัย บริการของเรายังไม่เปิดใช้งานตอนนี้ กรุณาลองใหม่อีกครั้งในภายหลัง' },
-      ]);
-      setIsBotTyping(false);
-    }, 1000);
+    // setTimeout(() => {
+    //   setMessages((prevMessages) => [
+    //     ...prevMessages,
+    //     { role: 'assistant', context: 'ขออภัย บริการของเรายังไม่เปิดใช้งานตอนนี้ กรุณาลองใหม่อีกครั้งในภายหลัง' },
+    //   ]);
+    //   setIsBotTyping(false);
+    // }, 1000*300);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -97,7 +115,7 @@ export default function Page() {
   return (
     <div className="h-screen overflow-hidden flex flex-col">
       <Navbar />
-      <ChatbotSidebar onToggleSidebar={handleSidebarToggle} onSelectItem={handleSelectItem} />
+      <ChatbotSidebar onToggleSidebar={handleSidebarToggle} onSelectItem={handleSelectItem} email={session?.user?.email as string}/>
 
       <div className={clsx('flex flex-col items-center justify-between h-full transition-all duration-300', {
         'lg:ml-[20%] md:ml-[26%] sm:ml-[0%]': isSidebarOpen,
@@ -110,27 +128,15 @@ export default function Page() {
             </div>
           ) : (
             <div className="overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-hidden w-full">
-              {messages.map((msg, index) => (
-                <div key={index} className={clsx('flex items-start gap-2 w-full', {
-                  'justify-end': msg.sender === 'user',
-                  'justify-start': msg.sender === 'bot',
-                })}>
-                  {msg.sender === 'bot' && (
-                    <img src="images/logofooter.avif" alt="Bot Logo" className="w-16 h-16 md:ml-32 lg:ml-56 mt-6" />
-                  )}
-                  <div className={clsx('text-monochrome-950 text-body-large p-2 mt-10 rounded-lg max-w-[60%]' , {
-                    'bg-monochrome-50': msg.sender === 'bot',
-                    'bg-monochrome-100': msg.sender === 'user',
-                    'self-end break-words': msg.sender === 'user',
-                    'self-start': msg.sender === 'bot',
-                    'md:mr-32 lg:mr-56': true,
-                  })}>
-                    {msg.text.split('\n').map((line, idx) => (
-                      <p key={idx} className="break-words">{line}</p>
-                    ))}
-                  </div>
+              {<ChatComponent messages={messages}/>}
+              {isBotTyping && (
+                <div className="flex justify-start gap-2 w-full">
+                  <img src="images/logofooter.avif" alt="assistant Logo" className="w-16 h-16 md:ml-32 lg:ml-56 mt-6" />
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, ml: 2 }}>
+                    <CircularProgress size={24} />
+                  </Box>
                 </div>
-              ))}
+              )}
               <div ref={messagesEndRef} />
             </div>
           )}

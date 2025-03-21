@@ -12,7 +12,7 @@ export default function createChat(){
                 })
             )
             .mutation(async ({input}) => {
-                connectDB();
+                await connectDB();
                 const { email } = input;
 
             // ค้นหาผู้ใช้จากอีเมล
