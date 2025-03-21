@@ -186,7 +186,7 @@ export default function Topic() {
           </p>
         </div>
         {/* Post details */}
-        <div className="w-full h-full flex flex-col items-center gap-2">
+        <div className="w-full h-fit flex flex-col items-center gap-2">
           {tags.length > 0 && 
           <div className="flex gap-2 self-start">
             {topicTagsMutation.isPending && 

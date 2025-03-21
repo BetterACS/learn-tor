@@ -54,11 +54,11 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
       })
 
   const { data, isLoading, isError, refetch } = queryData;
-
-  // Reset the page and refetch posts when searchTerm, filterTags, or sortBy changes
+  
   useEffect(() => {
-    setCurrentPage(1); // Reset to page 1 on filter or sort changes
-    setPosts([]); // Clear posts to show fresh data after change
+    setCurrentPage(1);
+    setPosts([]);
+    refetch();
   }, [searchTerm, filterTags, sortBy]);
 
   // Append new posts when data changes and pagination progresses
@@ -88,6 +88,11 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
     },
     [isLoading]
   );
+
+  useEffect(() => {
+    if (isLoading) return;
+    console.log("After refetch", posts);
+  }, [posts])
 
   return (
     <div className="h-fit w-full flex flex-col gap-6">

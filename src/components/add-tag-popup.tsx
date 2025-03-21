@@ -71,13 +71,13 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
   };
 
   return (
-    <div className="fixed w-screen h-screen top-0 right-0 backdrop-filter backdrop-brightness-75 backdrop-blur-[2px] z-10">
+    <div className="fixed w-screen h-screen top-0 right-0 backdrop-filter backdrop-brightness-75 backdrop-blur-[2px] z-10 flex justify-center">
       <div
-        ref={popupRef}
-        className="h-fit w-[calc(100%-260px)] ml-[250px] mt-[5.5rem] flex flex-col gap-3 items-center justify-center z-20"
+        // ref={popupRef}
+        className="h-fit w-[calc(100%-260px)] mt-[5.5rem] flex flex-col gap-3 items-center justify-center z-20"
       >
         {/* Body */}
-        <div className="w-[65%] h-fit bg-monochrome-50 rounded-md py-3 px-3 flex flex-col gap-2">
+        <div ref={popupRef} className="w-[65%] h-fit bg-monochrome-50 rounded-md py-3 px-3 flex flex-col gap-2 ">
           {/* Selected tag display area */}
           {tags.length > 0 &&
           <div className="flex gap-2 items-center">

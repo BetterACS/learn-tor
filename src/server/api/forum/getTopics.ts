@@ -18,16 +18,19 @@ const getTopics = {
     )
     .query(async ({ input }) => {
       const { searchTerm, filterTags, sortBy, limit, page } = input;
+      console.log(searchTerm, filterTags, sortBy, limit, page);
       try {
         await connectDB();
 
-        const query: any = {
-          $or: [
-            { title: { $regex: searchTerm, $options: "i" } },
-            { body: { $regex: searchTerm, $options: "i" } },
-            { forum: { $regex: searchTerm, $options: "i" } },
-          ],
-        };
+        const query: any = searchTerm
+          ? {
+              $or: [
+                { title: { $regex: searchTerm, $options: "i" } },
+                { body: { $regex: searchTerm, $options: "i" } },
+                { forum: { $regex: searchTerm, $options: "i" } },
+              ],
+            }
+          : {}; // If searchTerm === "", fetch all topics
 
         const includedTags = Object.keys(filterTags ?? {}).filter((tag) => filterTags?.[tag] === "included");
         const excludedTags = Object.keys(filterTags ?? {}).filter((tag) => filterTags?.[tag] === "excluded");
@@ -104,7 +107,9 @@ const getTopics = {
           return { status: 400, data: { message: "Topic not found" } };
         }
 
-        const topicWUser = await TopicModel.populate(resultTopics, { path: 'user_id', select: 'username' }); 
+        const topicWUser = await TopicModel.populate(resultTopics, { path: 'user_id', select: 'username avatar' }); 
+
+        console.log(topicWUser);
         
         return { 
           status: 200, 
@@ -196,7 +201,7 @@ const getTopics = {
             return { status: 400, data: { message: "Topic not found" } };
           }
 
-          const topicWUser = await TopicModel.populate(resultTopics, { path: 'user_id', select: 'username' }); 
+          const topicWUser = await TopicModel.populate(resultTopics, { path: 'user_id', select: 'username avatar' }); 
           
           return { 
             status: 200, 
@@ -298,7 +303,7 @@ const getTopics = {
   
         const topicWithUser = await TopicModel.populate(resultTopics, {
           path: 'user_id',
-          select: 'username',
+          select: 'username avatar',
         });
   
         return {
@@ -354,7 +359,6 @@ const getTopics = {
             },
           }
         ])
-        console.log(topic);
         return { 
           status: 200, 
           data: topic
