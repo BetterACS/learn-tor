@@ -2,6 +2,12 @@ import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod'
 import { connectDB } from "@/server/db";
 import { ChatModel, UserModel } from "@/db/models";
+import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const CHAT_BOT_API_URL = process.env.CHAT_BOT_API_URL;
 
 export default function chatBot(){
     return{
@@ -14,7 +20,7 @@ export default function chatBot(){
                 })
             )
             .mutation(async ({input}) => {
-                connectDB();
+                await connectDB();
                 const { email, content, chatId} = input;
                 const time = new Date();
 
@@ -23,17 +29,14 @@ export default function chatBot(){
                     throw new Error("User not found");
                 }
                 const user_id = user._id;
+
                 // ชื่อห้องยังคิดไม่ออกว่าจะทำเป็นยังไง
-                const roomName = "NewChat";
+                const roomName = content.slice(0, 15);
 
                 let chat;
                 if(chatId) {
                     chat = await ChatModel.findById(chatId);
                 }else{
-                    // ดึงประวิติการสนทนาล่าสุดของ user
-                    chat = await ChatModel.findOne({ user_id: user_id, "history.0": { $exists: true } }).sort({ updatedAt: -1 });
-                }
-                if (!chat) {
                     chat = new ChatModel({
                         name: roomName,
                         user_id: user_id,
@@ -41,6 +44,7 @@ export default function chatBot(){
                     });
                 }
                 
+
                 try {
                     await chat.save();
                     console.log("Chat saved successfully",chat);
@@ -49,15 +53,34 @@ export default function chatBot(){
                 }
 
                 if (!Array.isArray(chat.history)) {
-                    chat.history = []; // รีเซ็ต history ให้เป็น array
+                    chat.history = [];
                 }
+                try{
+                    chat.history.push({ role: "user", content ,time: time });
+                    console.log("History before saving:", chat.history);
+                    
+                    const formattedData = {
+                        q: chat.history.map(({ role, content }: { role: string; content: string }) => ({
+                        role,
+                        content,
+                      }))};
 
-                chat.history.push({ role: "user", content ,time: time });
+                    if (!CHAT_BOT_API_URL) {
+                        return{status:200,message:"CHAT_BOT_API_URL is not defined"};
+                    }
+                    
+                    const response = await axios.post(CHAT_BOT_API_URL, formattedData);
 
-                console.log("History before saving:", chat.history);
-
-                const botResponse = "This is a bot response"; // ตัวอย่างการตอบจากบอท
-                chat.history.push({ role: "assistance", content: botResponse , time: time});
+                    if (response.data && response.data.data) {
+                        const responseData = response.data.data;
+                        chat.history.push({ role: "assistant", content: responseData, time });
+                    } else {
+                        console.error("Unexpected response format:", response.data);
+                    }
+                    
+                }catch(error){
+                    console.error("Error pushing history:", error);
+                }
 
                 try {
                     // ใช้ updateOne แทน save
@@ -74,7 +97,8 @@ export default function chatBot(){
                 return {
                     status:200,
                     message: "Chat successfully saved",
-                    chat
+                    chat,
+                    ChatId: chat._id
                 };
             })
     }
