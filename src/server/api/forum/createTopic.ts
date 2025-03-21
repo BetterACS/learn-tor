@@ -17,7 +17,7 @@ export default function createTopic() {
             )
             .mutation(async ({ input }) => {
                 await connectDB();
-                const { title, body, email,img } = input;
+                const { title, body, email, img } = input;
 
                 const user = await UserModel.findOne({ email });
 

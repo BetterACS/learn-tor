@@ -94,7 +94,7 @@ export default function Carousel({ carousel_items }: CarouselProps) {
               No image
             </div>
           )}
-          <p className="text-headline-6 text-monochrome-950 text-start group-hover:text-primary-600 transition duration-200">{item.title}</p>
+          <p className="text-headline-6 text-monochrome-950 text-start group-hover:text-primary-600 transition duration-200 break-words">{item.title}</p>
         </Link>
       ))}
     </Slider>

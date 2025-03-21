@@ -1,22 +1,40 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Button, AlertBox , AddTagPopup } from '@/components/index';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 import type {Topic} from '@/db/models';
 import { CldUploadWidget } from 'next-cloudinary'; // Import CldUploadWidget
 
-interface PostData {
-  title: string;
-  body: string;
-  img: string;
-  tags: string[];
+interface Post {
+  _id: number, 
+  img: string, 
+  title: string, 
+  body: string, 
+  created_at: string, 
+  n_like: number, 
+  user_id: { username: string }, 
+  isLiked : boolean,
+  tags: string[],
 }
 
-export default function CreateTopic() {
+interface PostData {
+  title: string,
+  body: string,
+  img: string,
+  tags: string[]
+}
+
+export default function EditTopic() {
   const router = useRouter();
+  const { topicId } = useParams();
+  const topicTagsMutation = trpc.topicTags.useMutation();
+  const queryData = trpc.queryTopicById.useQuery({ Id: topicId });
+  const { data, isLoading, isError, refetch } = queryData;
+
   const [postData, setPostData] = useState<PostData>({
+    id: '',
     title: '',
     body: '',
     img: '',
@@ -27,6 +45,35 @@ export default function CreateTopic() {
   const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
+    if (isLoading) return;
+    let fetchedData = data?.data[0];
+
+    setPostData({
+      title: fetchedData.title,
+      body: fetchedData.body,
+      img: fetchedData.img,
+      tags: fetchedData.tags,
+    });
+    
+    topicTagsMutation.mutate(
+      { topic_id: String(topicId) },
+      {
+        onSuccess: (data) => {
+          if (data.topicTags && Array.isArray(data.topicTags)) {
+            const extractedTags = data.topicTags.map(tag => tag.tagname);
+            setTags(extractedTags);
+            // console.log("Fetching Tags for post successfully: ", post._id);
+          }
+        },
+        onError: (error) => {
+          console.error("Error fetching tags:", error);
+        }
+      }
+    );
+
+  }, [isLoading])
+
+  useEffect(() => {
     setPostData((prev) => ({
       ...prev,
       tags: tags,
@@ -34,6 +81,7 @@ export default function CreateTopic() {
   }, [isPopupOpen]);
   const { data: session } = useSession();
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -48,20 +96,20 @@ export default function CreateTopic() {
   const handleOnClickAddTags = () => {
     setIsPopupOpen(true);
   };
-  // const handleOnClickPost = () => {
-  //   console.log(postData);
-  // }
-  const mutationTag = trpc.addTags.useMutation();
-  const mutation = trpc.createTopic.useMutation();
-  // console.log(postData)
-  const handleOnClickPost = async () => {
+
+  const mutationTag = trpc.updateTags.useMutation();
+  const mutation = trpc.updateTopic.useMutation();
+
+  const handleOnClickSave = async () => {
     setError('');
+    setSuccess('');
     if (postData.title === "") {
       setError("Title is required");
-    } 
+    }
     else{
       mutation.mutate(
-        { 
+        {
+          id: topicId,
           title: postData.title,
           body: postData.body,
           email: session?.user?.email || '',
@@ -69,59 +117,80 @@ export default function CreateTopic() {
         },
         {
           onSuccess: (data) => {
-              if (data.status !== 200) {
-                  // console.warn("Validation Error:", data.data.message);
-                  setError(data.data.message);
-              } else if (data.status === 200) {
-                  console.log("Mutation Successful:", data);
+            if (data.status !== 200) {
+              setError(data.data.message);
+            } else if (data.status === 200) {
+              console.log("Mutation Successful:", data);
+              setSuccess(data.data.message);
 
-                  const postId = data.data.topic._id;
+              const topicId = data.data.topic._id;
 
-                  console.log("Tags before mutation:", tags);
-
-                  if (tags.length > 0) {
-                    mutationTag.mutate(
-                      {
-                        postId: postId,
-                        tags: tags,
-                      },
-                      {
-                        onSuccess: (data) => {
-                          console.log("After add tag success" + data);
-                        },
-                        onError: (error) => {
-                          console.error("Tag mutation error:", error);
-                        },
-                      }
-                    );
+              if (tags.length > 0) {
+                mutationTag.mutate(
+                  {
+                    topicId: topicId,
+                    tags: tags,
+                    email: session?.user?.email || '',
+                  },
+                  {
+                    onSuccess: (data) => {
+                      console.log("After add tag success" + data);
+                      setSuccess(data.data.message);
+                    },
+                    onError: (error) => {
+                      console.error("Tag mutation error:", error);
+                    },
                   }
-
-              
-                  if ('topic' in data.data) {
-                    router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
-                      ...data.data.topic,
-                      img: postData.img,
-                    })}`
-                      
-                    );
-                  } else {
-                    setError("Topic data is missing");
-                  }
+                );
               }
+
+          
+              if ('topic' in data.data) {
+                router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
+                  ...data.data.topic,
+                  img: postData.img,
+                })}`
+                  
+                );
+              } else {
+                setError("Topic data is missing");
+              }
+            }
           },
           onError: (error) => {
               console.error("Mutation Failed:", error);
               setError(error.message);
           },
         }
-    );
+      );
     }
+  };
+
+  const deleteTopicMutation = trpc.deleteTopic.useMutation();
+  const handleOnClickDelete = () => {
+    deleteTopicMutation.mutate(
+      {
+        topicId: topicId,
+        email: session?.user?.email || '',
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Delete successfully" + data);
+          setSuccess(data.data.message);
+          router.push(`/forum`)
+        },
+        onError: (error) => {
+          console.error("Delete error:", error);
+          setError(error.message);
+        },
+      }
+    );
   };
 
   return (
     <div className="relative h-full w-full">
       <p className="text-headline-3 mb-6">
-        Create Topic
+        Edit Topic
       </p>
       {error && 
         <AlertBox
@@ -130,6 +199,13 @@ export default function CreateTopic() {
         message={error}
       />
       }
+      {/* {success &&
+        <AlertBox
+        alertType="success"
+        title="Success"
+        message={success}
+        />
+      } */}
       <div className="flex flex-col gap-6">
         {/* Display selected tags */}
         {tags.length > 0 && (
@@ -240,11 +316,17 @@ export default function CreateTopic() {
             onClick={handleOnClickAddTags}
           />
           <Button
-            button_name="Post"
+            button_name="Save"
             variant="primary"
-            onClick={handleOnClickPost}
+            onClick={handleOnClickSave}
           />
         </div>
+
+        <Button
+          button_name="Delete"
+          variant="red"
+          onClick={handleOnClickDelete}
+        />
 
         {isPopupOpen && (
           <AddTagPopup

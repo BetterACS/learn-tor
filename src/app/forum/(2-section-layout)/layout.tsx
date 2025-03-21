@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </aside>
         
         {/* Main Content */}
-        <div className="min-w-[80vw] max-w-[85vw] h-full flex flex-col">
+        <div className="min-w-[80vw] max-w-[80vw] h-full flex flex-col">
           <SearchBar />
           <main className="w-full h-full overflow-auto py-10 px-[6vw]">
             {children}

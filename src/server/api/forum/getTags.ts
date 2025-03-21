@@ -1,6 +1,8 @@
 import { publicProcedure } from "@/server/trpc";
 import { connectDB } from "@/server/db";
 import { TagNameModel, TopicAndTagModel } from "@/db/models";
+import { z } from "zod";
+import { connect } from "mongoose";
 
 const getTags = {
     getTags: publicProcedure.query(async () => {
@@ -51,7 +53,37 @@ const getTags = {
         ]);
 
         return tagUsage;
-    })
+    }),
+    getSearchTags: publicProcedure
+        .input(z.object({ query: z.string().optional() }))
+        .query(async ({ input }) => {
+            const { query } = input;
+
+            try {
+            await connectDB();
+
+            const tags = await TagNameModel.find({
+                tagname: { $regex: query, $options: 'i' },
+            }).exec();
+
+            const groupedTags = tags.reduce((acc, { category, tagname }) => {
+                if (tagname && category) {
+                if (!acc[category]) {
+                    acc[category] = [];
+                }
+                acc[category].push(tagname);
+                } else {
+                console.log("Skipping invalid tag or category:", { category, tagname });
+                }
+                return acc;
+            }, {} as Record<string, string[]>);
+
+            return groupedTags;
+            } catch (error) {
+            console.error("Error searching tags:", error);
+            throw new Error('Failed to fetch tags');
+            }
+        }),
 };
 
 export default getTags;
