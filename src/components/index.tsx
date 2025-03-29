@@ -37,6 +37,7 @@ import Inputcalculator from '@/components/inputcalculator';
 import ResultCalculator from '@/components/resultcalculator';
 import Comments from '@/components/Comments';
 import SearchableDropdown from './SearchableDropdown';
+import ChatComponent from './ChatComponent';
 
 export {
   Test,
@@ -78,4 +79,5 @@ export {
   ResultCalculator,
   Comments,
   SearchableDropdown,
+  ChatComponent
 }
