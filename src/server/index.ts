@@ -22,7 +22,6 @@ import createComment from './api/forum/createComment';
 import getAllComments from './api/forum/getAllComments';
 import likeComment from './api/forum/likeComment';
 import chatBot from './api/chatbot/chatBot';
-import createChat from './api/chatbot/createChat';
 import queryChat from './api/chatbot/queryChat';
 import queryScore from './api/tcascalculator/queryscore';
 import checkScore from './api/tcascalculator/checkScore';
@@ -58,7 +57,6 @@ export const appRouter = router({
     ...getAllComments(),
     ...likeComment(),
     ...chatBot(),
-    ...createChat(),
     ...queryChat(),
     ...queryScore(),
     ...checkScore(),
