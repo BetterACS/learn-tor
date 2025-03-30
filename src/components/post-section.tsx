@@ -56,9 +56,13 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
   const { data, isLoading, isError, refetch } = queryData;
   
   useEffect(() => {
-    setCurrentPage(1);
     setPosts([]);
-    refetch();
+    setCurrentPage(1);
+    if (data && Array.isArray(data.data)) {
+      setPosts(data.data);
+    } else {
+      // console.log('API response is not an array:', data, isLoading);
+    }
   }, [searchTerm, filterTags, sortBy]);
 
   // Append new posts when data changes and pagination progresses
@@ -69,9 +73,9 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
         return Array.from(newUniquePosts.values());
       });
     } else {
-      console.log('API response is not an array:', data, isLoading);
+      // console.log('API response is not an array:', data, isLoading);
     }
-  }, [data, sortBy, currentPage]);
+  }, [data, currentPage]);
   
   const lastPostElementRef = useCallback(
     (node: HTMLElement | null) => {
@@ -88,11 +92,6 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
     },
     [isLoading]
   );
-
-  useEffect(() => {
-    if (isLoading) return;
-    console.log("After refetch", posts);
-  }, [posts])
 
   return (
     <div className="h-fit w-full flex flex-col gap-6">
