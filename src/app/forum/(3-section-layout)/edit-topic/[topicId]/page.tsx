@@ -279,7 +279,7 @@ export default function EditTopic() {
     );
   };
 
-  const handleOnDeleteCancle = () => {
+  const handleOnDeletecancel = () => {
     setIsConfirmModuleOpen(false);
   };
 
@@ -469,9 +469,9 @@ export default function EditTopic() {
             text='Do you want to delete this topic?' 
             description='This topic will be permanently deleted and cannot be restored.' 
             confirmText='Delete'
-            cancleText='Cancle'
+            cancelText='Cancel'
             confirmHandle={handleOnDeleteConfirm}
-            cancleHandle={handleOnDeleteCancle}
+            cancelHandle={handleOnDeletecancel}
           />
         )}
 

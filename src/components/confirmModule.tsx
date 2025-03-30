@@ -7,18 +7,18 @@ interface ConfirmModuleProps {
   text: string;
   description: string;
   confirmText: string;
-  cancleText: string;
+  cancelText: string;
   confirmHandle: () => void;
-  cancleHandle: () => void;
+  cancelHandle: () => void;
 }
 
 export default function ConfirmModule ({ 
   text, 
   description, 
   confirmText,
-  cancleText,
+  cancelText,
   confirmHandle,
-  cancleHandle
+  cancelHandle
 }: ConfirmModuleProps) {
   const moduleRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +32,7 @@ export default function ConfirmModule ({
 
   const handleClickOutside = (event: MouseEvent) => {
     if (moduleRef.current && !moduleRef.current.contains(event.target as Node)) {
-      cancleHandle();
+      cancelHandle();
     }
   };
 
@@ -44,7 +44,7 @@ export default function ConfirmModule ({
           {description && <p className="font-medium text-xl">{description}</p>}
           <div className="flex justify-end gap-4 mt-6">
             <Button button_name={confirmText} variant='red' onClick={confirmHandle} />
-            <Button button_name={cancleText} variant='secondary' onClick={cancleHandle} />
+            <Button button_name={cancelText} variant='secondary' onClick={cancelHandle} />
           </div>
         </div>
       </div>
