@@ -60,25 +60,35 @@ const getTags = {
             const { query } = input;
 
             try {
-            await connectDB();
+                await connectDB();
 
-            const tags = await TagNameModel.find({
-                tagname: { $regex: query, $options: 'i' },
-            }).exec();
+                const tags = await TagNameModel.find({
+                    tagname: { $regex: query, $options: 'i' },
+                }).exec();
 
-            const groupedTags = tags.reduce((acc, { category, tagname }) => {
-                if (tagname && category) {
-                if (!acc[category]) {
-                    acc[category] = [];
-                }
-                acc[category].push(tagname);
-                } else {
-                console.log("Skipping invalid tag or category:", { category, tagname });
-                }
-                return acc;
-            }, {} as Record<string, string[]>);
+                const tagIds = tags.map((tag) => tag._id);
 
-            return groupedTags;
+                const tagCounts = await TopicAndTagModel.aggregate([
+                    { $match: { tag_id: { $in: tagIds } } },
+                    { $group: { _id: "$tag_id", count: { $sum: 1 } } },
+                ]);
+
+                const tagCountMap = tagCounts.reduce((acc, { _id, count }) => {
+                    acc[_id.toString()] = count;
+                    return acc;
+                }, {} as Record<string, number>);
+
+                const groupedTags = tags.reduce((acc, { category, tagname, _id }) => {
+                    if (tagname && category) {
+                        if (!acc[category]) {
+                            acc[category] = [];
+                        }
+                        acc[category].push({ tagname, count: tagCountMap[_id.toString()] || 0 });
+                    }
+                    return acc;
+                }, {} as Record<string, { tagname: string; count: number }[]>);
+
+                return groupedTags;
             } catch (error) {
             console.error("Error searching tags:", error);
             throw new Error('Failed to fetch tags');

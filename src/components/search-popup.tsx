@@ -10,13 +10,16 @@ interface SearchPopupProps {
   searchTerm: string;
 };
 
+type Tag = {
+  tagname: string;
+  count: number;
+}
+
 export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTerm, searchTerm }: SearchPopupProps) {
   const [tagSearchTerm, setTagSearchTerm] = useState('');
   const router = useRouter();
   const [selectedTags, setSelectedTags] = useState<{ [key: string]: 'included' | 'excluded' }>({});
-  const [tagList, setTagList] = useState({});
-  const [newTag, setNewTag] = useState<{ [key in keyof typeof tagList]?: string }>({});
-  const [activeCategory, setActiveCategory] = useState<keyof typeof tagList | null>(null);
+  const [tagList, setTagList] = useState<Record<string, Tag[]>>({});
   const popupRef = useRef<HTMLDivElement | null>(null);
 
   const { data, isLoading, isError } = trpc.getSearchTags.useQuery({ 
@@ -25,6 +28,7 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTer
   
   useEffect(() => {
     if (isLoading) return;
+    console.log(data);
     setTagList(data);
   }, [isLoading, data]);
 
@@ -57,17 +61,6 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTer
     if (e.key === 'Enter') {
       handleSearch();
     }
-  };
-
-  const handleAddTag = (category: keyof typeof tagList) => {
-    if (newTag[category]?.trim()) {
-      setTagList((prev) => ({
-        ...prev,
-        [category]: [...prev[category], newTag[category]!.trim()],
-      }));
-      setNewTag((prev) => ({ ...prev, [category]: "" }));
-    }
-    setActiveCategory(null);
   };
 
   const toggleTagSelection = (tag: string) => {
@@ -119,96 +112,73 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTer
           </div>
 
           {/* Body */}
-          <div className="w-full h-fit bg-monochrome-50 rounded-md py-3 px-3 flex flex-col gap-2">
-            {/* Selected tag display area */}
-            {Object.keys(selectedTags).length > 0 &&
-            <div className="flex gap-2 items-center">
-              <p>Selected Tags:</p>
-              <div className="flex gap-2">
-                {Object.entries(selectedTags).map(([tag, status]) => (
-                  <div
-                    key={tag}
-                    className={`text-body-1 border ${
-                      status === 'included' ? 'border-green-600' : 'border-red-600'
-                    } rounded-[1rem] px-3 py-2`}
+          <div className="w-full h-[80vh] overflow-y-auto bg-monochrome-50 rounded-md pb-3 flex flex-col gap-4">
+            <div className="sticky top-0 flex flex-col gap-2 p-3 px-3 bg-monochrome-50 border-b">
+              {/* Selected tag display area */}
+              {Object.keys(selectedTags).length > 0 &&
+              <div className="flex gap-2 items-center">
+                <p>Selected Tags:</p>
+                <div className="flex gap-2">
+                  {Object.entries(selectedTags).map(([tag, status]) => (
+                    <div
+                      key={tag}
+                      className={`text-body-1 ${
+                        status === 'included' ? 'bg-green-600' : 'bg-red-600'
+                      } rounded-[1rem] px-3 py-2`}
+                    >
+                      {tag}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              }
+              {/* Search tag area */}
+              <div className="h-fit w-full flex py-2 px-3 bg-monochrome-100 rounded-md">
+                <div className="w-auto pr-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="24px"
+                    viewBox="0 -960 960 960"
+                    width="18px"
                   >
-                    {tag}
-                  </div>
-                ))}
+                    <path
+                      d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+                      className="fill-monochrome-600"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  className="w-full bg-transparent outline-none text-body-large text-monochrome-950 placeholder-monochrome-600 caret-monochrome-600 mr-2 flex-1"
+                  placeholder="Search tag here"
+                  onChange={handleTagSearchChange}
+                  value={tagSearchTerm}
+                />
               </div>
-            </div>
-            }
-            {/* Search tag area */}
-            <div className="h-fit w-full flex py-2 px-3 bg-monochrome-100 rounded-md">
-              <div className="w-auto pr-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
-                  viewBox="0 -960 960 960"
-                  width="18px"
-                >
-                  <path
-                    d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
-                    className="fill-monochrome-600"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                className="w-full bg-transparent outline-none text-body-large text-monochrome-950 placeholder-monochrome-600 caret-monochrome-600 mr-2 flex-1"
-                placeholder="Search tag here"
-                onChange={handleTagSearchChange}
-                value={tagSearchTerm}
-              />
             </div>
             {/* Tag display area */}
-            {tagList && Object.entries(tagList).map(([category, tags]) => (
-              <div key={category} className="mb-4 divide-y divide-monochrome-300">
+            {tagList && Object.entries(tagList).map(([category, tags], index) => (
+              <div key={index} className="mb-2 divide-y divide-monochrome-300 px-3">
                 {/* Category Title */}
                 <h3 className="text-headline-6">{category}</h3>
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 pt-3 items-center">
-                  {tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      onClick={() => toggleTagSelection(tag)}
-                      className={`text-body-1 border ${
-                        selectedTags[tag] === 'included'
-                          ? 'border-green-600'
-                          : selectedTags[tag] === 'excluded'
-                          ? 'border-red-600'
-                          : 'border-monochrome-500'
-                      } rounded-[1rem] px-3 py-2 cursor-pointer`}
+                  {tags?.map(({tagname, count}, index) => (
+                    <div
+                      key={index}
+                      onClick={() => toggleTagSelection(tagname)}
+                      className={`text-body-1 ${
+                        selectedTags[tagname] === 'included'
+                          ? 'border-green-600 border-2'
+                          : selectedTags[tagname] === 'excluded'
+                          ? 'border-red-600 border-2'
+                          : 'border-monochrome-500 border'
+                      } rounded-[1rem] cursor-pointer flex gap-2 items-center`}
                     >
-                      {tag}
-                    </span>
+                      <p className="ml-3">{tagname}</p>
+                      <p className="py-2 px-3 h-full rounded-r-[1rem] bg-monochrome-100 font-normal text-monochrome-600">{count}</p>
+                    </div>
                   ))}
-                  {activeCategory === category ? (
-                    <input
-                      type="text"
-                      value={newTag[category as keyof typeof tagList] || ""}
-                      onChange={(e) =>
-                        setNewTag((prev) => ({
-                          ...prev,
-                          [category]: e.target.value,
-                        }))
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleAddTag(category as keyof typeof tagList);
-                      }}
-                      onBlur={() => setActiveCategory(null)} // Close input on blur/loose focus
-                      className="text-body-1 text-monochrome-600 border border-monochrome-400 rounded-[1rem] px-3 py-2 outline-none"
-                      placeholder="New tag"
-                      autoFocus
-                    />
-                  ) : (
-                    <button
-                      onClick={() => setActiveCategory(category as keyof typeof tagList)}
-                      className="text-headline-6 px-2 py-2"
-                    >
-                      +
-                    </button>
-                  )}
                 </div>
               </div>
             ))}

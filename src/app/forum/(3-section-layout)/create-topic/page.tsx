@@ -14,6 +14,11 @@ interface PostData {
   tags: string[];
 }
 
+type Tag = {
+  tagname: string;
+  count: number;
+}
+
 export default function CreateTopic() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -28,6 +33,7 @@ export default function CreateTopic() {
     tags: [],
   });
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const [tagsWCategory, setTagsWCategory] = useState<Record<string, Tag[]>>({});
   const [tags, setTags] = useState<string[]>([]);
   const [error, setError] = useState('');
 
@@ -309,6 +315,8 @@ export default function CreateTopic() {
             setIsPopupOpen={setIsPopupOpen}
             tags={tags}
             setTags={setTags}
+            tagsWCategory={tagsWCategory}
+            setTagsWCategory={setTagsWCategory}
           />
         )}
       </div>

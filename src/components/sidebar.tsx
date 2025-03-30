@@ -41,20 +41,20 @@ export default function Sidebar() {
       <div className="w-full flex flex-col py-6 first:pt-0 items-start">
         <div onClick={() => handleRedirect('/forum')} className="w-full h-20 flex gap-3 items-center px-4 hover:bg-monochrome-100 transform duration-100 rounded-lg">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-house w-8 min-w-8"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-          <p className="text-headline-5">
+          <p className="text-headline-5 cursor-default">
             Homepage
           </p>
         </div>
         <div onClick={() => handleRedirect('/forum/my-topic')} className="w-full h-20 flex gap-3 items-center px-1 hover:bg-monochrome-100 transform duration-100 rounded-lg">
           <div className="w-full flex gap-3 items-center px-4 hover:bg-monochrome-100 transform duration-100 rounded-lg">
-            <p className="text-headline-5">
+            <p className="text-headline-5 cursor-default">
               My Topic
             </p>
           </div>
         </div>
         <div onClick={() => handleRedirect('/forum/bookmark')} className="w-full h-20 flex gap-3 items-center px-1 hover:bg-monochrome-100 transform duration-100 rounded-lg">
           <div className="w-full flex gap-3 items-center px-4 hover:bg-monochrome-100 transform duration-100 rounded-lg">
-            <p className="text-headline-5">
+            <p className="text-headline-5 cursor-default">
               My Bookmark
             </p>
           </div>
