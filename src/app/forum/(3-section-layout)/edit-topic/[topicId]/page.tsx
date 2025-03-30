@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Button, AlertBox , AddTagPopup } from '@/components/index';
+import { Button, AlertBox , AddTagPopup, LoadingCircle, ErrorLoading, ConfirmModule } from '@/components/index';
 import { useParams, useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
@@ -9,6 +9,7 @@ import imageCompression from 'browser-image-compression';
 import { extractPublicId } from 'cloudinary-build-url';
 
 interface PostData {
+  id?: string,
   title: string,
   body: string,
   img: string,
@@ -40,6 +41,10 @@ export default function EditTopic() {
   const [tags, setTags] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
+  const [isConfirmModuleOpen, setIsConfirmModuleOpen] = useState(false);
+  // const [confirmDelete, setComfirmDelete] = useState(false);
+
 
   useEffect(() => {
     if (isLoading) return;
@@ -51,6 +56,10 @@ export default function EditTopic() {
       img: fetchedData.img,
       tags: fetchedData.tags,
     });
+
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 500);
 
     setOriginalImage(fetchedData.img);
     
@@ -91,139 +100,6 @@ export default function EditTopic() {
   const handleOnClickAddTags = () => {
     setIsPopupOpen(true);
   };
-
-  // const handleOnClickSave = async () => {
-  //   setError('');
-  //   setSuccess('');
-
-  //   // NO TITLE
-  //   if (postData.title === "") {
-  //     setError("Title is required");
-  //     return;
-  //   }
-
-  //   // UPLOAD IMAGE
-  //   let imageUrl = '';
-  //   // True if selected image is same image as original image (prevent duplicate upload)
-  //   const compareResult = await compareImages(originalImage, postData.img); //link, base64 
-  //   if (postData.img && !compareResult) {
-  //     try {
-  //       const res = await fetch('/api/upload-image', {
-  //         method: 'POST',
-  //         body: JSON.stringify({ file: postData.img }),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         }
-  //       });
-
-  //       const data = await res.json();
-  //       if (data.secure_url) {
-  //         imageUrl = data.secure_url;
-  //         console.log('Image uploaded successfully:', data.secure_url);
-  //       }
-  //     } catch (error) {
-  //       console.error('Image upload failed', error);
-  //       return;
-  //     }
-  //   } else if (postData.img && compareResult) {
-  //     console.log("old image");
-  //     imageUrl = originalImage;
-  //   } else {
-  //     console.log("remove image");
-  //     imageUrl = '';
-  //   }
-
-  //   // DELETE OLD IMAGE
-  //   if (originalImage && originalImage !== imageUrl) {
-  //     try {
-  //       const oldImagePublicId = extractPublicId(originalImage);
-  //       const deleteRes = await fetch('/api/delete-image', {
-  //         method: 'POST',
-  //         body: JSON.stringify({ public_id: oldImagePublicId }),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //       });
-    
-  //       const deleteResult = await deleteRes.json();
-  //       if (deleteResult.status !== 'ok') {
-  //         // If the delete fails, rollback = delete the newly uploaded image
-  //         console.error('Failed to delete the old image');
-  //         await fetch(`/api/delete-image`, {
-  //           method: 'POST',
-  //           headers: { 'Content-Type': 'application/json' },
-  //           body: JSON.stringify({ public_id: extractPublicId(imageUrl) }),
-  //         });
-  //         setError('Failed to delete the old image, rollback changes');
-  //         return;
-  //       }
-    
-  //       console.log('Old image deleted successfully');
-  //     } catch (error) {
-  //       console.error('Error deleting old image', error);
-  //       setError('Error deleting old image');
-  //       return;
-  //     }
-  //   }
-
-  //   // UPDATE DATA
-  //   mutation.mutate(
-  //     {
-  //       id: topicId,
-  //       title: postData.title,
-  //       body: postData.body,
-  //       email: session?.user?.email || '',
-  //       img: imageUrl || '',
-  //     },
-  //     {
-  //       onSuccess: (data) => {
-  //         if (data.status !== 200) {
-  //           setError(data.data.message);
-  //         } else if (data.status === 200) {
-  //           console.log("Mutation Successful:", data);
-  //           setSuccess(data.data.message);
-
-  //           const topicId = data.data.topic._id;
-
-  //           if (tags.length > 0) {
-  //             mutationTag.mutate(
-  //               {
-  //                 topicId: topicId,
-  //                 tags: tags,
-  //                 email: session?.user?.email || '',
-  //               },
-  //               {
-  //                 onSuccess: (data) => {
-  //                   console.log("After add tag success" + data);
-  //                   setSuccess(data.data.message);
-  //                 },
-  //                 onError: (error) => {
-  //                   console.error("Tag mutation error:", error);
-  //                 },
-  //               }
-  //             );
-  //           }
-
-        
-  //           if ('topic' in data.data) {
-  //             router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
-  //               ...data.data.topic,
-  //               img: imageUrl,
-  //             })}`
-                
-  //             );
-  //           } else {
-  //             setError("Topic data is missing");
-  //           }
-  //         }
-  //       },
-  //       onError: (error) => {
-  //           console.error("Mutation Failed:", error);
-  //           setError(error.message);
-  //       },
-  //     }
-  //   );
-  // };
 
   const handleOnClickSave = async () => {
     setError('');
@@ -339,10 +215,7 @@ export default function EditTopic() {
             }
   
             if ('topic' in data.data) {
-              router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
-                ...data.data.topic,
-                img: imageUrl, // Include updated image URL
-              })}`);
+              router.push(`/forum/${(data.data.topic as Topic)._id}`)
             } else {
               setError("Topic data is missing");
             }
@@ -385,8 +258,8 @@ export default function EditTopic() {
         };
       };
     };
-  
-  const handleOnClickDelete = () => {
+    
+  const handleOnDeleteConfirm = () => {
     deleteTopicMutation.mutate(
       {
         topicId: topicId,
@@ -405,6 +278,12 @@ export default function EditTopic() {
       }
     );
   };
+
+  const handleOnDeleteCancle = () => {
+    setIsConfirmModuleOpen(false);
+  };
+
+  
   
   const blobToBase64 = (blob: Blob) => {
     return new Promise((resolve, _) => {
@@ -432,6 +311,12 @@ export default function EditTopic() {
       return false;
     }
   };
+
+  if (!isLoaded) {
+    return <LoadingCircle />
+  } else if (isError) {
+    return <ErrorLoading />
+  }
 
   return (
     <div className="relative h-full w-full">
@@ -567,7 +452,7 @@ export default function EditTopic() {
         <Button
           button_name="Delete"
           variant="red"
-          onClick={handleOnClickDelete}
+          onClick={() => setIsConfirmModuleOpen(true)}
         />
 
         {isPopupOpen && (
@@ -578,6 +463,18 @@ export default function EditTopic() {
             setTags={setTags}
           />
         )}
+
+        {isConfirmModuleOpen && (
+          <ConfirmModule 
+            text='Do you want to delete this topic?' 
+            description='This topic will be permanently deleted and cannot be restored.' 
+            confirmText='Delete'
+            cancleText='Cancle'
+            confirmHandle={handleOnDeleteConfirm}
+            cancleHandle={handleOnDeleteCancle}
+          />
+        )}
+
       </div>
     </div>
   );

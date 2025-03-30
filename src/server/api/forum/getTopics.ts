@@ -356,9 +356,15 @@ const getTopics = {
             },
           }
         ])
+
+        const topicWithUser = await TopicModel.populate(topic, {
+          path: 'user_id',
+          select: 'username avatar',
+        });
+
         return { 
           status: 200, 
-          data: topic
+          data: topicWithUser
         };
       } catch (error) {
         return { status: 500, data: { message: "Failed to fetch topic by id" } };
