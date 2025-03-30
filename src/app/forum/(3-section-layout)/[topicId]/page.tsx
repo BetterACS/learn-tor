@@ -190,7 +190,7 @@ export default function Topic() {
   return (
     <div className="relative w-full h-full">
       {/* Back button */}
-      <button onClick={() => router.back()} className="absolute top-1 -left-6 size-8">
+      {/* <button onClick={() => router.back()} className="absolute top-1 -left-6 size-8">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 48 48"
@@ -201,7 +201,7 @@ export default function Topic() {
             <path strokeLinecap="round" d="m27 33l-9-9l9-9"></path>
           </g>
         </svg>
-      </button>
+      </button> */}
       <div className="w-full h-full flex flex-col px-[10%] gap-6">
         {/* Post username section */}
         <div className="flex content-center items-center gap-2">
