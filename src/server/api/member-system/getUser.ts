@@ -1,4 +1,4 @@
-import { UserModel } from "@/db/models";
+import { UserModel, ScoreModel } from "@/db/models";
 import { connectDB } from "@/server/db";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
@@ -24,10 +24,12 @@ export default function getUser() {
                             data: { message: "User not found" },
                         };
                     }
-
+                    const scores = await ScoreModel.findOne({ user_id:_id });
+                    console.log("User found:", user,":",scores);
+                    
                     return {
                         status: 200,
-                        data: { user },
+                        data: { user,scores },
                     };
                 } catch (error) {
                     console.error("Error fetching user:", error);

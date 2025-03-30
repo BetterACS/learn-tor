@@ -1,8 +1,9 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, Calculator, SearchableDropdown } from '@/components/index';
+import { Navbar, Footer, Calculator, SearchableDropdown, ScoreInput } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
+
 
 interface Target {
   university: string;
@@ -71,7 +72,9 @@ export default function Calculator1() {
   };
 
   const handleNextClick = () => {
-    router.push('/tcascalculator/2');
+    // เลือก target ตัวสุดท้ายจาก targets
+    const target = targets[targets.length - 1];
+    router.push(`/tcascalculator/2?university=${target.university}&campus=${target.campus}&faculty=${target.faculty}&major=${target.major}&language=${target.language}&examType=${target.examType}`);
   };
 
   const addTarget = () => {
@@ -144,7 +147,7 @@ export default function Calculator1() {
                   onClick={() => removeTarget(index)}
                 >
                   <svg aria-hidden="true" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 laptop:h-6 laptop:w-6">
-                    <path d="..." fill="currentColor"></path>
+                        <path d="M177.1 48h93.7c2.7 0 5.2 1.3 6.7 3.6l19 28.4h-145l19-28.4c1.5-2.2 4-3.6 6.7-3.6zM354.2 80L317.5 24.9C307.1 9.4 289.6 0 270.9 0H177.1c-18.7 0-36.2 9.4-46.6 24.9L93.8 80H80.1 32 24C10.7 80 0 90.7 0 104s10.7 24 24 24H35.6L59.6 452.7c2.5 33.4 30.3 59.3 63.8 59.3H324.6c33.5 0 61.3-25.9 63.8-59.3L412.4 128H424c13.3 0 24-10.7 24-24s-10.7-24-24-24h-8H367.9 354.2z" fill="currentColor"></path>
                   </svg>
                 </button>
 
@@ -218,7 +221,7 @@ export default function Calculator1() {
               </div>
             ))}
 
-            {targets.length < 3 && (
+            {targets.length < 1 && (
               <div 
                 className="flex items-center border border-dashed border-primary-600 rounded-lg py-3 px-4 cursor-pointer text-primary-600 text-center mt-4"
                 onClick={addTarget}

@@ -2,15 +2,22 @@
 
 import React, { useRef } from 'react';
 
-interface CalculatorinputProps {
+interface CalculatorInputProps {
   label: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isEditing: boolean;
   name: string;
 }
 
-const Inputcalculator = ({ label, value, onChange, name }: CalculatorinputProps) => {
+const Inputcalculator = ({ label, value, onChange, isEditing, name }: CalculatorInputProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleContainerClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -20,7 +27,6 @@ const Inputcalculator = ({ label, value, onChange, name }: CalculatorinputProps)
       return;
     }
 
-    // ตรวจสอบเฉพาะตัวเลขที่อยู่ระหว่าง 0-100
     if (/^\d*$/.test(inputValue)) {
       const numericValue = parseInt(inputValue, 10);
       if (numericValue >= 0 && numericValue <= 100) {
@@ -31,15 +37,13 @@ const Inputcalculator = ({ label, value, onChange, name }: CalculatorinputProps)
 
   return (
     <div
-      className="flex items-center justify-between border border-monochrome-300 rounded-lg p-4 bg-monochrome-100"
-      onClick={() => inputRef.current?.focus()}
+      className={`flex items-center justify-between border border-monochrome-300 rounded-lg p-4 ${!isEditing ? 'bg-monochrome-100' : ''}`}
+      onClick={handleContainerClick}
     >
-      {/* Label ด้านซ้าย */}
-      <label className="text-body-large font-regular mb-0 mr-4">
-        {label}
-      </label>
+      {/* Label */}
+      <label className="text-body-large font-regular mb-0 mr-4">{label}</label>
 
-      {/* กล่องใส่คะแนน */}
+      {/* Input container */}
       <div className="flex items-center">
         <input
           ref={inputRef}
@@ -47,10 +51,11 @@ const Inputcalculator = ({ label, value, onChange, name }: CalculatorinputProps)
           name={name}
           placeholder="-"
           value={value}
-          onChange={handleInputChange}
-          className="w-16 text-center py-2 rounded-lg bg-white border border-monochrome-300 focus:border-2 focus:border-primary-600 focus:outline-none"
+          onChange={isEditing ? handleInputChange : undefined}
+          className={`w-16 text-center py-2 rounded-lg bg-white ${isEditing ? 'focus:border-2 border-primary-600 focus:outline-none' : 'border border-monochrome-300 bg-monochrome-100'}`}
+          disabled={!isEditing}
         />
-        <span className="px-4 text-monochrome-900">/100</span>
+        <span className={`px-4 ${!isEditing ? 'text-monochrome-900' : ''}`}>/100</span>
       </div>
     </div>
   );

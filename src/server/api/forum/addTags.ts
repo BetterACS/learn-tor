@@ -24,8 +24,8 @@ export default function addTags(){
                 const tagIds = tagNames.map(tag => tag._id);
                 for (let tagId of tagIds) {
                     const topicAndTag = new TopicAndTagModel({
-                      topic_id: postId,
-                      tag_id: tagId,
+                        topic_id: postId,
+                        tag_id: tagId,
                     });
         
                     await topicAndTag.save();

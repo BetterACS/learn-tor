@@ -11,34 +11,13 @@ export default function Home() {
   const { data: carousel_items, isLoading, isError } = trpc.queryTopic.useQuery();
   const { data: allTags, isLoading: isLoadingTags, isError: isTagsError } = trpc.getTags.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className="h-full w-full flex justify-center items-center">
+    <svg className="animate-spin size-10 -ml-1 mr-3 text-monochrome-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  </div>;
   if (isError) return <div>Error loading posts</div>;
-  // const carousel_items = [
-  //   {
-  //     id: 1,
-  //     img: "http://i.ibb.co/ncrXc2V/1.png",
-  //     title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 1",
-  //     body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-  //   },
-  //   {
-  //     id: 2,
-  //     img: "http://i.ibb.co/B3s7v4h/2.png",
-  //     title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 2",
-  //     body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-  //   },
-  //   {
-  //     id: 3,
-  //     img: "http://i.ibb.co/XXR8kzF/3.png",
-  //     title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 3",
-  //     body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-  //   },
-  //   {
-  //     id: 4,
-  //     img: "http://i.ibb.co/yg7BSdM/4.png",
-  //     title: "หนูอยากยื่นมศว.ค่ะ ช่วยดูและแนะนำให้หน่อยได้ไหมคะ 4",
-  //     body: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque deserunt, quam qui nobis rerum veniam quis pariatur commodi reprehenderit neque delectus consectetur quae molestias sapiente, unde, culpa sunt numquam. Quas."
-  //   },
-  // ]
 
   const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     const buttonName = event.currentTarget.name;
@@ -51,12 +30,6 @@ export default function Home() {
 
   return (
     <div className="h-full w-full flex flex-col items-center text-center gap-12">
-      {/* <div className="flex flex-col w-[90%] gap-6">
-        <p className="text-headline-4 text-primary-600 font-bold text-balance">
-          ค้นหาหัวข้อการพูดคุยที่คุณสนใจได้ที่นี่เลย!!
-        </p>
-        <SearchBar />
-      </div> */}
       <div className="w-full self-start flex flex-col gap-4">
         <div className="w-fit border-b-4 border-primary-600">
           <p className="text-headline-4 text-primary-600 py-1">
@@ -81,7 +54,7 @@ export default function Home() {
           </div>
 
           <div className="w-full h-fit flex flex-wrap gap-2">
-            {allTags["คณะ"].map((key) => (
+            {(allTags["คณะ"] as string[]).map((key) => (
               <button name={key} onClick={handleTagClicked} key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
                 <p className="text-monochrome-600 group-hover:text-monochrome-50">{key}</p>
               </button>
@@ -101,7 +74,7 @@ export default function Home() {
           </div>
 
           <div className="w-full h-fit flex flex-wrap gap-2">
-            {allTags["มหาวิทยาลัย"].map((key) => (
+            {(allTags["มหาวิทยาลัย"] as string[]).map((key) => (
               <button name={key} onClick={handleTagClicked} key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
                 <p className="text-monochrome-600 group-hover:text-monochrome-50">{key}</p>
               </button>

@@ -117,13 +117,13 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({
   return (
     <div>
       <div
-        className="absolute top-28 left-10 cursor-pointer z-20 flex items-center"
+        className="fixed top-28 left-10 cursor-pointer flex items-center z-20"
         onClick={handleToggleSidebar}
       >
         <img
           src="images/feature/hide.avif"
           alt="Hide Icon"
-          className="w-10 h-10 fixed top-28 left-10 md:hidden lg:hidden"
+          className="w-10 h-10 fixed top-28 left-10 z-20 md:hidden lg:hidden"
         />
       </div>
 
@@ -188,7 +188,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({
                 <ul className="flex flex-col divide-y divide-monochrome-200">
                   <li>
                     <button
-                      className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
+                      className="w-full text-left text-body-large text-monochrome-950 block px-5 py-4 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-100"
                       onClick={() => handleSortOptionSelect('ชื่อมหาลัย “ ก - ฮ “')}
                     >
                       ชื่อมหาลัย “ ก - ฮ “
@@ -196,7 +196,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({
                   </li>
                   <li>
                     <button
-                      className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
+                      className="w-full text-left text-body-large text-monochrome-950 block px-5 py-4 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-100"
                       onClick={() => handleSortOptionSelect('ชื่อมหาลัย “ ฮ - ก “')}
                     >
                       ชื่อมหาลัย “ ฮ - ก “
@@ -204,7 +204,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({
                   </li>
                   <li>
                     <button
-                      className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
+                      className="w-full text-left text-body-large text-monochrome-950 block px-5 py-4 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-100"
                       onClick={() => handleSortOptionSelect('ชื่อหลักสูตร “ ก - ฮ “')}
                     >
                       ชื่อหลักสูตร “ ก - ฮ “
@@ -212,7 +212,7 @@ const CompareSidebar: React.FC<CompareSidebarProps> = ({
                   </li>
                   <li>
                     <button
-                      className="w-full py-2 px-3 text-left text-body-large text-monochrome-950 mx-3 my-2 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-200 hover:scale-105"
+                      className="w-full text-left text-body-large text-monochrome-950 block px-5 py-4 hover:bg-monochrome-100 focus:bg-monochrome-100 transform transition-all duration-100"
                       onClick={() => handleSortOptionSelect('ชื่อหลักสูตร “ ฮ - ก “')}
                     >
                       ชื่อหลักสูตร “ ฮ - ก “
