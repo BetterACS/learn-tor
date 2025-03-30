@@ -40,7 +40,6 @@ export async function POST(request: Request) {
 
     const { signature } = await signatureResponse.json();
 
-    console.log("signature: ", signature);
 
     if (!signature) {
       return new Response(
@@ -67,8 +66,6 @@ export async function POST(request: Request) {
     );
 
     const data = await res.json();
-
-    console.log("data: ", data);
 
     if (data.secure_url) {
       return new Response(

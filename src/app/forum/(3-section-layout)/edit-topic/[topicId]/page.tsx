@@ -92,18 +92,151 @@ export default function EditTopic() {
     setIsPopupOpen(true);
   };
 
+  // const handleOnClickSave = async () => {
+  //   setError('');
+  //   setSuccess('');
+
+  //   // NO TITLE
+  //   if (postData.title === "") {
+  //     setError("Title is required");
+  //     return;
+  //   }
+
+  //   // UPLOAD IMAGE
+  //   let imageUrl = '';
+  //   // True if selected image is same image as original image (prevent duplicate upload)
+  //   const compareResult = await compareImages(originalImage, postData.img); //link, base64 
+  //   if (postData.img && !compareResult) {
+  //     try {
+  //       const res = await fetch('/api/upload-image', {
+  //         method: 'POST',
+  //         body: JSON.stringify({ file: postData.img }),
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         }
+  //       });
+
+  //       const data = await res.json();
+  //       if (data.secure_url) {
+  //         imageUrl = data.secure_url;
+  //         console.log('Image uploaded successfully:', data.secure_url);
+  //       }
+  //     } catch (error) {
+  //       console.error('Image upload failed', error);
+  //       return;
+  //     }
+  //   } else if (postData.img && compareResult) {
+  //     console.log("old image");
+  //     imageUrl = originalImage;
+  //   } else {
+  //     console.log("remove image");
+  //     imageUrl = '';
+  //   }
+
+  //   // DELETE OLD IMAGE
+  //   if (originalImage && originalImage !== imageUrl) {
+  //     try {
+  //       const oldImagePublicId = extractPublicId(originalImage);
+  //       const deleteRes = await fetch('/api/delete-image', {
+  //         method: 'POST',
+  //         body: JSON.stringify({ public_id: oldImagePublicId }),
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       });
+    
+  //       const deleteResult = await deleteRes.json();
+  //       if (deleteResult.status !== 'ok') {
+  //         // If the delete fails, rollback = delete the newly uploaded image
+  //         console.error('Failed to delete the old image');
+  //         await fetch(`/api/delete-image`, {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify({ public_id: extractPublicId(imageUrl) }),
+  //         });
+  //         setError('Failed to delete the old image, rollback changes');
+  //         return;
+  //       }
+    
+  //       console.log('Old image deleted successfully');
+  //     } catch (error) {
+  //       console.error('Error deleting old image', error);
+  //       setError('Error deleting old image');
+  //       return;
+  //     }
+  //   }
+
+  //   // UPDATE DATA
+  //   mutation.mutate(
+  //     {
+  //       id: topicId,
+  //       title: postData.title,
+  //       body: postData.body,
+  //       email: session?.user?.email || '',
+  //       img: imageUrl || '',
+  //     },
+  //     {
+  //       onSuccess: (data) => {
+  //         if (data.status !== 200) {
+  //           setError(data.data.message);
+  //         } else if (data.status === 200) {
+  //           console.log("Mutation Successful:", data);
+  //           setSuccess(data.data.message);
+
+  //           const topicId = data.data.topic._id;
+
+  //           if (tags.length > 0) {
+  //             mutationTag.mutate(
+  //               {
+  //                 topicId: topicId,
+  //                 tags: tags,
+  //                 email: session?.user?.email || '',
+  //               },
+  //               {
+  //                 onSuccess: (data) => {
+  //                   console.log("After add tag success" + data);
+  //                   setSuccess(data.data.message);
+  //                 },
+  //                 onError: (error) => {
+  //                   console.error("Tag mutation error:", error);
+  //                 },
+  //               }
+  //             );
+  //           }
+
+        
+  //           if ('topic' in data.data) {
+  //             router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
+  //               ...data.data.topic,
+  //               img: imageUrl,
+  //             })}`
+                
+  //             );
+  //           } else {
+  //             setError("Topic data is missing");
+  //           }
+  //         }
+  //       },
+  //       onError: (error) => {
+  //           console.error("Mutation Failed:", error);
+  //           setError(error.message);
+  //       },
+  //     }
+  //   );
+  // };
+
   const handleOnClickSave = async () => {
     setError('');
     setSuccess('');
-
+  
     // NO TITLE
     if (postData.title === "") {
       setError("Title is required");
       return;
     }
-
+  
     // UPLOAD IMAGE
-    let uploadedImageUrl = '';
+    let imageUrl = '';
     // True if selected image is same image as original image (prevent duplicate upload)
     const compareResult = await compareImages(originalImage, postData.img); //link, base64 
     if (postData.img && !compareResult) {
@@ -115,23 +248,27 @@ export default function EditTopic() {
             'Content-Type': 'application/json',
           }
         });
-
+  
         const data = await res.json();
         if (data.secure_url) {
-          uploadedImageUrl = data.secure_url;
+          imageUrl = data.secure_url;
           console.log('Image uploaded successfully:', data.secure_url);
         }
       } catch (error) {
         console.error('Image upload failed', error);
-        return;
+        setError('Image upload failed');
+        return; // Exit early on error
       }
-    } else {
+    } else if (postData.img && compareResult) {
       console.log("old image");
-      uploadedImageUrl = originalImage;
+      imageUrl = originalImage;
+    } else {
+      console.log("remove image");
+      imageUrl = '';
     }
-
+  
     // DELETE OLD IMAGE
-    if (originalImage && originalImage !== uploadedImageUrl) {
+    if (originalImage && originalImage !== imageUrl) {
       try {
         const oldImagePublicId = extractPublicId(originalImage);
         const deleteRes = await fetch('/api/delete-image', {
@@ -141,7 +278,7 @@ export default function EditTopic() {
             'Content-Type': 'application/json',
           },
         });
-    
+  
         const deleteResult = await deleteRes.json();
         if (deleteResult.status !== 'ok') {
           // If the delete fails, rollback = delete the newly uploaded image
@@ -149,29 +286,28 @@ export default function EditTopic() {
           await fetch(`/api/delete-image`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ public_id: extractPublicId(uploadedImageUrl) }),
+            body: JSON.stringify({ public_id: extractPublicId(imageUrl) }),
           });
           setError('Failed to delete the old image, rollback changes');
-          return;
+          return; // Exit early on error
         }
-    
+  
         console.log('Old image deleted successfully');
       } catch (error) {
         console.error('Error deleting old image', error);
         setError('Error deleting old image');
-        return;
+        return; // Exit early on error
       }
     }
-
-
-    // UPDATE DATA
+  
+    // Finally, update data after everything is complete
     mutation.mutate(
       {
         id: topicId,
         title: postData.title,
         body: postData.body,
         email: session?.user?.email || '',
-        img: uploadedImageUrl,
+        img: imageUrl || ''
       },
       {
         onSuccess: (data) => {
@@ -180,9 +316,9 @@ export default function EditTopic() {
           } else if (data.status === 200) {
             console.log("Mutation Successful:", data);
             setSuccess(data.data.message);
-
+  
             const topicId = data.data.topic._id;
-
+  
             if (tags.length > 0) {
               mutationTag.mutate(
                 {
@@ -201,27 +337,25 @@ export default function EditTopic() {
                 }
               );
             }
-
-        
+  
             if ('topic' in data.data) {
               router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
                 ...data.data.topic,
-                img: uploadedImageUrl,
-              })}`
-                
-              );
+                img: imageUrl, // Include updated image URL
+              })}`);
             } else {
               setError("Topic data is missing");
             }
           }
         },
         onError: (error) => {
-            console.error("Mutation Failed:", error);
-            setError(error.message);
+          console.error("Mutation Failed:", error);
+          setError(error.message);
         },
       }
     );
   };
+  
 
   const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
