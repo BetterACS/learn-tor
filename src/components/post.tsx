@@ -10,19 +10,6 @@ import { trpc } from '@/app/_trpc/client';
 
 dayjs.extend(relativeTime);
 
-// interface PostProps {
-//   post: { 
-//     _id: string, 
-//     img: string, 
-//     title: string, 
-//     body: string, 
-//     created_at: string, 
-//     n_like: number, 
-//     user_id: { username: string, avatar?: string }, 
-//     isLiked : boolean
-//   };
-// }
-
 interface PostProps {
   topicId: string;
 }

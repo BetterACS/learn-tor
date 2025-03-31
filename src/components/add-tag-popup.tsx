@@ -44,7 +44,6 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
     if(data){
       tags.forEach((selectedTag) => {
         const tagCategory = selectedTag.category;
-        console.log(data);
         const tagExists = data[tagCategory]?.some(
           (tag: TagNoCategory) => tag.tagname === selectedTag.tagname
         );
@@ -92,7 +91,7 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
         : ([ ...prevTags, { tagname: tagname, category: category, count: 0 }])
     );
   };
-  
+
   // Handle clicks outside to close the popup
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -171,7 +170,7 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
               <h3 className="text-headline-6">{category}</h3>
               {/* Tags */}
               <div className="flex flex-wrap gap-2 pt-3 items-center">
-                {allTags.map(({tagname, category, count}, index) => {
+                {allTags.map(({tagname, count}, index) => {
                   const isTagSelected = tags.some(
                     selectedTag => selectedTag.tagname === tagname && selectedTag.category === category
                   );
