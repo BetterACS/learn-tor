@@ -32,7 +32,7 @@ const updateTopic = {
 
         const updatedTopic = await TopicModel.findOneAndUpdate(
           { _id: id, user_id: user._id },
-          { ...(title && { title }), ...(body && { body }), ...(img && { img }) },
+          { title, body, img },
           { new: true }
         ).populate("user_id", "username");
 
