@@ -241,13 +241,15 @@ const LikeTopicModel = mongoose.models.LikeTopic || mongoose.model<LikeTopic>('L
 
 // Tagname Schema
 interface TagName extends Document {
-  tagname: string,
-  category: string
+  tagname: string;
+  category: string;
+  is_guide: boolean;
 }
 
 const TagNameSchema: Schema<TagName> = new Schema({
   tagname: { type: String, required: true },
-  category: { type: String, required: true }
+  category: { type: String, required: true },
+  is_guide: { type: Boolean, default: true },
 })
 
 const TagNameModel = mongoose.models.TagName || mongoose.model<TagName>('TagName', TagNameSchema)

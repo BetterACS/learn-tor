@@ -12,8 +12,13 @@ interface PostData {
   id?: string,
   title: string,
   body: string,
-  img: string,
-  tags: string[]
+  img: string
+}
+
+type Tag = {
+  tagname: string;
+  category: string;
+  count?: number;
 }
 
 export default function EditTopic() {
@@ -24,7 +29,6 @@ export default function EditTopic() {
   const queryData = trpc.queryTopicById.useQuery({ Id: topicId });
   const { data, isLoading, isError, refetch } = queryData;
 
-  const topicTagsMutation = trpc.topicTags.useMutation();
   const mutationTag = trpc.updateTags.useMutation();
   const mutation = trpc.updateTopic.useMutation();
   const deleteTopicMutation = trpc.deleteTopic.useMutation();
@@ -34,27 +38,25 @@ export default function EditTopic() {
     title: '',
     body: '',
     img: '',
-    tags: [],
   });
   const [originalImage, setOriginalImage] = useState<string>('');
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
   const [isConfirmModuleOpen, setIsConfirmModuleOpen] = useState(false);
-  // const [confirmDelete, setComfirmDelete] = useState(false);
-
 
   useEffect(() => {
     if (isLoading) return;
     let fetchedData = data?.data[0];
 
+    console.log(fetchedData);
+
     setPostData({
       title: fetchedData.title,
       body: fetchedData.body,
       img: fetchedData.img,
-      tags: fetchedData.tags,
     });
 
     setTimeout(() => {
@@ -62,30 +64,8 @@ export default function EditTopic() {
     }, 500);
 
     setOriginalImage(fetchedData.img);
-    
-    topicTagsMutation.mutate(
-      { topic_id: String(topicId) },
-      {
-        onSuccess: (data) => {
-          if (data.topicTags && Array.isArray(data.topicTags)) {
-            const extractedTags = data.topicTags.map(tag => tag.tagname);
-            setTags(extractedTags);
-          }
-        },
-        onError: (error) => {
-          console.error("Error fetching tags:", error);
-        }
-      }
-    );
-
+    setTags(fetchedData.tags);
   }, [isLoading])
-
-  useEffect(() => {
-    setPostData((prev) => ({
-      ...prev,
-      tags: tags,
-    }));
-  }, [isPopupOpen]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -199,7 +179,7 @@ export default function EditTopic() {
               mutationTag.mutate(
                 {
                   topicId: topicId,
-                  tags: tags,
+                  tags: tags.map(({ tagname, category }) => ({ tagname, category })),
                   email: session?.user?.email || '',
                 },
                 {
@@ -343,12 +323,12 @@ export default function EditTopic() {
           <div className="flex gap-2 items-center">
             <p className="text-headline-6">Selected Tags:</p>
             <div className="flex gap-2">
-              {tags.map((tag) => (
+              {tags.map((tag, index) => (
                 <div
-                  key={tag}
+                  key={index}
                   className={`text-body-1 border border-green-600 rounded-[1rem] px-3 py-2`}
                 >
-                  {tag}
+                  {tag.tagname}
                 </div>
               ))}
             </div>
@@ -461,6 +441,8 @@ export default function EditTopic() {
             setIsPopupOpen={setIsPopupOpen}
             tags={tags}
             setTags={setTags}
+            // tagsWCategory={tagsWCategory}
+            // setTagsWCategory={setTagsWCategory}
           />
         )}
 

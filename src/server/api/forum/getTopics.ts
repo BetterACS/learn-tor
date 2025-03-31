@@ -352,7 +352,10 @@ const getTopics = {
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
               img: { $first: "$img" },
-              tags: { $push: "$tagDetails.tagname" },
+              tags: { $push: {
+                tagname: "$tagDetails.tagname",
+                category: "$tagDetails.category"
+              } },
             },
           }
         ])

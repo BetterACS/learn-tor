@@ -12,10 +12,11 @@ interface SearchPopupProps {
 
 type Tag = {
   tagname: string;
-  count: number;
+  category: string;
+  count?: number;
 }
 
-export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTerm, searchTerm }: SearchPopupProps) {
+export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm, searchTerm }: SearchPopupProps) {
   const [tagSearchTerm, setTagSearchTerm] = useState('');
   const router = useRouter();
   const [selectedTags, setSelectedTags] = useState<{ [key: string]: 'included' | 'excluded' }>({});
@@ -28,8 +29,9 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen,  setSearchTer
   
   useEffect(() => {
     if (isLoading) return;
-    console.log(data);
-    setTagList(data);
+    if (data) {
+      setTagList(data);
+    }
   }, [isLoading, data]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
