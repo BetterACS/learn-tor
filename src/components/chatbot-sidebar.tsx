@@ -263,12 +263,22 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
   };
 
   const groupedLabels = labels.reduce((acc, label) => {
-    if (!acc[getRelativeTime(label.history[0].time)]) {
-      acc[getRelativeTime(label.history[0].time)] = [];
+    if (!label.history || label.history.length === 0) {
+        console.warn("Label has empty history:", label);
+        return acc; // Skip this label
     }
-    acc[getRelativeTime(label.history[0].time)].push(label);
+    if (!label.history[0]) {
+         console.warn("Label history[0] is undefined:", label);
+         return acc;
+    }
+
+    const relativeTimeKey = getRelativeTime(label.history[0].time);
+    if (!acc[relativeTimeKey]) {
+        acc[relativeTimeKey] = [];
+    }
+    acc[relativeTimeKey].push(label);
     return acc;
-  }, {} as Record<string, Label[]>);
+}, {} as Record<string, Label[]>);
 
   return (
     <div ref={sidebarRef}>
