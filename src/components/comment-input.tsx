@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { trpc } from '@/app/_trpc/client';
 
 interface Comment {
-  topic_id: mongoose.Types.ObjectId | null;
+  topic_id: string | null;
   parent_id?: mongoose.Types.ObjectId | null;
   isCommentClicked?: boolean | null;
   setIsCommentClicked?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,7 +28,7 @@ export default function CommentInput({ topic_id, parent_id, isCommentClicked, se
         setIsCommentClicked(false);
       }
       
-      trpcContext.getAllComments.invalidate({ topic_id: topic_id?.toString() || '' });
+      trpcContext.getAllComments.invalidate({ topic_id: topic_id || '' });
     },
     onError: (error) => {
       console.error('Error creating comment:', error);
@@ -62,7 +62,7 @@ export default function CommentInput({ topic_id, parent_id, isCommentClicked, se
   const handleSubmit = () => {
     if (!comment.trim()) return;
     mutation.mutate({
-      topic_id: topic_id?.toString() || '',
+      topic_id: topic_id || '',
       email: userEmail,
       comment,
       parent_id: parent_id?.toString() || undefined,
