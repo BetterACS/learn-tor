@@ -115,7 +115,7 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
 
           {/* Body */}
           <div className="w-full h-[80vh] overflow-y-auto bg-monochrome-50 rounded-md pb-3 flex flex-col gap-4">
-            <div className="sticky top-0 flex flex-col gap-2 p-3 px-3 bg-monochrome-50 border-b">
+            <div className="sticky top-0 flex flex-col gap-2 p-3 px-5 bg-monochrome-50 border-b">
               {/* Selected tag display area */}
               {Object.keys(selectedTags).length > 0 &&
               <div className="flex gap-2 items-center">
@@ -159,31 +159,60 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
               </div>
             </div>
             {/* Tag display area */}
-            {tagList && Object.entries(tagList).map(([category, tags], index) => (
-              <div key={index} className="mb-2 divide-y divide-monochrome-300 px-3">
-                {/* Category Title */}
-                <h3 className="text-headline-6">{category}</h3>
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 pt-3 items-center">
-                  {tags?.map(({tagname, count}, index) => (
-                    <div
-                      key={index}
-                      onClick={() => toggleTagSelection(tagname)}
-                      className={`text-body-1 ${
-                        selectedTags[tagname] === 'included'
-                          ? 'border-green-600 border-2'
-                          : selectedTags[tagname] === 'excluded'
-                          ? 'border-red-600 border-2'
-                          : 'border-monochrome-500 border'
-                      } rounded-[1rem] cursor-pointer flex gap-2 items-center`}
-                    >
-                      <p className="ml-3">{tagname}</p>
-                      <p className="py-2 px-3 h-full rounded-r-[1rem] bg-monochrome-100 font-normal text-monochrome-600">{count}</p>
-                    </div>
-                  ))}
+            {isLoading ? (
+              <div className="w-full h-full px-2 mb-2 flex flex-col gap-6 animate-pulse">
+                <div className="divide-y divide-monochrome-300">
+                  <p className="w-[15vw] mb-3 text-headline-6 text-transparent bg-monochrome-100 rounded-md">P</p>
+                  <div className="flex flex-col gap-3 pt-3">
+                    <p className="w-[80%] text-body-1 text-transparent bg-monochrome-100 rounded-md">P</p>
+                    <p className="w-[80%] text-body-1 text-transparent bg-monochrome-100 rounded-md">P</p>
+                  </div>
+                </div>
+                <div className="divide-y divide-monochrome-300">
+                  <p className="w-[20vw] mb-3 text-headline-6 text-transparent bg-monochrome-100 rounded-md">P</p>
+                  <div className="flex flex-col gap-3 pt-3">
+                    <p className="w-[90%] text-body-1 text-transparent bg-monochrome-100 rounded-md">P</p>
+                    <p className="w-[40%] text-body-1 text-transparent bg-monochrome-100 rounded-md">P</p>
+                  </div>
+                </div>
+                <div className="divide-y divide-monochrome-300">
+                  <p className="w-[15vw] mb-3 text-headline-6 text-transparent bg-monochrome-100 rounded-md">P</p>
+                  <div className="flex flex-col gap-3 pt-3">
+                    <p className="w-[90%] text-body-1 text-transparent bg-monochrome-100 rounded-md">P</p>
+                    <p className="w-[80%] text-body-1 text-transparent bg-monochrome-100 rounded-md">P</p>
+                    <p className="w-[100%] text-body-1 text-transparent bg-monochrome-100 rounded-md">P</p>
+                  </div>
                 </div>
               </div>
-            ))}
+            ) : (
+              <div className="w-full h-full px-2 mb-2 flex flex-col gap-6">
+              {tagList && Object.entries(tagList).map(([category, tags], index) => (
+                <div key={index} className="mb-2 divide-y divide-monochrome-300 px-3">
+                  {/* Category Title */}
+                  <h3 className="text-headline-6">{category}</h3>
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 pt-3 items-center">
+                    {tags?.map(({tagname, count}, index) => (
+                      <div
+                        key={index}
+                        onClick={() => toggleTagSelection(tagname)}
+                        className={`text-body-1 ${
+                          selectedTags[tagname] === 'included'
+                            ? 'border-green-600 border-2'
+                            : selectedTags[tagname] === 'excluded'
+                            ? 'border-red-600 border-2'
+                            : 'border-monochrome-500 border'
+                        } rounded-[1rem] cursor-pointer flex gap-2 items-center`}
+                      >
+                        <p className="ml-3">{tagname}</p>
+                        <p className="py-2 px-3 h-full rounded-r-[1rem] bg-monochrome-100 font-normal text-monochrome-600">{count}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
