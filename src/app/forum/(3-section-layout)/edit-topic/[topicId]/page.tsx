@@ -51,8 +51,6 @@ export default function EditTopic() {
     if (isLoading) return;
     let fetchedData = data?.data[0];
 
-    console.log(fetchedData);
-
     setPostData({
       title: fetchedData.title,
       body: fetchedData.body,
@@ -64,8 +62,14 @@ export default function EditTopic() {
     }, 500);
 
     setOriginalImage(fetchedData.img);
-    setTags(fetchedData.tags);
-  }, [isLoading])
+
+    if (tags.some(tag => Object.keys(tag).length > 0)) {
+      setTags(fetchedData.tags);
+    };
+    
+  }, [isLoading, data])
+
+  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -319,7 +323,7 @@ export default function EditTopic() {
       } */}
       <div className="flex flex-col gap-6">
         {/* Display selected tags */}
-        {tags.length > 0 && (
+        {tags.some(tag => Object.keys(tag).length > 0) && (
           <div className="flex gap-2 items-center">
             <p className="text-headline-6">Selected Tags:</p>
             <div className="flex gap-2">
