@@ -82,8 +82,8 @@ interface Score extends Document {
   TGAT1?: number;
   TGAT2?: number;
   TGAT3?: number;
-  TPAT2_1?: number;
-  TPAT2_2?: number;
+  TPAT21?: number;
+  TPAT22?: number;
   TPAT3?: number;
   TPAT4?: number;
   TPAT5?: number;
@@ -103,6 +103,7 @@ interface Score extends Document {
   A_CHINESE?: number;
   A_KOREAN?: number;
   A_SPANISH?: number;
+  SPEACIAL?: Array<Object>;
 }
 
 const ScoreSchema: Schema<Score> = new Schema({
@@ -110,8 +111,8 @@ const ScoreSchema: Schema<Score> = new Schema({
   TGAT1: { type: Number },
   TGAT2: { type: Number },
   TGAT3: { type: Number },
-  TPAT2_1: { type: Number },
-  TPAT2_2: { type: Number },
+  TPAT21: { type: Number },
+  TPAT22: { type: Number },
   TPAT3: { type: Number },
   TPAT4: { type: Number },
   TPAT5: { type: Number },
@@ -131,6 +132,7 @@ const ScoreSchema: Schema<Score> = new Schema({
   A_CHINESE: { type: Number },
   A_KOREAN: { type: Number },
   A_SPANISH: { type: Number },
+  SPEACIAL: { type: [Object], default: [] },
 });
 
 const ScoreModel = mongoose.models.Score || mongoose.model<Score>('Score', ScoreSchema);
@@ -280,6 +282,36 @@ const LikeCommentSchema: Schema<LikeComment> = new Schema({
 
 const LikeCommentModel = mongoose.models.LikeComment || mongoose.model<LikeComment>('LikeComment', LikeCommentSchema);
 
+interface TcasCalculator extends Document {
+  user_id: mongoose.Types.ObjectId;
+  institution: string,
+  faculty: string,
+  program: string,
+  course_type: string,
+  campus:string,
+  admission_type: string,
+  score_calculation_formula: Array<object>,
+  minimum_criteria: Array<object>,
+  admitted: number
+  chance: number,
+}
+
+const TcasCalculatorSchema: Schema<TcasCalculator> = new Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  institution: { type: String, required: true },
+  faculty: { type: String, required: true },
+  program: { type: String, required: true },
+  course_type: { type: String, required: true },
+  campus: { type: String, required: true },
+  admission_type: { type: String, required: true },
+  score_calculation_formula: { type: [Object] },
+  minimum_criteria: { type: [Object] },
+  admitted: { type: Number },
+  chance: { type: Number },
+});
+
+const TcasCalculatorModel = mongoose.models.TcasCalculator || mongoose.model<TcasCalculator>('TcasCalculator', TcasCalculatorSchema);
+
 export {
   UserModel,
   TopicModel,
@@ -292,6 +324,7 @@ export {
   TagNameModel,
   TopicAndTagModel,
   LikeCommentModel,
+  TcasCalculatorModel,
   type Topic,
   type University,
   type User,

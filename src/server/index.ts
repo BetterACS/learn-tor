@@ -30,8 +30,14 @@ import chatBot from './api/chatbot/chatBot';
 import createChat from './api/chatbot/createChat';
 import queryChat from './api/chatbot/queryChat';
 import queryScore from './api/tcascalculator/queryscore';
+import checkScore from './api/tcascalculator/checkScore';
+import saveResult from './api/tcascalculator/saveResult';
+import userChatBot from './api/chatbot/userChatBot';
+import editRoom from './api/chatbot/editRoom';
+import requireScore from './api/tcascalculator/requireScore';
 import addScore from './api/member-system/addScore';
 import university  from './api/university';
+import deleteChat from './api/chatbot/deleteChat';
 
 export const appRouter = router({
 	...apiTest(),
@@ -65,8 +71,14 @@ export const appRouter = router({
     ...createChat(),
     ...queryChat(),
     ...queryScore(),
+    ...checkScore(),
+    ...saveResult(),
+    ...userChatBot(),
+    ...editRoom(),
+    ...requireScore(),
     ...university(),
-    ...addScore()
+    ...addScore(),
+    ...deleteChat()
 });
 const createCaller = createCallerFactory(appRouter);
 

@@ -1,11 +1,11 @@
 import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod'
 import { connectDB } from "@/server/db";
-import { ScoreModel, UserModel } from "@/db/models";
+import { ChatModel, UserModel } from "@/db/models";
 
-export default function queryScore(){
+export default function userChatBot(){
     return{
-        queryScore: publicProcedure
+        userChatBot: publicProcedure
             .input(
                 z.object({
                     email: z.string().email(),
@@ -14,13 +14,16 @@ export default function queryScore(){
             .mutation(async ({input}) => {
                 await connectDB();
                 const { email } = input;
+
+            // ค้นหาผู้ใช้จากอีเมล
                 const user = await UserModel.findOne({ email });
                 if (!user) {
-                    throw new Error("User not found");
+                    return {status:400,data:{ message: "User not found" }};
                 }
                 const user_id = user._id;
-                const score = await ScoreModel.findOne({ user_id });
-                return score;
+
+                const allChat = await ChatModel.find({ user_id: user_id });
+                return {status:200,data:{ allChat: allChat,message: "Chat found" }};
             })
     }
 }

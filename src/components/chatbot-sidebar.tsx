@@ -1,18 +1,42 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-
-interface Label {
-  id: string;
-  label: string;
-  date: string;
+import { trpc } from '@/app/_trpc/client';
+import { set } from 'mongoose';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { AlertBox } from '@/components/index';
+interface Conversation {
+  role: 'user' | 'assistant';
+  content: string;
+  time: string;
 }
 
+interface Label {
+  _id: string;
+  name: string;
+  history: Conversation[];
+}
+dayjs.extend(relativeTime);
 interface ChatbotSidebarProps {
   onToggleSidebar: (isOpen: boolean) => void;
   onSelectItem: (item: string) => void;
+  email: string;
 }
 
-export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: ChatbotSidebarProps) {
+const getRelativeTime = (date: string) => {
+  const currentDate = dayjs(); // Current date and time
+  const targetDate = dayjs(date);
+
+  const diffInDays = targetDate.diff(currentDate, 'day'); // Calculate difference in days
+
+  if (diffInDays === 0) {
+    return 'Today';
+  }
+
+  return diffInDays > 0 ? `next ${diffInDays} day${diffInDays > 1 ? 's' : ''}` : `previous ${Math.abs(diffInDays)} day${Math.abs(diffInDays) > 1 ? 's' : ''}`;
+};
+
+export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: ChatbotSidebarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
@@ -20,12 +44,39 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
   const [tempLabel, setTempLabel] = useState<string>('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
-  const [labels, setLabels] = useState<Label[]>([
-    { id: 'Today-1', label: 'แนะนำรอบ Admission ให้หน่อย', date: 'Today' },
-    { id: 'Previous2-1', label: 'แนะนำรอบ Admission ให้หน่อย', date: 'Previous 2 Days' },
-    { id: 'Previous2-2', label: 'แนะนำรอบ Admission ให้หน่อย', date: 'Previous 2 Days' },
-  ]);
+  const [labels, setLabels] = useState<Label[]>([]);
+
+  // { _id: 'Today-1', name: 'แนะนำรอบ Admission ให้หน่อย', date: 'Today' },
+  // { _id: 'Previous2-1', name: 'แนะนำรอบ Admission ให้หน่อย', date: 'Previous 2 Days' },
+  // { _id: 'Previous2-2', name: 'แนะนำรอบ Admission ให้หน่อย', date: 'Previous 2 Days' },
+  const mutationChatRoom = trpc.userChatBot.useMutation();
+  useEffect(() => {
+    if (email) {
+      mutationChatRoom.mutate({ email },{
+        onSuccess: (data) => {
+          // console.log(data);
+          if (data.status === 200) {
+            // console.log("data",data.data.allChat);
+            setLabels(data.data.allChat);
+          }
+          else if (data.status === 400) {
+            // console.log(data.data.message);
+            setError(data.data.message);
+          }
+        },
+        onError: (error) => {
+          // console.log(error);
+          setError(error.message);
+        }
+      });
+    }
+  }, [email]);
+  
+  
+  
+  
 
   const sidebarRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -66,10 +117,11 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
     e.stopPropagation();
     setMenuOpen(menuOpen === item ? null : item);
   };
-
+  
   const handleRename = (item: string) => {
     setEditingItem(item);
-    const label = labels.find((label) => label.id === item)?.label || '';
+    const label = labels.find((label) => label._id === item)?.name || '';
+    // console.log("label",label);
     setTempLabel(label);
     setMenuOpen(null);
   };
@@ -77,22 +129,37 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
   const handleDelete = (item: string) => {
     openDeleteModal(item);
   };
-
+  
   const openDeleteModal = (item: string) => {
     setDeleteTarget(item);
     setIsDeleteModalOpen(true);
   };
-
+  const mutationDeleteChat = trpc.deleteChat.useMutation();
   const handleConfirmDelete = () => {
     if (deleteTarget) {
-      const newLabels = labels.filter((label) => label.id !== deleteTarget);
-      setLabels(newLabels);
 
-      // Only switch to a new chat if the deleted chat is the currently selected one
-      if (selectedItem === deleteTarget) {
-        setSelectedItem(null);
-        onSelectItem('new-chat');
-      }
+      mutationDeleteChat.mutate({ email, chatId: deleteTarget },{
+        onSuccess: (data) => {
+          // console.log(data);
+          if (data.status === 200) {
+            const newLabels = labels.filter((label) => label._id !== deleteTarget);
+            setLabels(newLabels);
+            // Only switch to a new chat if the deleted chat is the currently selected one
+            if (selectedItem === deleteTarget) {
+              setSelectedItem(null);
+              onSelectItem('new-chat');
+            }
+          }
+          setIsDeleteModalOpen(false);
+          setDeleteTarget(null);
+        },
+        onError: (error) => {
+          // console.log(error);
+          setError(error.message);
+        }
+      });
+
+      
     }
     setIsDeleteModalOpen(false);
     setDeleteTarget(null);
@@ -104,14 +171,25 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
       setTempLabel(newLabel);
     }
   };
-
+  const mutationEditRoom = trpc.editRoom.useMutation();
   const handleSaveRename = (item: string) => {
-    const originalLabel = labels.find((label) => label.id === item)?.label || '';
+    const originalLabel = labels.find((label) => label._id === item)?.name || '';
     if (tempLabel.trim() !== '') {
-      const newLabels = labels.map((label) =>
-        label.id === item ? { ...label, label: tempLabel } : label
-      );
-      setLabels(newLabels);
+      mutationEditRoom.mutate({ email, chatId: item, name: tempLabel },{
+        onSuccess: (data) => {
+          // console.log(data);
+          if (data.status === 200) {
+            const newLabels = labels.map((label) =>
+              label._id === item ? { ...label, name: tempLabel } : label
+            );
+            setLabels(newLabels);
+          }
+        },
+        onError: (error) => {
+          // console.log(error);
+          setError(error.message);
+        }
+      })
     } else {
       setTempLabel(originalLabel);
     }
@@ -125,7 +203,7 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
   };
 
   const MenuItem = ({ item }: { item: string }) => {
-    const label = labels.find((label) => label.id === item);
+    const label = labels.find((label) => label._id === item);
     if (!label) return null;
 
     return (
@@ -145,7 +223,7 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
             className="text-headline-6 bg-transparent outline-none"
           />
         ) : (
-          <span className="text-headline-6">{label.label}</span>
+          <span className="text-headline-6">{label.name}</span>
         )}
         <button
           className="ml-2 p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -154,7 +232,13 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
         >
           <img src="images/feature/dots.avif" alt="Menu" className="w-6 h-6" />
         </button>
-
+        {error && 
+                <AlertBox
+                alertType="error"
+                title="Error"
+                message={error}
+              />
+              }
         {menuOpen === item && (
           <div
             ref={menuRef}
@@ -179,12 +263,22 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
   };
 
   const groupedLabels = labels.reduce((acc, label) => {
-    if (!acc[label.date]) {
-      acc[label.date] = [];
+    if (!label.history || label.history.length === 0) {
+        console.warn("Label has empty history:", label);
+        return acc; // Skip this label
     }
-    acc[label.date].push(label);
+    if (!label.history[0]) {
+         console.warn("Label history[0] is undefined:", label);
+         return acc;
+    }
+
+    const relativeTimeKey = getRelativeTime(label.history[0].time);
+    if (!acc[relativeTimeKey]) {
+        acc[relativeTimeKey] = [];
+    }
+    acc[relativeTimeKey].push(label);
     return acc;
-  }, {} as Record<string, Label[]>);
+}, {} as Record<string, Label[]>);
 
   return (
     <div ref={sidebarRef}>
@@ -227,7 +321,7 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
           <div key={date}>
             <div className="text-primary-600 text-body-large font-bold mt-10 ml-12">{date}</div>
             {items.map((item) => (
-              <MenuItem key={item.id} item={item.id} />
+              <MenuItem key={item._id} item={item._id} />
             ))}
           </div>
         ))}
@@ -240,7 +334,7 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem }: Chatbo
             <p className="text-headline-6 mb-6">
               คุณต้องการลบแชทนี้ใช่ไหม?<br/><br/>นี่จะเป็นการลบ{' '}
               <span className="text-red-500">
-                {labels.find((label) => label.id === deleteTarget)?.label || 'this chat'}
+                {labels.find((label) => label._id === deleteTarget)?.name || 'this chat'}
               </span>
             </p>
             <div className="flex justify-end gap-4">

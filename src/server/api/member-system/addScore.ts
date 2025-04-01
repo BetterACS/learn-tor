@@ -13,7 +13,7 @@ export default function addScore(){
                 })
             )
             .mutation(async ({input}) => {
-                connectDB();
+                await connectDB();
                 const { email, scores } = input;
                 const user = await UserModel.findOne({ email: email });
 
@@ -35,7 +35,9 @@ export default function addScore(){
                     user_id: user_id,
                     ...scores,
                   });
-                  return {status:200,data:newScore};
+
+                  return {status:200,data:{ message: "Score added", newScore }}
+
                 }
             })
     };
