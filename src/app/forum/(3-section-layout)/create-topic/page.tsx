@@ -11,7 +11,12 @@ interface PostData {
   title: string;
   body: string;
   img: string;
-  tags: string[];
+}
+
+type Tag = {
+  tagname: string;
+  category: string;
+  count?: number;
 }
 
 export default function CreateTopic() {
@@ -20,23 +25,17 @@ export default function CreateTopic() {
 
   const mutationTag = trpc.addTags.useMutation();
   const mutation = trpc.createTopic.useMutation();
+  const deleteTopic = trpc.deleteTopic.useMutation();
 
   const [postData, setPostData] = useState<PostData>({
     title: '',
     body: '',
     img: '',
-    tags: [],
   });
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
-  const [tags, setTags] = useState<string[]>([]);
+  // const [tagsWCategory, setTagsWCategory] = useState<Record<string, Tag[]>>({});
+  const [tags, setTags] = useState<Tag[]>([]);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    setPostData((prev) => ({
-      ...prev,
-      tags: tags,
-    }));
-  }, [isPopupOpen]);
 
   const handleOnClickPost = async () => {
     setError('');
@@ -79,49 +78,61 @@ export default function CreateTopic() {
         img: uploadedImageUrl,
       },
       {
-        onSuccess: (data) => {
-            if (data.status !== 200) {
-                setError(data.data.message);
-            } else if (data.status === 200) {
-                console.log("Mutation Successful:", data);
+        onSuccess: async (data) => {
+          if (data.status !== 200) {
+            setError(data.data.message);
+          } else if (data.status === 200) {
+            console.log("Mutation Successful:", data);
 
-                const postId = data.data.topic._id;
+            const topicId = data.data.topic._id;
 
-                console.log("Tags before mutation:", tags);
-
-                if (tags.length > 0) {
-                  mutationTag.mutate(
-                    {
-                      postId: postId,
-                      tags: tags,
-                    },
-                    {
-                      onSuccess: (data) => {
-                        console.log("After add tag success" + data);
-                      },
-                      onError: (error) => {
-                        console.error("Tag mutation error:", error);
-                      },
-                    }
-                  );
-                }
-
-            
+            if (tags.length > 0) {
+              try {
+                await mutationTag.mutateAsync({
+                  topicId: topicId,
+                  tags: tags.map(({ tagname, category }) => ({ tagname, category })),
+                });
+  
+                console.log("Tags added successfully");
+  
+                // After successful tag addition, navigate to the new post
                 if ('topic' in data.data) {
                   router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
                     ...data.data.topic,
                     img: uploadedImageUrl,
-                  })}`
-                    
-                  );
+                  })}`);
                 } else {
                   setError("Topic data is missing");
                 }
+              } catch (error) {
+                console.error("Tag mutation failed, rolling back topic creation", error);
+                
+                // Rollback: Delete the topic if tag mutation fails
+                try {
+                  await deleteTopic.mutateAsync({
+                    topicId: topicId,
+                    email: session?.user?.email || '',
+                  });
+  
+                  console.log("Topic rolled back successfully");
+                } catch (rollbackError) {
+                  console.error("Rollback failed", rollbackError);
+                }
+  
+                setError("Failed to add tags, topic has been deleted.");
+              }
+            } else if ('topic' in data.data) {
+              console.log("No tags to add.");
+              router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
+                ...data.data.topic,
+                img: uploadedImageUrl,
+              })}`);
             }
+          }
         },
         onError: (error) => {
-            console.error("Mutation Failed:", error);
-            setError(error.message);
+          console.error("Topic creation failed:", error);
+          setError("Failed to create topic.");
         },
       }
     );
@@ -197,12 +208,12 @@ export default function CreateTopic() {
           <div className="flex gap-2 items-center">
             <p className="text-headline-6">Selected Tags:</p>
             <div className="flex gap-2">
-              {tags.map((tag) => (
+              {tags.map((tag, index) => (
                 <div
-                  key={tag}
+                  key={index}
                   className={`text-body-1 border border-green-600 rounded-[1rem] px-3 py-2`}
                 >
-                  {tag}
+                  {tag.tagname}
                 </div>
               ))}
             </div>

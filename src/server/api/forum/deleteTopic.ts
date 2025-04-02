@@ -1,4 +1,13 @@
-import { TopicModel, TopicAndTagModel, TagNameModel, UserModel } from "@/db/models";
+import { 
+  TopicModel, 
+  TopicAndTagModel, 
+  TagNameModel, 
+  UserModel, 
+  CommentModel, 
+  LikeCommentModel, 
+  LikeTopicModel, 
+  BookmarkModel 
+} from "@/db/models";
 import { connectDB } from "@/server/db";
 import { z } from "zod";
 import { publicProcedure } from "../../trpc";
@@ -87,6 +96,20 @@ const deleteTopic = {
             throw new Error("Cloudinary image deletion failed");
           }
         }
+
+        // Delete Comment
+        const comments = await CommentModel.find({ topic_id: topicId }).session(session);
+        const commentId = comments.map(comment => comment._id);
+        await CommentModel.deleteMany({ topic_id: topicId }).session(session);
+        
+        // Delete LikeComment
+        await LikeCommentModel.deleteMany({ comment_id: { $in: commentId } }).session(session);
+
+        // Delete Like
+        await LikeTopicModel.deleteOne({ topic_id: topicId }).session(session);
+
+        // Delete Bookmark
+        await BookmarkModel.deleteOne({ topic_id: topicId }).session(session);
 
         await session.commitTransaction();
         session.endSession();

@@ -31,6 +31,11 @@ export default function Topic() {
     { refetchOnMount: true }
   );
   const { data, isLoading, isError, refetch } = fetchPostData;
+  const topicOwnership = trpc.checkTopicOwner.useQuery({ 
+    email: session?.user?.email || '',
+    topicId: topicId,
+  });
+  const { data: ownershipData, isLoading: ownershipIsLoading, isError: ownershipIsError } = topicOwnership;
   const mutation = trpc.likeTopic.useMutation();
   const checkLikeMutation = trpc.checkLike.useMutation();
   const topicTagsMutation = trpc.topicTags.useMutation();
@@ -203,18 +208,30 @@ export default function Topic() {
         </svg>
       </button> */}
       <div className="w-full h-full flex flex-col px-[10%] gap-6">
-        {/* Post username section */}
-        <div className="flex content-center items-center gap-2">
-          <div className="size-10">
-            <img src={post?.user_id && 'avatar' in post.user_id ? post.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
+        <div className="w-full h-fit flex justify-between">
+          {/* Post username section */}
+          <div className="flex content-center items-center gap-2">
+            <div className="size-10">
+              <img src={post?.user_id && 'avatar' in post.user_id ? post.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
+            </div>
+            <p className="text-headline-6 font-bold">
+              {post?.user_id && 'username' in post.user_id ? post.user_id.username : 'Unknown User'}
+            </p>
+            <p className="text-subtitle-small">•</p>
+            <p className="text-subtitle-small text-monochrome-400">
+              {dayjs(post?.created_at).fromNow()}
+            </p>
           </div>
-          <p className="text-headline-6 font-bold">
-            {post?.user_id && 'username' in post.user_id ? post.user_id.username : 'Unknown User'}
-          </p>
-          <p className="text-subtitle-small">•</p>
-          <p className="text-subtitle-small text-monochrome-400">
-            {dayjs(post?.created_at).fromNow()}
-          </p>
+          {ownershipData?.data.permission && (
+          <svg 
+            onClick={(e) => {router.push(`edit-topic/${post?._id}`); e.preventDefault();}}
+            className="text-monochrome-500 size-7 cursor-pointer"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"></path>
+          </svg>
+        )}
         </div>
         {/* Post details */}
         <div className="w-full h-fit flex flex-col items-center gap-2">
