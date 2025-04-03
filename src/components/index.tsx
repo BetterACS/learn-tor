@@ -37,6 +37,8 @@ import Inputcalculator from '@/components/inputcalculator';
 import ResultCalculator from '@/components/resultcalculator';
 import Comments from '@/components/Comments';
 import SearchableDropdown from './SearchableDropdown';
+import { LoadingCircle, ErrorLoading, MockupTopicLoadingCard } from '@/components/loading';
+import ConfirmModule from '@/components/confirmModule';
 import ChatComponent from './ChatComponent';
 
 export {
@@ -79,5 +81,9 @@ export {
   ResultCalculator,
   Comments,
   SearchableDropdown,
+  LoadingCircle,
+  ErrorLoading,
+  MockupTopicLoadingCard,
+  ConfirmModule,
   ChatComponent
 }

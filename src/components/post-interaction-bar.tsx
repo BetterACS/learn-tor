@@ -7,7 +7,14 @@ import { useSession } from 'next-auth/react';
 import { count } from 'console';
 
 interface PostProps {
-  post: { id: number, img: string, title: string, body: string , like: number, isLiked: boolean};
+  post: { 
+    id: string | undefined, 
+    img: string | undefined, 
+    title: string | undefined, 
+    body: string | undefined, 
+    like: number | undefined, 
+    isLiked: boolean | undefined
+  };
   comment_enable: boolean;
   onCommentClicked?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
@@ -24,7 +31,7 @@ export default function PostInteractionBar({ post, comment_enable, onCommentClic
   useEffect(() => {
     if (session?.user?.email && post?.id) {
       checkLikeMutation.mutate({
-        topic_id: post.id.toString(),
+        topic_id: post.id,
         email: session.user.email,
       }, {
         onSuccess: (data) => {

@@ -1,48 +1,51 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Button, AlertBox , AddTagPopup } from '@/components/index';
+import { Button, AlertBox , AddTagPopup, LoadingCircle, ErrorLoading, ConfirmModule } from '@/components/index';
 import { useParams, useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 import type {Topic} from '@/db/models';
-import { CldUploadWidget } from 'next-cloudinary'; // Import CldUploadWidget
-
-interface Post {
-  _id: number, 
-  img: string, 
-  title: string, 
-  body: string, 
-  created_at: string, 
-  n_like: number, 
-  user_id: { username: string }, 
-  isLiked : boolean,
-  tags: string[],
-}
+import imageCompression from 'browser-image-compression';
+import { extractPublicId } from 'cloudinary-build-url';
 
 interface PostData {
+  id?: string,
   title: string,
   body: string,
-  img: string,
-  tags: string[]
+  img: string
+}
+
+type Tag = {
+  tagname: string;
+  category: string;
+  count?: number;
 }
 
 export default function EditTopic() {
   const router = useRouter();
   const { topicId } = useParams();
-  const topicTagsMutation = trpc.topicTags.useMutation();
+  const { data: session } = useSession();
+
   const queryData = trpc.queryTopicById.useQuery({ Id: topicId });
   const { data, isLoading, isError, refetch } = queryData;
+
+  const mutationTag = trpc.updateTags.useMutation();
+  const mutation = trpc.updateTopic.useMutation();
+  const deleteTopicMutation = trpc.deleteTopic.useMutation();
 
   const [postData, setPostData] = useState<PostData>({
     id: '',
     title: '',
     body: '',
     img: '',
-    tags: [],
   });
-
+  const [originalImage, setOriginalImage] = useState<string>('');
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
+  const [isConfirmModuleOpen, setIsConfirmModuleOpen] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -52,36 +55,21 @@ export default function EditTopic() {
       title: fetchedData.title,
       body: fetchedData.body,
       img: fetchedData.img,
-      tags: fetchedData.tags,
     });
+
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 500);
+
+    setOriginalImage(fetchedData.img);
+
+    if (tags.some(tag => Object.keys(tag).length > 0)) {
+      setTags(fetchedData.tags);
+    };
     
-    topicTagsMutation.mutate(
-      { topic_id: String(topicId) },
-      {
-        onSuccess: (data) => {
-          if (data.topicTags && Array.isArray(data.topicTags)) {
-            const extractedTags = data.topicTags.map(tag => tag.tagname);
-            setTags(extractedTags);
-            // console.log("Fetching Tags for post successfully: ", post._id);
-          }
-        },
-        onError: (error) => {
-          console.error("Error fetching tags:", error);
-        }
-      }
-    );
+  }, [isLoading, data])
 
-  }, [isLoading])
-
-  useEffect(() => {
-    setPostData((prev) => ({
-      ...prev,
-      tags: tags,
-    }));
-  }, [isPopupOpen]);
-  const { data: session } = useSession();
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -97,77 +85,165 @@ export default function EditTopic() {
     setIsPopupOpen(true);
   };
 
-  const mutationTag = trpc.updateTags.useMutation();
-  const mutation = trpc.updateTopic.useMutation();
-
   const handleOnClickSave = async () => {
     setError('');
     setSuccess('');
+  
+    // NO TITLE
     if (postData.title === "") {
       setError("Title is required");
+      return;
     }
-    else{
-      mutation.mutate(
-        {
-          id: topicId,
-          title: postData.title,
-          body: postData.body,
-          email: session?.user?.email || '',
-          img: postData.img || '',
-        },
-        {
-          onSuccess: (data) => {
-            if (data.status !== 200) {
-              setError(data.data.message);
-            } else if (data.status === 200) {
-              console.log("Mutation Successful:", data);
-              setSuccess(data.data.message);
-
-              const topicId = data.data.topic._id;
-
-              if (tags.length > 0) {
-                mutationTag.mutate(
-                  {
-                    topicId: topicId,
-                    tags: tags,
-                    email: session?.user?.email || '',
-                  },
-                  {
-                    onSuccess: (data) => {
-                      console.log("After add tag success" + data);
-                      setSuccess(data.data.message);
-                    },
-                    onError: (error) => {
-                      console.error("Tag mutation error:", error);
-                    },
-                  }
-                );
-              }
-
-          
-              if ('topic' in data.data) {
-                router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
-                  ...data.data.topic,
-                  img: postData.img,
-                })}`
-                  
-                );
-              } else {
-                setError("Topic data is missing");
-              }
-            }
-          },
-          onError: (error) => {
-              console.error("Mutation Failed:", error);
-              setError(error.message);
-          },
+  
+    // UPLOAD IMAGE
+    let imageUrl = '';
+    // True if selected image is same image as original image (prevent duplicate upload)
+    const compareResult = await compareImages(originalImage, postData.img); //link, base64 
+    if (postData.img && !compareResult) {
+      try {
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: JSON.stringify({ file: postData.img }),
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+  
+        const data = await res.json();
+        if (data.secure_url) {
+          imageUrl = data.secure_url;
+          console.log('Image uploaded successfully:', data.secure_url);
         }
-      );
+      } catch (error) {
+        console.error('Image upload failed', error);
+        setError('Image upload failed');
+        return; // Exit early on error
+      }
+    } else if (postData.img && compareResult) {
+      console.log("old image");
+      imageUrl = originalImage;
+    } else {
+      console.log("remove image");
+      imageUrl = '';
     }
+  
+    // DELETE OLD IMAGE
+    if (originalImage && originalImage !== imageUrl) {
+      try {
+        const oldImagePublicId = extractPublicId(originalImage);
+        const deleteRes = await fetch('/api/delete-image', {
+          method: 'POST',
+          body: JSON.stringify({ public_id: oldImagePublicId }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+  
+        const deleteResult = await deleteRes.json();
+        if (deleteResult.status !== 'ok') {
+          // If the delete fails, rollback = delete the newly uploaded image
+          console.error('Failed to delete the old image');
+          await fetch(`/api/delete-image`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ public_id: extractPublicId(imageUrl) }),
+          });
+          setError('Failed to delete the old image, rollback changes');
+          return; // Exit early on error
+        }
+  
+        console.log('Old image deleted successfully');
+      } catch (error) {
+        console.error('Error deleting old image', error);
+        setError('Error deleting old image');
+        return; // Exit early on error
+      }
+    }
+  
+    // Finally, update data after everything is complete
+    mutation.mutate(
+      {
+        id: topicId,
+        title: postData.title,
+        body: postData.body,
+        email: session?.user?.email || '',
+        img: imageUrl || ''
+      },
+      {
+        onSuccess: (data) => {
+          if (data.status !== 200) {
+            setError(data.data.message);
+          } else if (data.status === 200) {
+            console.log("Mutation Successful:", data);
+            setSuccess(data.data.message);
+  
+            const topicId = data.data.topic._id;
+  
+            if (tags.length > 0) {
+              mutationTag.mutate(
+                {
+                  topicId: topicId,
+                  tags: tags.map(({ tagname, category }) => ({ tagname, category })),
+                  email: session?.user?.email || '',
+                },
+                {
+                  onSuccess: (data) => {
+                    console.log("After add tag success" + data);
+                    setSuccess(data.data.message);
+                  },
+                  onError: (error) => {
+                    console.error("Tag mutation error:", error);
+                  },
+                }
+              );
+            }
+  
+            if ('topic' in data.data) {
+              router.push(`/forum/${(data.data.topic as Topic)._id}`)
+            } else {
+              setError("Topic data is missing");
+            }
+          }
+        },
+        onError: (error) => {
+          console.error("Mutation Failed:", error);
+          setError(error.message);
+        },
+      }
+    );
   };
+  
 
-  const deleteTopicMutation = trpc.deleteTopic.useMutation();
-  const handleOnClickDelete = () => {
+  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        const maxSizeMB = 10;
+        if (file.size / 1024 / 1024 <= maxSizeMB) {
+          console.log('File size is already under the limit, no compression needed.');
+          const base64file = await blobToBase64(file) as string;
+          setPostData((prev) => ({ ...prev, img: base64file }));
+        } else {
+          const options = {
+            maxSizeMB,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+          }
+  
+          try {
+            const compressedFile = await imageCompression(file, options);
+            console.log('compressedFile instanceof Blob', compressedFile instanceof Blob);
+            console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`);
+            
+            const base64file = await blobToBase64(compressedFile) as string;
+            setPostData((prev) => ({ ...prev, img: base64file }));
+          } catch (error) {
+            console.log(error);
+          }
+        };
+      };
+    };
+    
+  const handleOnDeleteConfirm = () => {
     deleteTopicMutation.mutate(
       {
         topicId: topicId,
@@ -186,6 +262,45 @@ export default function EditTopic() {
       }
     );
   };
+
+  const handleOnDeletecancel = () => {
+    setIsConfirmModuleOpen(false);
+  };
+
+  
+  
+  const blobToBase64 = (blob: Blob) => {
+    return new Promise((resolve, _) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  const compareImages = async (cloudinaryImageUrl: string, base64Image: string): Promise<boolean> => {
+    if (cloudinaryImageUrl === base64Image) return true;
+
+    try {
+      // Fetch Cloudinary url -> Blob
+      const response = await fetch(cloudinaryImageUrl);
+      const imageBlob = await response.blob();
+  
+      // Blob -> base64
+      const cloudinaryBase64 = await blobToBase64(imageBlob);
+  
+      // Compare
+      return cloudinaryBase64 === base64Image;
+    } catch (error) {
+      console.error('Error comparing images:', error);
+      return false;
+    }
+  };
+
+  if (!isLoaded) {
+    return <LoadingCircle />
+  } else if (isError) {
+    return <ErrorLoading />
+  }
 
   return (
     <div className="relative h-full w-full">
@@ -208,16 +323,16 @@ export default function EditTopic() {
       } */}
       <div className="flex flex-col gap-6">
         {/* Display selected tags */}
-        {tags.length > 0 && (
+        {tags.some(tag => Object.keys(tag).length > 0) && (
           <div className="flex gap-2 items-center">
             <p className="text-headline-6">Selected Tags:</p>
             <div className="flex gap-2">
-              {tags.map((tag) => (
+              {tags.map((tag, index) => (
                 <div
-                  key={tag}
+                  key={index}
                   className={`text-body-1 border border-green-600 rounded-[1rem] px-3 py-2`}
                 >
-                  {tag}
+                  {tag.tagname}
                 </div>
               ))}
             </div>
@@ -252,69 +367,65 @@ export default function EditTopic() {
           </div>
         </div>
 
-        {/* Image upload area */}
-        <div className="w-full h-[15rem] flex flex-col justify-center items-center gap-1 border-2 border-dashed border-monochrome-400 bg-monochrome-100 rounded-md">
-          {postData.img ? (
-            <div className="flex w-fit h-full self-center">
+        {/* Image Preview */}
+        {postData.img && (
+          <div className="relative w-full h-fit flex flex-col justify-center items-center gap-2 rounded-md">
+            <button onClick={() => setPostData((prev) => ({ ...prev, img: '' }))} className="size-6 text-red-800 self-end">
+              <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                <path fill="currentColor" d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"></path>
+              </svg>
+            </button>
+            <div className="flex w-fit h-[15rem] self-center pointer-events-none">
               <img
                 src={postData.img}
                 alt="Uploaded"
                 className="w-full h-full object-cover"
               />
             </div>
-          ) : (
-            <CldUploadWidget
-              uploadPreset="learn-tor"
-              signatureEndpoint="/api/sign-image"
-              options={{
-                folder: `learn-tor/`, // Specify the folder path
-                publicId: `custom-public-id-${Date.now()}`,// Unique public ID 
-              }}
-              // backend ต้องเอา url ไปเก็บ
-              onSuccess={(results) => {
-                if (results.info && typeof results.info !== 'string') {
-                  const imageUrl = results.info.secure_url;
-                  setPostData((prev) => ({
-                    ...prev,
-                    img: imageUrl,
-                  }));
-
-                  
-                }
-              }}
-            >
-              {({ open }) => (
-                <label
-                  htmlFor="dropzone-file"
-                  className="w-full h-full flex justify-center items-center hover:cursor-pointer"
-                  onClick={() => open()} // Open Cloudinary widget on click
-                >
-                  <div className="flex flex-col items-center justify-center text-monochrome-600">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      className="size-10 fill-monochrome-600"
-                    >
-                      <title>file-image-plus-outline</title>
-                      <path d="M7 19L12 14L13.88 15.88C13.33 16.79 13 17.86 13 19H7M10 10.5C10 9.67 9.33 9 8.5 9S7 9.67 7 10.5 7.67 12 8.5 12 10 11.33 10 10.5M13.09 20H6V4H13V9H18V13.09C18.33 13.04 18.66 13 19 13C19.34 13 19.67 13.04 20 13.09V8L14 2H6C4.89 2 4 2.9 4 4V20C4 21.11 4.89 22 6 22H13.81C13.46 21.39 13.21 20.72 13.09 20M18 15V18H15V20H18V23H20V20H23V18H20V15H18Z" />
-                    </svg>
-                    <p>Click to upload or drag and drop</p>
-                    <p className="text-monochrome-400">
-                      SVG, PNG, JPG or JPEG (MAX. 2000x2000 px)
-                    </p>
-                  </div>
-                </label>
-              )}
-            </CldUploadWidget>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="w-full flex justify-between">
-          <Button
-            button_name="Add tags"
-            variant="secondary"
-            onClick={handleOnClickAddTags}
-          />
+          <div className="flex items-center gap-4">
+            {postData.img ? (
+              <svg 
+                onClick={() => document.getElementById('file-input')?.click()}
+                className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
+                xmlns="http://www.w3.org/2000/svg"
+                width={24}
+                height={24}
+                viewBox="0 0 24 24"
+              >
+                <path fill="currentColor" d="M21.5 1.5a1 1 0 0 0-1 1a5 5 0 1 0 .3 7.75a1 1 0 0 0-1.32-1.51a3 3 0 1 1 .25-4.25H18.5a1 1 0 0 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-.99m-3 12a1 1 0 0 0-1 1v.39L16 13.41a2.77 2.77 0 0 0-3.93 0l-.7.7l-2.46-2.49a2.79 2.79 0 0 0-3.93 0L3.5 13.1V7.5a1 1 0 0 1 1-1h5a1 1 0 0 0 0-2h-5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a1 1 0 0 0-1-1m-14 7a1 1 0 0 1-1-1v-3.57L6.4 13a.79.79 0 0 1 1.09 0l3.17 3.17L15 20.5Zm13-1a1 1 0 0 1-.18.53l-4.51-4.51l.7-.7a.78.78 0 0 1 1.1 0l2.89 2.9Z"></path>
+              </svg>
+            ) : (
+              <svg 
+                onClick={() => document.getElementById('file-input')?.click()}
+                className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
+                xmlns="http://www.w3.org/2000/svg"
+                width={24}
+                height={24}
+                viewBox="0 0 24 24"
+              >
+                <path fill="currentColor" d="M19 10a1 1 0 0 0-1 1v3.38l-1.48-1.48a2.79 2.79 0 0 0-3.93 0l-.7.71l-2.48-2.49a2.79 2.79 0 0 0-3.93 0L4 12.61V7a1 1 0 0 1 1-1h8a1 1 0 0 0 0-2H5a3 3 0 0 0-3 3v12.22A2.79 2.79 0 0 0 4.78 22h12.44a3 3 0 0 0 .8-.12a2.74 2.74 0 0 0 2-2.65V11A1 1 0 0 0 19 10M5 20a1 1 0 0 1-1-1v-3.57l2.89-2.89a.78.78 0 0 1 1.1 0L15.46 20Zm13-1a1 1 0 0 1-.18.54L13.3 15l.71-.7a.77.77 0 0 1 1.1 0L18 17.21Zm3-15h-1V3a1 1 0 0 0-2 0v1h-1a1 1 0 0 0 0 2h1v1a1 1 0 0 0 2 0V6h1a1 1 0 0 0 0-2"></path>
+              </svg>
+            )}
+
+            {/* Image input */}
+            <input
+              type="file"
+              id="file-input"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleImageSelect}
+            />
+
+            <Button
+              button_name="Add tags"
+              variant="secondary"
+              onClick={handleOnClickAddTags}
+            />
+          </div>
           <Button
             button_name="Save"
             variant="primary"
@@ -325,7 +436,7 @@ export default function EditTopic() {
         <Button
           button_name="Delete"
           variant="red"
-          onClick={handleOnClickDelete}
+          onClick={() => setIsConfirmModuleOpen(true)}
         />
 
         {isPopupOpen && (
@@ -334,8 +445,22 @@ export default function EditTopic() {
             setIsPopupOpen={setIsPopupOpen}
             tags={tags}
             setTags={setTags}
+            // tagsWCategory={tagsWCategory}
+            // setTagsWCategory={setTagsWCategory}
           />
         )}
+
+        {isConfirmModuleOpen && (
+          <ConfirmModule 
+            text='Do you want to delete this topic?' 
+            description='This topic will be permanently deleted and cannot be restored.' 
+            confirmText='Delete'
+            cancelText='Cancel'
+            confirmHandle={handleOnDeleteConfirm}
+            cancelHandle={handleOnDeletecancel}
+          />
+        )}
+
       </div>
     </div>
   );

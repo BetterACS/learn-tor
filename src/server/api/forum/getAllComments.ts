@@ -14,7 +14,7 @@ export default function getAllComments() {
 
                 try {
                     const comments = await CommentModel.find({ topic_id })
-                        .populate('user_id', 'email username') // เพิ่ม username
+                        .populate('user_id', 'email username avatar') // เพิ่ม username
                         .sort({ created_at: sortOrder === 'asc' ? 1 : -1 }); // ใช้ค่าของ sortOrder เพื่อจัดเรียง
 
                     return {

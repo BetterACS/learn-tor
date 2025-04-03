@@ -1,5 +1,5 @@
 'use client';
-import { Post, SortBy } from '@/components/index';
+import { Post, SortBy, MockupTopicLoadingCard } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession } from "next-auth/react";
@@ -13,7 +13,7 @@ interface PostSectionProps {
 }
 
 interface Post {
-  _id: number, 
+  _id: string, 
   img: string, 
   title: string, 
   body: string, 
@@ -56,9 +56,13 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
   const { data, isLoading, isError, refetch } = queryData;
   
   useEffect(() => {
-    setCurrentPage(1);
     setPosts([]);
-    refetch();
+    setCurrentPage(1);
+    if (data && Array.isArray(data.data)) {
+      setPosts(data.data);
+    } else {
+      // console.log('API response is not an array:', data, isLoading);
+    }
   }, [searchTerm, filterTags, sortBy]);
 
   // Append new posts when data changes and pagination progresses
@@ -69,9 +73,9 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
         return Array.from(newUniquePosts.values());
       });
     } else {
-      console.log('API response is not an array:', data, isLoading);
+      // console.log('API response is not an array:', data, isLoading);
     }
-  }, [data, sortBy, currentPage]);
+  }, [data, currentPage]);
   
   const lastPostElementRef = useCallback(
     (node: HTMLElement | null) => {
@@ -88,11 +92,6 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
     },
     [isLoading]
   );
-
-  useEffect(() => {
-    if (isLoading) return;
-    console.log("After refetch", posts);
-  }, [posts])
 
   return (
     <div className="h-fit w-full flex flex-col gap-6">
@@ -117,45 +116,16 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
               <Post
                 ref={posts.length === index + 1 && data?.maxPage !== currentPage ? lastPostElementRef : null}
                 key={post._id}
-                post={post}
+                topicId={post?._id}
               />
             ))
           )
         }
         
         {isLoading && posts.length === 0 && (
-          <div
-          className="h-fit w-full bg-monochrome-50 drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] rounded-xl text-start pt-6 pb-3 px-8"
-          >
-            <div className="h-full w-full flex flex-col gap-3 animate-pulse">
-              {/* Username Section */}
-              <div className="flex content-center items-center gap-2">
-                <div className="size-10">
-                  <div className="w-full h-full bg-monochrome-100 rounded-full"/>
-                </div>
-                <p className="text-body-large font-bold text-transparent bg-monochrome-100 rounded-md">
-                  Username
-                </p>
-                <p className="text-subtitle-small text-transparent bg-monochrome-100 rounded-md">
-                  second ago
-                </p>
-              </div>
-              {/* Body */}
-              <div className="flex flex-col gap-2">
-                <p className="text-headline-5 text-transparent bg-monochrome-100 rounded-md">
-                  Lorem ipsum dolor sit amet
-                </p>
-                <p className='w-fit text-body-large text-transparent bg-monochrome-100 rounded-md'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus magni doloremque
-                </p>
-                <p className='w-fit text-body-large text-transparent bg-monochrome-100 rounded-md'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                </p>
-              </div>
-              <div className="h-[25rem] w-full pb-4">
-                <div className="w-full h-full object-cover bg-monochrome-100 rounded-md"/>
-              </div>
-            </div>
+          <div className="h-fit w-full flex flex-col gap-6">
+            <MockupTopicLoadingCard/>
+            <MockupTopicLoadingCard/>
           </div>
         )}
         {isLoading && posts.length > 0 ? (

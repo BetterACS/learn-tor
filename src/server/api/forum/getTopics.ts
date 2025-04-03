@@ -18,7 +18,6 @@ const getTopics = {
     )
     .query(async ({ input }) => {
       const { searchTerm, filterTags, sortBy, limit, page } = input;
-      console.log(searchTerm, filterTags, sortBy, limit, page);
       try {
         await connectDB();
 
@@ -108,8 +107,6 @@ const getTopics = {
         }
 
         const topicWUser = await TopicModel.populate(resultTopics, { path: 'user_id', select: 'username avatar' }); 
-
-        console.log(topicWUser);
         
         return { 
           status: 200, 
@@ -355,13 +352,22 @@ const getTopics = {
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
               img: { $first: "$img" },
-              tags: { $push: "$tagDetails.tagname" },
+              tags: { $push: {
+                tagname: "$tagDetails.tagname",
+                category: "$tagDetails.category"
+              } },
             },
           }
         ])
+
+        const topicWithUser = await TopicModel.populate(topic, {
+          path: 'user_id',
+          select: 'username avatar',
+        });
+
         return { 
           status: 200, 
-          data: topic
+          data: topicWithUser
         };
       } catch (error) {
         return { status: 500, data: { message: "Failed to fetch topic by id" } };

@@ -28,7 +28,8 @@ export default function topicTags(){
                     return {
                         topic_id: tag.topic_id,
                         tagname: tagInfo ? tagInfo.tagname : "Unknown",
-                        category: tagInfo ? tagInfo.category : "Unknown"
+                        category: tagInfo ? tagInfo.category : "Unknown",
+                        is_guide: tagInfo ? tagInfo.is_guide : true,
                     };
                 });
                 // console.log("จะเอาtagggggggggg")
