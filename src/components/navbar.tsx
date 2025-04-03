@@ -110,8 +110,8 @@ export default function Navbar() {
 
         {status === "authenticated" ? (
           <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
-            <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-              <img src={avatar || "/images/profile.avif"} alt="Profile" />
+            <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] h-[3.5rem] overflow-hidden">
+              <img src={avatar || "/images/profile.avif"} alt="Profile" className="w-full h-full object-cover" />
             </button>
             {profileDropdownOpen && (
               <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">

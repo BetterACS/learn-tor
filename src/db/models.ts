@@ -84,6 +84,7 @@ interface Score extends Document {
   TGAT3?: number;
   TPAT21?: number;
   TPAT22?: number;
+  TPAT23?: number;
   TPAT3?: number;
   TPAT4?: number;
   TPAT5?: number;
@@ -113,6 +114,7 @@ const ScoreSchema: Schema<Score> = new Schema({
   TGAT3: { type: Number },
   TPAT21: { type: Number },
   TPAT22: { type: Number },
+  TPAT23: { type: Number },
   TPAT3: { type: Number },
   TPAT4: { type: Number },
   TPAT5: { type: Number },
