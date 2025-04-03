@@ -2,6 +2,7 @@ import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod';
 import { connectDB } from "@/server/db";
 import { UniversityModel } from "@/db/models";
+import { stat } from "fs";
 
 export default function requireScore() {
     return {
@@ -70,12 +71,16 @@ export default function requireScore() {
           );
 
         return {
-          institution: uni.institution,
-          faculty: uni.faculty,
-          program: uni.program,
-          admission_type: matchedRound?.admission_type,
-          score_calculation_formula: transformScores(matchedRound?.score_calculation_formula),
-          minimum_criteria: transformScores(matchedRound?.minimum_criteria),
+          status: 200,
+          data : {
+            // institution: uni.institution,
+            // faculty: uni.faculty,
+            // program: uni.program,
+            // admission_type: matchedRound?.admission_type,
+            score_calculation_formula: transformScores(matchedRound?.score_calculation_formula),
+            minimum_criteria: transformScores(matchedRound?.minimum_criteria),
+          }
+          
         };
       });
 

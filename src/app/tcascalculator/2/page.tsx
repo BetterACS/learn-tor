@@ -90,6 +90,39 @@ export default function Calculator2() {
   const major = searchParams.get('major');
   const language = searchParams.get('language');
   const examType = searchParams.get('examType');
+  const [minScore, setMinScore] = useState(null);
+  const [scoreCalculator, setScoreCalculator] = useState(null);
+
+  const requireScore = trpc.requireScore.useMutation({
+    onSuccess: (response) => {
+      console.log("Response data:", response); // ตรวจสอบค่าที่ได้รับ
+  
+      if (response?.data) {
+        setRequiredScores(response.data.requireScore);
+         // ตรวจสอบค่าที่ได้รับ
+      }
+    },
+    onError: (error) => {
+      console.error("Error fetching required scores:", error);
+    },
+  });
+  console.log(minScore, scoreCalculator); // เช็คค่าที่ดึงมา
+  const [requiredScores, setRequiredScores] = useState(null);
+  console.log("Required scores:", requiredScores);
+
+  useEffect(() => {
+    if (university && campus && faculty && major && language && examType) {
+      requireScore.mutate({
+        institution: university,
+        campus: campus,
+        faculty: faculty,
+        program: major,
+        course_type: language,
+        admission_type: examType,
+      });
+    }
+  }, [university, campus, faculty, major, language, examType]);
+
 
   console.log(university, campus, faculty, major, language, examType); // เช็คค่าที่ดึงมา
 
