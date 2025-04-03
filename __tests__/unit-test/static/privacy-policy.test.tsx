@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Page from '@/app/information/privacy-policy/page';
-// ทดสอบการ render ของทั้งหน้า
+
 jest.mock('@/components/index', () => ({
   Navbar: () => <div data-testid="navbar-mock" />,
   Footer: () => <div data-testid="footer-mock" />

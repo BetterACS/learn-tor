@@ -1,5 +1,5 @@
 import { Questionbox } from '@/components/index';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
 
@@ -14,6 +14,15 @@ describe('Questionbox Component', () => {
     fireEvent.mouseMove(element, { clientX: endX });
     fireEvent.mouseUp(element);
   };
+
+  beforeEach(() => {
+    // Mock window.innerWidth for responsive testing
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1200, // Default to large screen
+    });
+  });
 
   test('renders the component and displays questions', () => {
     render(<Questionbox />);
@@ -62,5 +71,27 @@ describe('Questionbox Component', () => {
 
     const paginationDots = document.querySelectorAll('.w-3.h-3.rounded-full');
     expect(paginationDots.length).toBeGreaterThan(1);
+  });
+
+  test('updates slides per page on window resize', () => {
+    render(<Questionbox />);
+
+    // Test mobile size
+    act(() => {
+      window.innerWidth = 500;
+      window.dispatchEvent(new Event('resize'));
+    });
+
+    // Test tablet size
+    act(() => {
+      window.innerWidth = 800;
+      window.dispatchEvent(new Event('resize'));
+    });
+
+    // Test desktop size
+    act(() => {
+      window.innerWidth = 1200;
+      window.dispatchEvent(new Event('resize'));
+    });
   });
 });

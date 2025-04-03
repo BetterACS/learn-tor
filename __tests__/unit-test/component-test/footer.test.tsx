@@ -1,7 +1,7 @@
 import { Footer } from "@/components/index";
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-// ทดสอบการ render, link
+
 describe('Footer Component', () => {
   it('renders the Learntor logo', () => {
     render(<Footer />);

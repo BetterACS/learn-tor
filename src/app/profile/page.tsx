@@ -171,7 +171,7 @@ interface FormData {
         return;
       }
 
-      if (name.startsWith('TGAT') || name.startsWith('TPAT') || name.startsWith('A_')) {
+      if (name.startsWith('TGAT') || name.startsWith('TPAT') || name.startsWith('A')) {
         const numericValue = parseFloat(value);
         if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) return;
       }
@@ -325,8 +325,9 @@ interface FormData {
                       );
                 
                       handleAvatarUpdate(croppedUrl); 
-                    } else {
-                      console.error("No cropping coordinates found:", results);
+                    } 
+                    else {
+                      // console.error("No cropping coordinates found:", results);
                       handleAvatarUpdate(secure_url); // Fallback to original URL
                     }
                   } else {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Page from '@/app/information/faq/page';
-// ทดสอบการ render ของทั้งหน้า
+
 const mockFAQs = [
   {
     question: 'Learntor คืออะไร?',
