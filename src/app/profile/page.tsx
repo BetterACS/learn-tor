@@ -25,6 +25,7 @@ interface FormData {
   TGAT1: string;
   TGAT2: string;
   TGAT3: string;
+  TPAT1: string;
   TPAT2_1: string;
   TPAT2_2: string;
   TPAT2_3: string;
@@ -60,6 +61,7 @@ interface FormData {
     TGAT1: '',
     TGAT2: '',
     TGAT3: '',
+    TPAT1: '',
     TPAT2_1: '',
     TPAT2_2: '',
     TPAT2_3: '',
@@ -132,6 +134,7 @@ interface FormData {
           TGAT1: scores?.TGAT1 || '',
           TGAT2: scores?.TGAT2 || '',
           TGAT3: scores?.TGAT3 || '',
+          TPAT1: scores?.TPAT1 || '',
           TPAT2_1: scores?.TPAT2_1 || '',
           TPAT2_2: scores?.TPAT2_2 || '',
           TPAT2_3: scores?.TPAT2_3 || '',
@@ -245,6 +248,7 @@ interface FormData {
             TGAT1: formData.TGAT1,
             TGAT2: formData.TGAT2,
             TGAT3: formData.TGAT3,
+            TPAT1: formData.TPAT1,
             TPAT2_1: formData.TPAT2_1,
             TPAT2_2: formData.TPAT2_2,
             TPAT2_3: formData.TPAT2_3,
@@ -383,6 +387,7 @@ interface FormData {
             <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
           </div>
           <div className="md:gap-x-20 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-36 gap-y-6">
+            <ScoreInput label="TPAT1 กสพท." value={formData.TPAT1} onChange={handleChange} isEditing={isEditing} name="TPAT1" />
             <ScoreInput label="TPAT2.1 ความถนัดศิลปกรรมศาสตร์ ทัศนศิลป์" value={formData.TPAT2_1} onChange={handleChange} isEditing={isEditing} name="TPAT2_1" />
             <ScoreInput label="TPAT2.2 ความถนัดศิลปกรรมศาสตร์ ดนตรี" value={formData.TPAT2_2} onChange={handleChange} isEditing={isEditing} name="TPAT2_2" />
             <ScoreInput label="TPAT2.3 ความถนัดศิลปกรรมศาสตร์ นาฏศิลป์" value={formData.TPAT2_3} onChange={handleChange} isEditing={isEditing} name="TPAT2_3" />

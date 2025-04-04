@@ -15,12 +15,18 @@ export default function queryScore() {
                 await connectDB();
                 const { email } = input;
                 const user = await UserModel.findOne({ email });
+
                 if (!user) {
                     throw new Error("User not found");
                 }
+
                 const user_id = user._id;
                 const score = await ScoreModel.findOne({ user_id });
-                return score;
+
+                return {
+                    score,
+                    GPAX: user.GPAX ?? null
+                };
             })
     }
 }

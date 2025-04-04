@@ -38,6 +38,7 @@ import ResultCalculator from '@/components/resultcalculator';
 import Comments from '@/components/Comments';
 import SearchableDropdown from './SearchableDropdown';
 import ChatComponent from './ChatComponent';
+import GpaxInput from './gpaxinput';
 
 export {
   Test,
@@ -79,5 +80,6 @@ export {
   ResultCalculator,
   Comments,
   SearchableDropdown,
-  ChatComponent
+  ChatComponent,
+  GpaxInput
 }

@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, ScoreInput, EditButtons } from '@/components/index';
+import { Navbar, Footer, ScoreInput, EditButtons, InputField, GpaxInput } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -44,32 +44,11 @@ interface FormData {
 }
 
 const initialFormData: FormData = {
-  GPAX: '',
-  TGAT1: '',
-  TGAT2: '',
-  TGAT3: '',
-  TPAT2_1: '',
-  TPAT2_2: '',
-  TPAT2_3: '',
-  TPAT3: '',
-  TPAT4: '',
-  TPAT5: '',
-  A_MATH1: '',
-  A_MATH2: '',
-  A_SCIENCE: '',
-  A_PHYSIC: '',
-  A_BIOLOGY: '',
-  A_CHEMISTRY: '',
-  A_SOCIAL: '',
-  A_THAI: '',
-  A_ENGLISH: '',
-  A_FRANCE: '',
-  A_GERMANY: '',
-  A_JAPAN: '',
-  A_PALI: '',
-  A_CHINESE: '',
-  A_KOREAN: '',
-  A_SPANISH: '',
+  GPAX: '', TGAT1: '', TGAT2: '', TGAT3: '', TPAT2_1: '', TPAT2_2: '', TPAT2_3: '',
+  TPAT3: '', TPAT4: '', TPAT5: '', A_MATH1: '', A_MATH2: '', A_SCIENCE: '',
+  A_PHYSIC: '', A_BIOLOGY: '', A_CHEMISTRY: '', A_SOCIAL: '', A_THAI: '',
+  A_ENGLISH: '', A_FRANCE: '', A_GERMANY: '', A_JAPAN: '', A_PALI: '',
+  A_CHINESE: '', A_KOREAN: '', A_SPANISH: '',
 };
   
 
@@ -128,10 +107,13 @@ export default function Calculator2() {
 
   useEffect(() => {
     if (scoreData) {
-      const { __v, _id, user_id, SPEACIAL, ...scores } = scoreData;
+      const { score, GPAX } = scoreData;
+      const { __v, _id, user_id, SPEACIAL, ...restScores } = score || {};
+  
       setFormData((prev) => ({
         ...prev,
-        ...scores,
+        ...restScores,
+        GPAX: GPAX?.toString() || '', // แปลงเป็น string สำหรับ input
       }));
     }
   }, [scoreData]);
@@ -172,6 +154,47 @@ export default function Calculator2() {
     }
   };
 
+  const formula = requiredScores?.[0]?.data?.score_calculation_formula || {};
+  const showTGATBlock = Object.keys(formula).some((key) => key.includes('TGAT'));
+  const showTPATBlock = ['TPAT1','TPAT2_1', 'TPAT2_2', 'TPAT2_3', 'TPAT3', 'TPAT4', 'TPAT5'].some((field) => field in formula);
+  const showALevelBlock = [
+    'A_MATH1', 'A_MATH2', 'A_SCIENCE', 'A_PHYSIC', 'A_BIOLOGY', 'A_CHEMISTRY',
+    'A_SOCIAL', 'A_THAI', 'A_ENGLISH', 'A_FRANCE', 'A_GERMANY', 'A_JAPAN',
+    'A_PALI', 'A_CHINESE', 'A_KOREAN', 'A_SPANISH'
+  ].some((field) => field in formula);
+
+  const labelMap: Record<string, string> = {};
+  Object.keys(formula).forEach((rawKey) => {
+    const [name, labelText] = rawKey.split(':').map((s) => s.trim());
+    if (name) labelMap[name] = labelText ? `${name} ${labelText}` : name;
+  });
+
+  const fullLabelMap: Record<string, string> = {
+    TPAT1: 'TPAT1 กสพท.',
+    TPAT2_1: 'TPAT2.1 ความถนัดศิลปกรรมศาสตร์ ทัศนศิลป์',
+    TPAT2_2: 'TPAT2.2 ความถนัดศิลปกรรมศาสตร์ ดนตรี',
+    TPAT2_3: 'TPAT2.3 ความถนัดศิลปกรรมศาสตร์ นาฏศิลป์',
+    TPAT3: 'TPAT3 ความถนัดด้านวิทยาศาสตร์ เทคโนโลยี และนวัตกรรม',
+    TPAT4: 'TPAT4 ความถนัดทางสถาปัตยกรรม',
+    TPAT5: 'TPAT5 ความถนัดครุศาสตร์-ศึกษาศาสตร์',
+    A_MATH1: 'A-Level คณิตศาสตร์ประยุกต์ 1',
+    A_MATH2: 'A-Level คณิตศาสตร์ประยุกต์ 2',
+    A_SCIENCE: 'A-Level วิทยาศาสตร์ประยุกต์',
+    A_PHYSIC: 'A-Level ฟิสิกส์',
+    A_BIOLOGY: 'A-Level ชีววิทยา',
+    A_CHEMISTRY: 'A-Level เคมี',
+    A_SOCIAL: 'A-Level สังคมศึกษา',
+    A_THAI: 'A-Level ภาษาไทย',
+    A_ENGLISH: 'A-Level ภาษาอังกฤษ',
+    A_FRANCE: 'A-Level ภาษาฝรั่งเศส',
+    A_GERMANY: 'A-Level ภาษาเยอรมัน',
+    A_JAPAN: 'A-Level ภาษาญี่ปุ่น',
+    A_KOREAN: 'A-Level ภาษาเกาหลี',
+    A_CHINESE: 'A-Level ภาษาจีน',
+    A_PALI: 'A-Level ภาษาบาลี',
+    A_SPANISH: 'A-Level ภาษาสเปน',
+  };
+
   return (
     <>
       <Navbar />
@@ -208,50 +231,77 @@ export default function Calculator2() {
         <div className="w-full max-w-screen-xl mt-10 px-6">
           <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300 overflow-x-auto">
             <div className="text-monochrome-800 text-headline-6 mt-3 relative flex items-center whitespace-nowrap">
-              TGAT ความถนัดทั่วไป
+              GPAX เกรดเฉลี่ยรวม
               <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
+                  </div>
+               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
+                <GpaxInput label="GPAX" value={formData.GPAX} onChange={handleChange} isEditing={isEditing} name="GPAX"/>
             </div>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
-              <ScoreInput label="TGAT1 การสื่อสารภาษาอังกฤษ" value={formData.TGAT1} onChange={handleChange} isEditing={isEditing} name="TGAT1" />
-              <ScoreInput label="TGAT2 การคิดอย่างมีเหตุผล" value={formData.TGAT2} onChange={handleChange} isEditing={isEditing} name="TGAT2" />
-              <ScoreInput label="TGAT3 สมรรถนะการทำงานในอนาคต" value={formData.TGAT3} onChange={handleChange} isEditing={isEditing} name="TGAT3" />
-            </div>
+            {showTGATBlock && (
+              <>
+                <div className="text-monochrome-800 text-headline-6 mt-6 relative flex items-center whitespace-nowrap">
+                  TGAT ความถนัดทั่วไป
+                  <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
+                </div>
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
+                  <ScoreInput label="TGAT1 การสื่อสารภาษาอังกฤษ" value={formData.TGAT1} onChange={handleChange} isEditing={isEditing} name="TGAT1" />
+                  <ScoreInput label="TGAT2 การคิดอย่างมีเหตุผล" value={formData.TGAT2} onChange={handleChange} isEditing={isEditing} name="TGAT2" />
+                  <ScoreInput label="TGAT3 สมรรถนะการทำงานในอนาคต" value={formData.TGAT3} onChange={handleChange} isEditing={isEditing} name="TGAT3" />
+                </div>
+              </>
+            )}
 
-            <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
-              TPAT ความถนัดทางวิชาชีพ
-              <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
-            </div>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
-              <ScoreInput label="TPAT2.1 ความถนัดศิลปกรรมศาสตร์ ทัศนศิลป์" value={formData.TPAT2_1} onChange={handleChange} isEditing={isEditing} name="TPAT2_1" />
-              <ScoreInput label="TPAT2.2 ความถนัดศิลปกรรมศาสตร์ ดนตรี" value={formData.TPAT2_2} onChange={handleChange} isEditing={isEditing} name="TPAT2_2" />
-              <ScoreInput label="TPAT2.3 ความถนัดศิลปกรรมศาสตร์ นาฏศิลป์" value={formData.TPAT2_3} onChange={handleChange} isEditing={isEditing} name="TPAT2_3" />
-              <ScoreInput label="TPAT3 ความถนัดด้านวิทยาศาสตร์ เทคโนโลยี และ.." value={formData.TPAT3} onChange={handleChange} isEditing={isEditing} name="TPAT3" />
-              <ScoreInput label="TPAT4 ความถนัดทางสถาปัตยกรรม" value={formData.TPAT4} onChange={handleChange} isEditing={isEditing} name="TPAT4" />
-              <ScoreInput label="TPAT5 ความถนัดครุศาสตร์-ศึกษาศาสตร์" value={formData.TPAT5} onChange={handleChange} isEditing={isEditing} name="TPAT5" />
-            </div>
+              {showTPATBlock && (
+                <>
+                  <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
+                    TPAT ความถนัดทางวิชาชีพ
+                    <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
+                  </div>
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
+                    {Object.entries(labelMap).map(([name, label]) => {
+                      if (['TPAT2_1', 'TPAT2_2', 'TPAT2_3', 'TPAT3', 'TPAT4', 'TPAT5'].includes(name)) {
+                        return (
+                          <ScoreInput
+                            key={name}
+                            label={fullLabelMap[name] || label}
+                            value={formData[name]}
+                            onChange={handleChange}
+                            isEditing={isEditing}
+                            name={name}
+                          />
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+               </>
+             )}
 
-            <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
-                A - Level
-                <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
-            </div>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
-              <ScoreInput label="A-Level คณิตศาสตร์ประยุกต์ 1" value={formData.A_MATH1} onChange={handleChange} isEditing={isEditing} name="A_MATH1" />
-              <ScoreInput label="A-Level คณิตศาสตร์ประยุกต์ 2" value={formData.A_MATH2} onChange={handleChange} isEditing={isEditing} name="A_MATH2" />
-              <ScoreInput label="A-Level วิทยาศาสตร์ประยุกต์" value={formData.A_SCIENCE} onChange={handleChange} isEditing={isEditing} name="A_SCIENCE" />
-              <ScoreInput label="A-Level ฟิสิกส์" value={formData.A_PHYSIC} onChange={handleChange} isEditing={isEditing} name="A_PHYSIC" />
-              <ScoreInput label="A-Level เคมี" value={formData.A_CHEMISTRY} onChange={handleChange} isEditing={isEditing} name="A_CHEMISTRY" />
-              <ScoreInput label="A-Level ชีววิทยา" value={formData.A_BIOLOGY} onChange={handleChange} isEditing={isEditing} name="A_BIOLOGY" />
-              <ScoreInput label="A-Level สังคมศึกษา" value={formData.A_SOCIAL} onChange={handleChange} isEditing={isEditing} name="A_SOCIAL" />
-              <ScoreInput label="A-Level ภาษาไทย" value={formData.A_THAI} onChange={handleChange} isEditing={isEditing} name="A_THAI" />
-              <ScoreInput label="A-Level ภาษาอังกฤษ" value={formData.A_ENGLISH} onChange={handleChange} isEditing={isEditing} name="A_ENGLISH" />
-              <ScoreInput label="A-Level ภาษาฝรั่งเศส" value={formData.A_FRANCE} onChange={handleChange} isEditing={isEditing} name="A_FRANCE" />
-              <ScoreInput label="A-Level ภาษาเยอรมัน" value={formData.A_GERMANY} onChange={handleChange} isEditing={isEditing} name="A_GERMANY" />
-              <ScoreInput label="A-Level ภาษาญี่ปุ่น" value={formData.A_JAPAN} onChange={handleChange} isEditing={isEditing} name="A_JAPAN" />
-              <ScoreInput label="A-Level ภาษาเกาหลี" value={formData.A_KOREAN} onChange={handleChange} isEditing={isEditing} name="A_KOREAN" />
-              <ScoreInput label="A-Level ภาษาจีน" value={formData.A_CHINESE} onChange={handleChange} isEditing={isEditing} name="A_CHINESE" />
-              <ScoreInput label="A-Level ภาษาบาลี" value={formData.A_PALI} onChange={handleChange} isEditing={isEditing} name="A_PALI" />
-              <ScoreInput label="A-Level ภาษาสเปน" value={formData.A_SPANISH} onChange={handleChange} isEditing={isEditing} name="A_SPANISH" />
-            </div>
+            {showALevelBlock && (
+              <>
+                <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
+                  A - Level
+                  <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
+                </div>
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
+                  {Object.entries(labelMap).map(([name, label]) => {
+                    if (name.startsWith('A_')) {
+                      return (
+                        <ScoreInput
+                          key={name}
+                          label={fullLabelMap[name] || label}
+                          value={formData[name]}
+                          onChange={handleChange}
+                          isEditing={isEditing}
+                          name={name}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </>
+            )}
 
           </div>
 
