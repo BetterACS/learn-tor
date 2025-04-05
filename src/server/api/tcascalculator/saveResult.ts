@@ -55,7 +55,7 @@ export default function saveResult(){
                     }
                     return null;
                 });
-
+                console.log("searchAdmissionDetails",searchAdmissionDetails);
                 const inputInstitution = searchAdmissionDetails[0]?.institution || "";
                 const inputCampus = searchAdmissionDetails[0]?.campus || "";
                 const inputFaculty = searchAdmissionDetails[0]?.faculty || "";
@@ -65,25 +65,45 @@ export default function saveResult(){
                 const inputScoreCalculationFormula = searchAdmissionDetails[0]?.round_3[0]?.score_calculation_formula || {};
                 const inputMinimumCriteria = searchAdmissionDetails[0]?.round_3[0]?.minimum_criteria || {};
                 const inputAdmitted = searchAdmissionDetails[0]?.round_3[0]?.admitted || "";
-                try{
-                    await TcasCalculatorModel.create({
-                        user_id: user_id,
-                        institution: inputInstitution,
-                        campus: inputCampus,
-                        faculty: inputFaculty,
-                        program: inputProgram,
-                        course_type: inputCourse_type,
-                        admission_type: inputAdmission_type,
-                        score_calculation_formula: inputScoreCalculationFormula,
-                        minimum_criteria: inputMinimumCriteria,
-                        admitted: inputAdmitted,
-                        chance: 100,// รอคำนวณ
-                    });
-                    return { status: 200, data: { message: "Save result success" } };
-                }catch(error){
-                    console.error("Error save result:", error);
-                    return { status: 500, data: { message: "Internal Server Error" } };
-                }
+
+                const minScore = searchAdmissionDetails[0]?.round_3[0]?.min_score || 0;
+                const maxScore = searchAdmissionDetails[0]?.round_3[0]?.max_score || 0;
+                const score_calculation_formula = searchAdmissionDetails[0]?.round_3[0]?.score_calculation_formula || {};
+                const minimum_criteria = searchAdmissionDetails[0]?.round_3[0]?.minimum_criteria || {};
+                const admitted = searchAdmissionDetails[0]?.round_3[0]?.admitted || "";
+
+                const resultForCalculationApi = {
+                    คะแนนต่ำสุด: minScore,
+                    คะแนนสูงสุด: maxScore,
+                    คะแนนที่ใช้: score_calculation_formula,
+                    atleast: minimum_criteria,
+                    จำนวนการรับ: admitted,
+                };
+                // try{
+                //     const response = await axios.post(CHAT_BOT_API_URL, formattedData);
+                // }
+
+                return { status: 200, data: {resultForCalculationApi}};
+                // รอคำนวณคะแนนแล้วบันทึกลงฐานข้อมูล
+                // try{
+                //     await TcasCalculatorModel.create({
+                //         user_id: user_id,
+                //         institution: inputInstitution,
+                //         campus: inputCampus,
+                //         faculty: inputFaculty,
+                //         program: inputProgram,
+                //         course_type: inputCourse_type,
+                //         admission_type: inputAdmission_type,
+                //         score_calculation_formula: inputScoreCalculationFormula,
+                //         minimum_criteria: inputMinimumCriteria,
+                //         admitted: inputAdmitted,
+                //         chance: 100,// รอคำนวณ
+                //     });
+                //     return { status: 200, data: { message: "Save result success" } };
+                // }catch(error){
+                //     console.error("Error save result:", error);
+                //     return { status: 500, data: { message: "Internal Server Error" } };
+                // }
                 
 
                 // return { status: 200, data: {searchAdmissionDetails,message: "Save result success"}};
