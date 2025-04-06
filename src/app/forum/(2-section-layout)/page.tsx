@@ -51,7 +51,7 @@ export default function Home() {
         <div className="relative flex flex-1 flex-col gap-4 overflow-hidden">
           <div className="flex">
             <div className="flex w-fit border-b-4 border-primary-600">
-              <p className="text-headline-4 text-nowrap text-primary-600 py-1">
+              <p className="text-headline-4 maxsm:text-headline-5 text-nowrap text-primary-600 py-1">
                 รีวิวคณะ
               </p>
             </div>
@@ -109,7 +109,7 @@ export default function Home() {
         <div className="relative flex flex-1 flex-col gap-4 overflow-hidden">
           <div className="flex">
             <div className="flex w-fit border-b-4 border-primary-600">
-              <p className="text-headline-4 text-nowrap text-primary-600 py-1">
+              <p className="text-headline-4 maxsm:text-headline-5 text-nowrap text-primary-600 py-1">
                 รีวิวมหาวิทยาลัย
               </p>
             </div>
