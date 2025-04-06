@@ -25,7 +25,8 @@ export default function queryScore() {
 
                 return {
                     score,
-                    GPAX: user.GPAX ?? null
+                    GPAX: user.GPAX ?? null,
+                    lesson_plan: user.lesson_plan ?? null
                 };
             })
     }

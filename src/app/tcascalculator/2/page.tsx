@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, ScoreInput, EditButtons, InputField, GpaxInput } from '@/components/index';
+import { Navbar, Footer, ScoreInput, EditButtons, InputField, GpaxInput, SelectPlan  } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -41,6 +41,7 @@ interface FormData {
   A_CHINESE: string;
   A_KOREAN: string;
   A_SPANISH: string;
+  lesson_plan: string;
 }
 
 const initialFormData: FormData = {
@@ -48,7 +49,7 @@ const initialFormData: FormData = {
   TPAT3: '', TPAT4: '', TPAT5: '', A_MATH1: '', A_MATH2: '', A_SCIENCE: '',
   A_PHYSIC: '', A_BIOLOGY: '', A_CHEMISTRY: '', A_SOCIAL: '', A_THAI: '',
   A_ENGLISH: '', A_FRANCE: '', A_GERMANY: '', A_JAPAN: '', A_PALI: '',
-  A_CHINESE: '', A_KOREAN: '', A_SPANISH: '',
+  A_CHINESE: '', A_KOREAN: '', A_SPANISH: '',lesson_plan: '',
 };
   
 export default function Calculator2() {
@@ -106,13 +107,14 @@ export default function Calculator2() {
 
   useEffect(() => {
     if (scoreData) {
-      const { score, GPAX } = scoreData;
+      const { score, GPAX, lesson_plan } = scoreData;
       const { __v, _id, user_id, SPEACIAL, ...restScores } = score || {};
   
       setFormData((prev) => ({
         ...prev,
         ...restScores,
         GPAX: GPAX?.toString() || '', // แปลงเป็น string สำหรับ input
+        lesson_plan: lesson_plan || '',
       }));
     }
   }, [scoreData]);
@@ -234,6 +236,20 @@ export default function Calculator2() {
                   </div>
                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
                 <GpaxInput label="GPAX" value={formData.GPAX} onChange={handleChange} isEditing={isEditing} name="GPAX"/>
+                <SelectPlan
+                                label="ประเภทของหลักสูตรการศึกษา"
+                                name="lesson_plan"
+                                value={formData.lesson_plan}
+                                disabled={!isEditing}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
+                                options={[
+                                  'หลักสูตรแกนกลาง',
+                                  'หลักสูตรนานาชาติ',
+                                  'หลักสูตรอาชีวะ',
+                                  'หลักสูตรตามอัธยาศัย (กศน.)',
+                                  'หลักสูตร GED',
+                                ]}
+                />
             </div>
             {showTGATBlock && (
               <>

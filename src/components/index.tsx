@@ -41,6 +41,7 @@ import { LoadingCircle, ErrorLoading, MockupTopicLoadingCard } from '@/component
 import ConfirmModule from '@/components/confirmModule';
 import ChatComponent from './ChatComponent';
 import GpaxInput from './gpaxinput';
+import SelectPlan from './selectplan';
 
 
 export {
@@ -88,5 +89,6 @@ export {
   MockupTopicLoadingCard,
   ConfirmModule,
   ChatComponent,
-  GpaxInput
+  GpaxInput,
+  SelectPlan
 }
