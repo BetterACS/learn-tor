@@ -40,6 +40,8 @@ import SearchableDropdown from './SearchableDropdown';
 import { LoadingCircle, ErrorLoading, MockupTopicLoadingCard } from '@/components/loading';
 import ConfirmModule from '@/components/confirmModule';
 import ChatComponent from './ChatComponent';
+import GpaxInput from './gpaxinput';
+
 
 export {
   Test,
@@ -85,5 +87,6 @@ export {
   ErrorLoading,
   MockupTopicLoadingCard,
   ConfirmModule,
-  ChatComponent
+  ChatComponent,
+  GpaxInput
 }

@@ -1,8 +1,9 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, Calculator, SearchableDropdown } from '@/components/index';
+import { Navbar, Footer, Calculator, SearchableDropdown, ScoreInput } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
+
 
 interface Target {
   university: string;
@@ -71,7 +72,9 @@ export default function Calculator1() {
   };
 
   const handleNextClick = () => {
-    router.push('/tcascalculator/2');
+    // เลือก target ตัวสุดท้ายจาก targets
+    const target = targets[targets.length - 1];
+    router.push(`/tcascalculator/2?university=${target.university}&campus=${target.campus}&faculty=${target.faculty}&major=${target.major}&language=${target.language}&examType=${target.examType}`);
   };
 
   const addTarget = () => {
@@ -218,7 +221,7 @@ export default function Calculator1() {
               </div>
             ))}
 
-            {targets.length < 3 && (
+            {targets.length < 1 && (
               <div 
                 className="flex items-center border border-dashed border-primary-600 rounded-lg py-3 px-4 cursor-pointer text-primary-600 text-center mt-4"
                 onClick={addTarget}
