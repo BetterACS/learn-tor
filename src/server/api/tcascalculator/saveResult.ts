@@ -38,6 +38,7 @@ export default function saveResult(){
                 if (universities.length === 0) {
                     return { status: 400, data: { message: "University not found" } };
                 }
+                
                 const searchAdmissionDetails = universities.map(uni => {
                     if (Array.isArray(uni.round_3)) {
                         const roundMatch = uni.round_3.filter((round: any) =>
