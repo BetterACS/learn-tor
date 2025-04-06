@@ -76,7 +76,7 @@ export default function Calculator2() {
       console.log("Response data:", response); // ตรวจสอบค่าที่ได้รับ
   
       if (response?.data) {
-        setRequiredScores(response.data.requireScore);
+        setRequiredScores(response.data.new_culcurate); // เก็บค่าที่ได้จาก API
          // ตรวจสอบค่าที่ได้รับ
       }
     },
