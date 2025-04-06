@@ -11,7 +11,7 @@ export default function queryScore() {
                     email: z.string().email(), 
                 })
             )
-            .query(async ({ input }) => {  // ใช้ query 
+            .query(async ({ input }) => {  //ลอง ใช้ query แล้วใน postman ขึ้น error วิธีแก้คือใช้ mutation แทน query
                 await connectDB();
                 const { email } = input;
                 const user = await UserModel.findOne({ email });
