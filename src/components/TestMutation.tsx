@@ -5,7 +5,13 @@ import { useState } from 'react';
 export default function TestMutationComponent() {
     const [name, setName] = useState('');
     const mutation = trpc.testMutation.useMutation();
+
     const handleSubmit = () => {
+        // เพิ่ม validation เพื่อไม่ให้ส่งข้อมูลว่าง
+        if (!name.trim()) {
+            return;
+        }
+
         mutation.mutate(
             { name },
             {
@@ -29,7 +35,10 @@ export default function TestMutationComponent() {
                 onChange={(e) => setName(e.target.value)}
                 className='rounded-tl-lg bg-yellow-50 text-black' 
             />
-            <button onClick={handleSubmit} disabled={mutation.status === "pending"}> {/*'"error" | "idle" | "pending" | "success"' and '"loading"'  แต่ loading มีเฉพาะ query */}
+            <button 
+                onClick={handleSubmit} 
+                disabled={mutation.status === "pending" || !name.trim()}
+            >
                 Submit
             </button>
             {mutation.status === "pending" && <p>Loading...</p>}
