@@ -71,12 +71,13 @@ export default function Calculator2() {
   const examType = searchParams.get('examType');
   const [minScore, setMinScore] = useState(null);
   const [scoreCalculator, setScoreCalculator] = useState(null);
+  const [requiredScores, setRequiredScores] = useState(null);
 
   const requireScore = trpc.requireScore.useMutation({
     onSuccess: (response) => {
       console.log("Response data:", response); // ตรวจสอบค่าที่ได้รับ
   
-      if (response?.data) {
+      if (response?.data) { 
         setRequiredScores(response.data.new_culcurate); // เก็บค่าที่ได้จาก API
          // ตรวจสอบค่าที่ได้รับ
       }
@@ -86,8 +87,9 @@ export default function Calculator2() {
     },
   });
   console.log(minScore, scoreCalculator); // เช็คค่าที่ดึงมา
-  const [requiredScores, setRequiredScores] = useState(null);
+  
   console.log("Required scores:", requiredScores);
+  console.log(typeof requiredScores);
 
   useEffect(() => {
     if (university && campus && faculty && major && language && examType) {
@@ -100,7 +102,7 @@ export default function Calculator2() {
         admission_type: examType,
       });
     }
-  }, [university, campus, faculty, major, language, examType]);
+  }, []);
 
 
   console.log(university, campus, faculty, major, language, examType); // เช็คค่าที่ดึงมา
@@ -155,20 +157,61 @@ export default function Calculator2() {
     }
   };
 
-  const formula = requiredScores?.[0]?.data?.score_calculation_formula || {};
-  const showTGATBlock = Object.keys(formula).some((key) => key.includes('TGAT'));
-  const showTPATBlock = ['TPAT21', 'TPAT22', 'TPAT23', 'TPAT3', 'TPAT4', 'TPAT5'].some((field) => field in formula);
-  const showALevelBlock = [
-    'A_MATH1', 'A_MATH2', 'A_SCIENCE', 'A_PHYSIC', 'A_BIOLOGY', 'A_CHEMISTRY',
-    'A_SOCIAL', 'A_THAI', 'A_ENGLISH', 'A_FRANCE', 'A_GERMANY', 'A_JAPAN',
-    'A_PALI', 'A_CHINESE', 'A_KOREAN', 'A_SPANISH'
-  ].some((field) => field in formula);
+  const scoreName = {
+    "การสื่อสารภาษาอังกฤษ (TGAT1)": "TGAT1",
+    "การคิดอย่างมีเหตุผล (TGAT2)": "TGAT2",
+    "สมรรถนะการทำงาน (TGAT3)": "TGAT3",
+    "ทัศนศิลป์ (TPAT21)": "TPAT21",
+    "ดนตรี (TPAT22)": "TPAT22",
+    "นาฏศิลป์ (TPAT23)": "TPAT23",
+    "ความถนัดวิทยาศาสตร์ เทคโนโลยี วิศวกรรมศาสตร์ (TPAT3)": "TPAT3",
+    "ความถนัดสถาปัตยกรรมศาสตร์ (TPAT4)": "TPAT4",
+    "ความถนัดครุศาสตร์-ศึกษาศาสตร์ (TPAT 5)": "TPAT5",
+    "A-Level คณิตศาสตร์ประยุกต์ 1 (พื้นฐาน+เพิ่มเติม)": "A_MATH1",
+    "A-Level คณิตศาสตร์ประยุกต์ 2 (พื้นฐาน)": "A_MATH2",
+    "A-Level ฟิสิกส์": "A_PHYSIC",
+    "A-Level เคมี": "A_CHEMISTRY",
+    "A-Level ชีววิทยา": "A_BIOLOGY",
+    "A-Level วิทยาศาสตร์ประยุกต์": "A_SCIENCE",
+    "A-Level สังคมศาสตร์": "A_SOCIAL",
+    "A-Level ภาษาไทย": "A_THAI",
+    "A-Level ภาษาอังกฤษ": "A_ENGLISH",
+    "A-Level ภาษาฝรั่งเศส": "A_FRENCH",
+    "A-Level ภาษาเยอรมัน": "A_GERMANY",
+    "A-Level ภาษาญี่ปุ่น": "A_JAPAN",
+    "A-Level ภาษาเกาหลี": "A_KOREAN",
+    "A-Level ภาษาจีน": "A_CHINESE",
+    "A-Level ภาษาบาลี": "A_PALI",
+    "A-Level ภาษาสเปน": "A_SPANISH",
+  };
+  
+  const formula = requiredScores || {};
+  console.log(formula);
+  const showTGATBlock = requiredScores
+  ? Object.keys(requiredScores).some((key) => key.includes('TGAT'))
+  : false;
+
+  const showTPATBlock = requiredScores
+  ? ['ทัศนศิลป์ (TPAT21)', 'ดนตรี (TPAT22)', 'นาฏศิลป์ (TPAT23)', 'ความถนัดวิทยาศาสตร์ เทคโนโลยี วิศวกรรมศาสตร์ (TPAT3)', 'ความถนัดสถาปัตยกรรมศาสตร์ (TPAT4)', 'ความถนัดครุศาสตร์-ศึกษาศาสตร์ (TPAT 5)'].some((field) =>
+      Object.keys(requiredScores).includes(field)
+    )
+  : false;
+
+  const showALevelBlock = requiredScores
+  ? [
+      'A-Level คณิตศาสตร์ประยุกต์ 1 (พื้นฐาน+เพิ่มเติม)', 'A-Level คณิตศาสตร์ประยุกต์ 2 (พื้นฐาน)', 'A-Level วิทยาศาสตร์ประยุกต์', 'A-Level ฟิสิกส์', 'A-Level ชีววิทยา', 'A-Level เคมี',
+      'A-Level สังคมศาสตร์', 'A-Level ภาษาไทย', 'A-Level ภาษาอังกฤษ', 'A-Level ภาษาฝรั่งเศส', 'A-Level ภาษาเยอรมัน', 'A-Level ภาษาญี่ปุ่น',
+      'A-Level ภาษาเกาหลี', 'A-Level ภาษาจีน', 'A-Level ภาษาบาลี', 'A-Level ภาษาสเปน'
+    ].some((field) => Object.keys(requiredScores).includes(field))
+  : false;
 
   const labelMap: Record<string, string> = {};
   Object.keys(formula).forEach((rawKey) => {
     const [name, labelText] = rawKey.split(':').map((s) => s.trim());
     if (name) labelMap[name] = labelText ? `${name} ${labelText}` : name;
   });
+
+  console.log(formData)
 
   const fullLabelMap: Record<string, string> = {
     TPAT21: 'TPAT2.1 ความถนัดศิลปกรรมศาสตร์ ทัศนศิลป์',
@@ -258,13 +301,13 @@ export default function Calculator2() {
                   <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
                 </div>
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
-                  <ScoreInput label="TGAT1 การสื่อสารภาษาอังกฤษ" value={formData.TGAT1} onChange={handleChange} isEditing={isEditing} name="TGAT1" />
+                  <ScoreInput label="การสื่อสารภาษาอังกฤษ (TGAT1)" value={formData.TGAT1} onChange={handleChange} isEditing={isEditing} name="TGAT1" />
                   <ScoreInput label="TGAT2 การคิดอย่างมีเหตุผล" value={formData.TGAT2} onChange={handleChange} isEditing={isEditing} name="TGAT2" />
                   <ScoreInput label="TGAT3 สมรรถนะการทำงานในอนาคต" value={formData.TGAT3} onChange={handleChange} isEditing={isEditing} name="TGAT3" />
                 </div>
               </>
             )}
-
+            
               {showTPATBlock && (
                 <>
                   <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
@@ -273,12 +316,12 @@ export default function Calculator2() {
                   </div>
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
                     {Object.entries(labelMap).map(([name, label]) => {
-                      if (['TPAT21', 'TPAT22', 'TPAT23', 'TPAT3', 'TPAT4', 'TPAT5'].includes(name)) {
+                      if (['ทัศนศิลป์ (TPAT21)', 'ดนตรี (TPAT22)', 'นาฏศิลป์ (TPAT23)', 'ความถนัดวิทยาศาสตร์ เทคโนโลยี วิศวกรรมศาสตร์ (TPAT3)', 'ความถนัดสถาปัตยกรรมศาสตร์ (TPAT4)', 'ความถนัดครุศาสตร์-ศึกษาศาสตร์ (TPAT 5)'].includes(name)) {
                         return (
                           <ScoreInput
                             key={name}
                             label={fullLabelMap[name] || label}
-                            value={formData[name]}
+                            value={formData[scoreName[name]]}
                             onChange={handleChange}
                             isEditing={isEditing}
                             name={name}
@@ -299,12 +342,16 @@ export default function Calculator2() {
                 </div>
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
                   {Object.entries(labelMap).map(([name, label]) => {
-                    if (name.startsWith('A_')) {
+                    if ([
+                        'A-Level คณิตศาสตร์ประยุกต์ 1 (พื้นฐาน+เพิ่มเติม)', 'A-Level คณิตศาสตร์ประยุกต์ 2 (พื้นฐาน)', 'A-Level วิทยาศาสตร์ประยุกต์', 'A-Level ฟิสิกส์', 'A-Level ชีววิทยา', 'A-Level เคมี',
+                        'A-Level สังคมศาสตร์', 'A-Level ภาษาไทย', 'A-Level ภาษาอังกฤษ', 'A-Level ภาษาฝรั่งเศส', 'A-Level ภาษาเยอรมัน', 'A-Level ภาษาญี่ปุ่น',
+                        'A-Level ภาษาเกาหลี', 'A-Level ภาษาจีน', 'A-Level ภาษาบาลี', 'A-Level ภาษาสเปน'
+                      ].includes(name)) {
                       return (
                         <ScoreInput
                           key={name}
                           label={fullLabelMap[name] || label}
-                          value={formData[name]}
+                          value={formData[scoreName[name]]}
                           onChange={handleChange}
                           isEditing={isEditing}
                           name={name}
