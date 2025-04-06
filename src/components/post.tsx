@@ -22,7 +22,8 @@ interface Post {
   created_at: string, 
   n_like: number, 
   user_id: { username: string }, 
-  isLiked : boolean
+  isLiked : boolean,
+  n_comment: number,
 }
 
 const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
@@ -87,24 +88,25 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
     }}
     className="h-full w-full bg-monochrome-50 drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] rounded-xl cursor-default"
     >
-      <div ref={ref} className="h-full w-full pt-6 pb-3 px-8 flex flex-col gap-3 text-start">
+      <div ref={ref} className={`h-full w-full pt-6 pb-5 px-8 maxmd:px-5 flex flex-col gap-3 text-start`}>
         {/* Username Section */}
         <div className="flex justify-between content-center items-center">
           <div className="flex content-center items-center gap-2">
             <div className="size-10">
               <img src={post?.user_id && 'avatar' in post.user_id ? post.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
             </div>
-            <p className="text-body-large font-bold">
+            <div>
+              <p className="text-body-large">
               {post?.user_id.username}
-            </p>
-            <p className="text-subtitle-small">•</p>
-            <p className="text-subtitle-small text-monochrome-400">
-              {dayjs(post?.created_at).fromNow()}
-            </p>
+              </p>
+              <p className="text-subtitle-small text-monochrome-400">
+                {dayjs(post?.created_at).fromNow()}
+              </p>
+            </div>
           </div>
           {ownershipData?.data.permission && (
             <svg 
-              onClick={(e) => {router.push(`forum/edit-topic/${post?._id}`); e.preventDefault();}}
+              onClick={(e) => {router.push(`/forum/edit-topic/${post?._id}`); e.preventDefault();}}
               className="text-monochrome-500 size-7 cursor-pointer"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -116,7 +118,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
         {/* Body */}
         <div className="flex flex-col gap-2">
           {tags.length > 0 && 
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {topicTagsMutation.isPending && 
               <div className="text-subtitle-small rounded-lg text-transparent px-2 py-1 w-fit bg-monochrome-200 animate-pulse">placeholder</div>
             }
@@ -149,7 +151,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
 
         {/* Interaction Bar */}
         <PostInteractionBar 
-          post={{ id: post?._id, img: post?.img, title: post?.title, body: post?.body, like: post?.n_like, isLiked : post?.isLiked }}
+          post={{ id: post?._id, img: post?.img, title: post?.title, body: post?.body, like: post?.n_like, isLiked : post?.isLiked, n_comment: post?.n_comment }}
           comment_enable={true}
         />
       </div>

@@ -193,7 +193,7 @@ export default function Topic() {
   }
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-[35vw] maxlg:w-full px-[5%] h-full">
       {/* Back button */}
       {/* <button onClick={() => router.back()} className="absolute top-1 -left-6 size-8">
         <svg
@@ -207,7 +207,7 @@ export default function Topic() {
           </g>
         </svg>
       </button> */}
-      <div className="w-full h-full flex flex-col px-[10%] gap-6">
+      <div className="w-full h-full flex flex-col gap-6">
         <div className="w-full h-fit flex justify-between">
           {/* Post username section */}
           <div className="flex content-center items-center gap-2">
@@ -221,10 +221,18 @@ export default function Topic() {
             <p className="text-subtitle-small text-monochrome-400">
               {dayjs(post?.created_at).fromNow()}
             </p>
+            {/* <div>
+              <p className="text-body-large">
+              {post?.user_id.username}
+              </p>
+              <p className="text-subtitle-small text-monochrome-400">
+                {dayjs(post?.created_at).fromNow()}
+              </p>
+            </div> */}
           </div>
           {ownershipData?.data.permission && (
           <svg 
-            onClick={(e) => {router.push(`edit-topic/${post?._id}`); e.preventDefault();}}
+            onClick={(e) => {router.push(`/forum/edit-topic/${post?._id}`); e.preventDefault();}}
             className="text-monochrome-500 size-7 cursor-pointer"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -236,7 +244,7 @@ export default function Topic() {
         {/* Post details */}
         <div className="w-full h-fit flex flex-col items-center gap-2">
           {tags.length > 0 && 
-          <div className="flex gap-2 self-start">
+          <div className="flex gap-2 self-start flex-wrap">
             {topicTagsMutation.isPending && 
               <div className="text-subtitle-small rounded-lg text-transparent px-2 py-1 w-fit bg-monochrome-200 animate-pulse">placeholder</div>
             }

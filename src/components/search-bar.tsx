@@ -46,8 +46,8 @@ export default function SearchBar() {
   }, [isPopupOpen]);
 
   return (
-    <div className="h-[4rem] w-full flex justify-center items-center sticky top-[5.25rem] z-10 bg-monochrome-50">
-      <div className="h-fit w-[65%] flex py-2 px-3 bg-monochrome-100 rounded-md divide-x divide-monochrome-600">
+    <div className="h-fit py-2 w-full flex justify-center items-center">
+      <div className="h-fit w-[80%] maxmd:w-full maxmd:mx-4 flex py-2 px-3 bg-monochrome-100 rounded-md divide-x divide-monochrome-600">
         <input 
           type="text" 
           value={searchTerm}

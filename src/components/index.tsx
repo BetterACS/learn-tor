@@ -40,6 +40,8 @@ import SearchableDropdown from './SearchableDropdown';
 import { LoadingCircle, ErrorLoading, MockupTopicLoadingCard } from '@/components/loading';
 import ConfirmModule from '@/components/confirmModule';
 import ChatComponent from './ChatComponent';
+import CompactSidebar from '@/components/compact-sidebar';
+import TrendingTopicCarousel from '@/components/trending-topic-carousel';
 
 export {
   Test,
@@ -85,5 +87,7 @@ export {
   ErrorLoading,
   MockupTopicLoadingCard,
   ConfirmModule,
-  ChatComponent
+  ChatComponent,
+  CompactSidebar,
+  TrendingTopicCarousel
 }

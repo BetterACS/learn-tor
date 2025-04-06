@@ -33,7 +33,7 @@ export default function Search() {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-headline-3">ผลการค้นหา "<span className="text-primary-500">{searchTerm}</span>"</p>
+      <p className="text-headline-4">ผลการค้นหา "<span className="text-primary-500">{searchTerm}</span>"</p>
       <div className="flex gap-2">
       {tags && Object.entries(tags).map(([tag, status]) => (
         <div

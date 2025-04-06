@@ -191,8 +191,8 @@ export default function CreateTopic() {
   }
   
   return (
-    <div className="relative h-full w-full">
-      <p className="text-headline-3 mb-6">
+    <div className="relative h-full w-full px-[5%]">
+      <p className="text-headline-3 w-full maxmd:text-headline-4  mb-6">
         Create Topic
       </p>
       {error && 
@@ -202,7 +202,7 @@ export default function CreateTopic() {
         message={error}
       />
       }
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 ">
         {/* Display selected tags */}
         {tags.length > 0 && (
           <div className="flex gap-2 items-center">

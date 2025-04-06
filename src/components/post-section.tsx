@@ -94,14 +94,14 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
   );
 
   return (
-    <div className="h-fit w-full flex flex-col gap-6">
-      <div className="flex w-fit gap-2 items-center">
+    <div className="h-fit w-full flex flex-col gap-6 items-center">
+      <div className="flex w-fit gap-2 items-center self-start">
         <p className="text-monochrome-500 text-subtitle-large">
           Sort by:
         </p>
         <SortBy filters={["Newest", "Oldest", "Popular"]} sortBy={sortBy} setSortBy={setSortBy}/>
       </div>
-      <div className="h-fit w-full px-[14vw] flex flex-col gap-6">
+      <div className="h-fit lg:w-[55rem] md:w-[45rem] maxmd:w-full min-w-[26rem] maxmd:px-0 px-[5%]  flex flex-col gap-6">
         {
           data?.status === 400 && posts.length === 0 && (
             <p className="text-headline-5 self-center">Topic not found</p>

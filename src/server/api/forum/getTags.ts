@@ -4,6 +4,11 @@ import { TagNameModel, TopicAndTagModel } from "@/db/models";
 import { z } from "zod";
 import { connect } from "mongoose";
 
+type Tag = {
+    tagname: string;
+    count: number;
+}
+
 const getTags = {
     getTags: publicProcedure.query(async () => {
         await connectDB();
@@ -87,6 +92,11 @@ const getTags = {
                     }
                     return acc;
                 }, {} as Record<string, { tagname: string; count: number }[]>);
+
+                // Sort count
+                for (const category in groupedTags) {
+                    groupedTags[category].sort((a: Tag, b: Tag) => b.count - a.count);
+                }
 
                 return groupedTags;
             } catch (error) {

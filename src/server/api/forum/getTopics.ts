@@ -78,6 +78,25 @@ const getTopics = {
           },
 
           {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "comments",
+            }
+          },
+          {
+            $addFields: {
+              n_comment: { $size: "$comments" },
+            }
+          },
+          {
+            $project: {
+              comments: 0
+            }
+          },
+
+          {
             $match: {
               ...(includedTags.length > 0 && {
                 tags: { $all: includedTags }
@@ -357,6 +376,24 @@ const getTopics = {
                 category: "$tagDetails.category"
               } },
             },
+          },
+          {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "comments",
+            }
+          },
+          {
+            $addFields: {
+              n_comment: { $size: "$comments" },
+            }
+          },
+          {
+            $project: {
+              comments: 0
+            }
           }
         ])
 

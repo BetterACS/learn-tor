@@ -13,7 +13,7 @@ export default function MyTopic() {
 
   return (
     <div className="flex flex-col gap-4 divide-y divide-primary-600">
-      <div className="flex justify-between text-headline-3 text-primary-600">
+      <div className="flex justify-between text-headline-4 text-primary-600">
         <p>Bookmark ของฉัน</p>
         {data?.totalResults && (
           <p>{data.totalResults} หัวข้อ</p>
