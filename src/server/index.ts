@@ -39,6 +39,7 @@ import addScore from './api/member-system/addScore';
 import university  from './api/university';
 import deleteChat from './api/chatbot/deleteChat';
 import editScore from './api/tcascalculator/editScore';
+import queryResult from './api/tcascalculator/queryResult';
 
 export const appRouter = router({
 	...apiTest(),
@@ -81,6 +82,7 @@ export const appRouter = router({
     ...addScore(),
     ...deleteChat(),
     ...editScore(),
+    ...queryResult(),
 });
 const createCaller = createCallerFactory(appRouter);
 
