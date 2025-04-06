@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import { CommentSection, CommentInput, Comments } from '@/components/index';
+import { CommentSection, CommentInput, Comments, LoadingCircle, ErrorLoading } from '@/components/index';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { trpc } from '@/app/_trpc/client';
@@ -10,20 +10,60 @@ import { useSession } from 'next-auth/react';
 import type { User } from '@/db/models';
 dayjs.extend(relativeTime);
 
+interface Post {
+  _id: string, 
+  img: string, 
+  title: string, 
+  body: string, 
+  created_at: string, 
+  n_like: number, 
+  user_id: { username: string }, 
+  isLiked : boolean
+}
+
 export default function Topic() {
   const { data: session } = useSession();
-  const search_params = useSearchParams();
   const router = useRouter();
-  const raw_data = search_params.keys().next().value;
-  const initialPost = raw_data ? JSON.parse(raw_data) : null;
+  const { topicId } = useParams();
 
-  const [post, setPost] = useState(initialPost);
+  const fetchPostData = trpc.queryTopicById.useQuery(
+    { Id: topicId },
+    { refetchOnMount: true }
+  );
+  const { data, isLoading, isError, refetch } = fetchPostData;
+  const topicOwnership = trpc.checkTopicOwner.useQuery({ 
+    email: session?.user?.email || '',
+    topicId: topicId,
+  });
+  const { data: ownershipData, isLoading: ownershipIsLoading, isError: ownershipIsError } = topicOwnership;
+  const mutation = trpc.likeTopic.useMutation();
+  const checkLikeMutation = trpc.checkLike.useMutation();
+  const topicTagsMutation = trpc.topicTags.useMutation();
+
+  const [post, setPost] = useState<Post | null>(null);
   const [isLiked, setIsLiked] = useState<boolean>();
   const [isSaved, setIsSaved] = useState<boolean>();
   const [countLike, setCountLike] = useState<number>();
-  const checkLikeMutation = trpc.checkLike.useMutation();
-  const topicTagsMutation = trpc.topicTags.useMutation();
   const [tags, setTags] = useState<string[]>([]);
+  const [buttonStates, setButtonStates] = useState<Record<string, { liked: boolean, isClicked: boolean }>>({
+    like: { liked: isLiked ?? false , isClicked: false },
+    save: { liked: isSaved ?? false, isClicked: false },
+    share: { liked: false, isClicked: false },
+  });
+  const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (data && Array.isArray(data.data)) {
+      const [ dData ] = data.data;
+      setPost(dData);
+      setTimeout(() => {
+        setIsLoaded(true);
+      }, 1000);
+    } else {
+      // console.log('API response is not an array:', data, isLoading);
+    }
+  }, [data])
 
   useEffect(() => {
     if (session?.user?.email && post?._id) {
@@ -60,13 +100,6 @@ export default function Topic() {
     }
   }, [session, post]);
 
-  const [buttonStates, setButtonStates] = useState<Record<string, { liked: boolean, isClicked: boolean }>>({
-    like: { liked: isLiked ?? false , isClicked: false },
-    save: { liked: isSaved ?? false, isClicked: false },
-    share: { liked: false, isClicked: false },
-  });
-
-
   useEffect(() => {
     if (isLiked !== undefined) {
       setButtonStates((prev) => ({
@@ -91,15 +124,11 @@ export default function Topic() {
     }
   }, [isSaved]);
 
-  
-  const mutation = trpc.likeTopic.useMutation();
-
-  // mockup like, save and share button animation
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     const buttonName = event.currentTarget.name as string;
     const type = buttonName as 'like' | 'save' | 'share';
     const status: boolean = !buttonStates[buttonName].liked;  // กำหนดประเภทเป็น boolean
-    const topic_id = post._id?.toString();
+    const topic_id = post?._id;
     const email = session?.user?.email;
     if (!email) {
       alert("You must Login first.!")
@@ -122,7 +151,7 @@ export default function Topic() {
         onSuccess: (data) => {
           if (data?.data?.n_like != null) {
             setCountLike((data as { data: { n_like: number } }).data.n_like);
-            console.log(data)
+            // console.log(data)
           }
           
         },
@@ -156,10 +185,17 @@ export default function Topic() {
       }, 300);
     }
   };
+
+  if (!isLoaded) {
+    return <LoadingCircle />
+  } else if (isError) {
+    return <ErrorLoading />
+  }
+
   return (
     <div className="relative w-full h-full">
       {/* Back button */}
-      <button onClick={() => router.back()} className="absolute top-1 -left-6 size-8">
+      {/* <button onClick={() => router.back()} className="absolute top-1 -left-6 size-8">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 48 48"
@@ -170,23 +206,35 @@ export default function Topic() {
             <path strokeLinecap="round" d="m27 33l-9-9l9-9"></path>
           </g>
         </svg>
-      </button>
+      </button> */}
       <div className="w-full h-full flex flex-col px-[10%] gap-6">
-        {/* Post username section */}
-        <div className="flex content-center items-center gap-2">
-          <div className="size-10">
-            <img src={post?.user_id && 'avatar' in post.user_id ? post.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
+        <div className="w-full h-fit flex justify-between">
+          {/* Post username section */}
+          <div className="flex content-center items-center gap-2">
+            <div className="size-10">
+              <img src={post?.user_id && 'avatar' in post.user_id ? post.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
+            </div>
+            <p className="text-headline-6 font-bold">
+              {post?.user_id && 'username' in post.user_id ? post.user_id.username : 'Unknown User'}
+            </p>
+            <p className="text-subtitle-small">•</p>
+            <p className="text-subtitle-small text-monochrome-400">
+              {dayjs(post?.created_at).fromNow()}
+            </p>
           </div>
-          <p className="text-headline-6 font-bold">
-            {post?.user_id && 'username' in post.user_id ? post.user_id.username : 'Unknown User'}
-          </p>
-          <p className="text-subtitle-small">•</p>
-          <p className="text-subtitle-small text-monochrome-400">
-            {dayjs(post.created_at).fromNow()}
-          </p>
+          {ownershipData?.data.permission && (
+          <svg 
+            onClick={(e) => {router.push(`edit-topic/${post?._id}`); e.preventDefault();}}
+            className="text-monochrome-500 size-7 cursor-pointer"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"></path>
+          </svg>
+        )}
         </div>
         {/* Post details */}
-        <div className="w-full h-full flex flex-col items-center gap-2">
+        <div className="w-full h-fit flex flex-col items-center gap-2">
           {tags.length > 0 && 
           <div className="flex gap-2 self-start">
             {topicTagsMutation.isPending && 
@@ -201,11 +249,11 @@ export default function Topic() {
             }
           </div>
           }
-          <div className="w-full h-fit text-headline-4">{post.title}</div>
-          <div className="text-headline-6 w-full">{post.body}</div>
-          {post.img && 
+          <div className="w-full h-fit text-headline-4">{post?.title}</div>
+          <div className="text-headline-6 w-full">{post?.body}</div>
+          {post?.img && 
             <div className="h-[25rem] w-full">
-              <img src={post.img || null} className="w-full h-full object-cover"/>
+              <img src={post.img || '/'} className="w-full h-full object-contain bg-monochrome-950"/>
             </div>
           }
           <div className="flex gap-2 self-start">

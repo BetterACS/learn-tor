@@ -1,6 +1,8 @@
 import { publicProcedure } from "@/server/trpc";
 import { connectDB } from "@/server/db";
 import { TagNameModel, TopicAndTagModel } from "@/db/models";
+import { z } from "zod";
+import { connect } from "mongoose";
 
 const getTags = {
     getTags: publicProcedure.query(async () => {
@@ -51,7 +53,47 @@ const getTags = {
         ]);
 
         return tagUsage;
-    })
+    }),
+    getSearchTags: publicProcedure
+        .input(z.object({ query: z.string().optional() }))
+        .query(async ({ input }) => {
+            const { query } = input;
+
+            try {
+                await connectDB();
+
+                const tags = await TagNameModel.find({
+                    tagname: { $regex: query, $options: 'i' },
+                }).exec();
+
+                const tagIds = tags.map((tag) => tag._id);
+
+                const tagCounts = await TopicAndTagModel.aggregate([
+                    { $match: { tag_id: { $in: tagIds } } },
+                    { $group: { _id: "$tag_id", count: { $sum: 1 } } },
+                ]);
+
+                const tagCountMap = tagCounts.reduce((acc, { _id, count }) => {
+                    acc[_id.toString()] = count;
+                    return acc;
+                }, {} as Record<string, number>);
+
+                const groupedTags = tags.reduce((acc, { category, tagname, _id }) => {
+                    if (tagname && category) {
+                        if (!acc[category]) {
+                            acc[category] = [];
+                        }
+                        acc[category].push({ tagname, count: tagCountMap[_id.toString()] || 0 });
+                    }
+                    return acc;
+                }, {} as Record<string, { tagname: string; count: number }[]>);
+
+                return groupedTags;
+            } catch (error) {
+            console.error("Error searching tags:", error);
+            throw new Error('Failed to fetch tags');
+            }
+        }),
 };
 
 export default getTags;

@@ -4,7 +4,6 @@ import { objectInputType } from 'zod';
 
 // User Schema
 interface User extends Document {
-  _id: mongoose.Types.ObjectId;
   username: string;
   email: string;
   major?: string;
@@ -20,7 +19,6 @@ interface User extends Document {
 }
 
 const UserSchema: Schema<User> = new Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
   username: { type: String, required: true },
   email: { type: String, required: true },
   major: { type: String},
@@ -40,7 +38,6 @@ const UserModel = mongoose.models.User || mongoose.model<User>('User', UserSchem
 
 // Topic Schema
 interface Topic extends Document {
-  _id: mongoose.Types.ObjectId;
   title: string;
   body: string;
   user_id: mongoose.Types.ObjectId;
@@ -52,7 +49,6 @@ interface Topic extends Document {
 }
 
 const TopicSchema: Schema<Topic> = new Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
   title: { type: String, required: true },
   body: { type: String },
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -88,6 +84,7 @@ interface Score extends Document {
   TGAT3?: number;
   TPAT21?: number;
   TPAT22?: number;
+  TPAT23?: number;
   TPAT3?: number;
   TPAT4?: number;
   TPAT5?: number;
@@ -117,6 +114,7 @@ const ScoreSchema: Schema<Score> = new Schema({
   TGAT3: { type: Number },
   TPAT21: { type: Number },
   TPAT22: { type: Number },
+  TPAT23: { type: Number },
   TPAT3: { type: Number },
   TPAT4: { type: Number },
   TPAT5: { type: Number },
@@ -247,13 +245,15 @@ const LikeTopicModel = mongoose.models.LikeTopic || mongoose.model<LikeTopic>('L
 
 // Tagname Schema
 interface TagName extends Document {
-  tagname: string,
-  category: string
+  tagname: string;
+  category: string;
+  is_guide: boolean;
 }
 
 const TagNameSchema: Schema<TagName> = new Schema({
   tagname: { type: String, required: true },
-  category: { type: String, required: true }
+  category: { type: String, required: true },
+  is_guide: { type: Boolean, default: true },
 })
 
 const TagNameModel = mongoose.models.TagName || mongoose.model<TagName>('TagName', TagNameSchema)
