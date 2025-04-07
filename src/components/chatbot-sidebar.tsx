@@ -4,7 +4,7 @@ import { trpc } from '@/app/_trpc/client';
 import { set } from 'mongoose';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { AlertBox } from '@/components/index';
+import { AlertBox} from '@/components/index';
 interface Conversation {
   role: 'user' | 'assistant';
   content: string;
@@ -248,13 +248,13 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
               className="w-full flex items-center justify-center px-5 py-4 hover:bg-monochrome-100 transition duration-150"
               onClick={() => handleRename(item)}
             >
-              เปลี่ยนชื่อ
+              Edit
             </button>
             <button
               className="w-full flex items-center justify-center px-5 py-4 hover:bg-monochrome-100 transition duration-150 text-red-600"
               onClick={() => handleDelete(item)}
             >
-              ลบ
+              Delete
             </button>
           </div>
         )}
@@ -329,27 +329,27 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-monochrome-50 p-6 rounded-lg shadow-lg">
-            <p className="text-headline-6 mb-6">
-              คุณต้องการลบแชทนี้ใช่ไหม?<br/><br/>นี่จะเป็นการลบ{' '}
-              <span className="text-red-500">
+        <div className="fixed top-0 left-0 w-screen h-screen z-50 backdrop-filter backdrop-brightness-90 backdrop-blur-[2px] flex justify-center items-center">
+          <div className="w-[35vw] h-fit bg-monochrome-50 rounded-lg drop-shadow-xl">
+            <div className="flex flex-col gap-4 py-10 px-10">
+              <p className="font-bold text-3xl">Do you want to delete this chat?</p>
+              <p className="font-medium text-xl text-red-500">
                 {labels.find((label) => label._id === deleteTarget)?.name || 'this chat'}
-              </span>
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                className="px-4 py-2 bg-monochrome-200 rounded hover:bg-monochrome-300"
-                onClick={() => setIsDeleteModalOpen(false)}
-              >
-                ยกเลิก
-              </button>
-              <button
-                className="px-4 py-2 bg-red-500 text-chrome-50 rounded hover:bg-red-600"
-                onClick={handleConfirmDelete}
-              >
-                ลบ
-              </button>
+              </p>
+              <div className="flex justify-end gap-4 mt-6">
+                <button
+                  className="px-4 py-2 bg-red-500 text-monochrome-50 rounded hover:bg-red-600 transition-colors"
+                  onClick={handleConfirmDelete}
+                >
+                  Delete
+                </button>
+                <button
+                  className="px-4 py-2 bg-monochrome-200 rounded hover:bg-monochrome-300 transition-colors"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

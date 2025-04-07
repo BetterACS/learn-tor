@@ -192,6 +192,7 @@ interface University extends Document {
   program: string,
   course_type: string,
   view_today: number,
+  last_reset_view_today: Date,
   info : info, 
   round_1: Array<string>,
   round_2: Array<string>,
@@ -209,6 +210,7 @@ const UniversitySchema: Schema<University> = new Schema({
   program: { type: String, required: true },
   course_type: { type: String, required: true },
   view_today: { type: Number, default: 0 },
+  last_reset_view_today: { type: Date, default: new Date() },
   info: {
     ชื่อหลักสูตร: { type: String, required: true },
     ชื่อหลักสูตรภาษาอังกฤษ: { type: String, required: true },

@@ -170,8 +170,12 @@ interface FormData {
         setFormData((prev) => ({ ...prev, [name]: validInput }));
         return;
       }
-
       if (name.startsWith('TGAT') || name.startsWith('TPAT') || name.startsWith('A')) {
+        if (value === '') {
+          setFormData((prev) => ({ ...prev, [name]: value }));
+          return;
+        }
+
         const numericValue = parseFloat(value);
         if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) return;
       }

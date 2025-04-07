@@ -14,21 +14,32 @@ const ScoreInput = ({ label, value, onChange, isEditing, name }: ScoreInputProps
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleContainerClick = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
   };
 
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const inputValue = e.target.value;
+
+  //   if (inputValue === '' || /^\d*$/.test(inputValue)) {
+  //     const numericValue = inputValue === '' ? null : parseInt(inputValue, 10);
+  //     if (inputValue === '' || (numericValue !== null && numericValue >= 0 && numericValue <= 100)) {
+  //       onChange(e);
+  //     }
+  //   }
+  // };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const inputValue = e.target.value;
 
-    if (value === '') {
-      onChange(e);
-      return;
-    }
+    if (inputValue === '' || /^\d*\.?\d{0,3}$/.test(inputValue)) {
+      if (inputValue === '') {
+        onChange(e);
+        return;
+      }
 
-    if (/^\d*$/.test(value)) {
-      const numericValue = parseInt(value, 10);
+      const parts = inputValue.split('.');
+      if (parts.length > 2) return;
+
+      const numericValue = parseFloat(inputValue);
       if (numericValue >= 0 && numericValue <= 100) {
         onChange(e);
       }
@@ -37,9 +48,7 @@ const ScoreInput = ({ label, value, onChange, isEditing, name }: ScoreInputProps
 
   return (
     <div
-      className={`flex items-center justify-between border border-monochrome-300 rounded-lg p-4 ${
-        !isEditing ? 'bg-monochrome-100' : ''
-      }`}
+      className={`flex items-center justify-between border border-monochrome-300 rounded-lg p-4 ${!isEditing ? 'bg-monochrome-100' : ''}`}
       onClick={handleContainerClick}
     >
       <label className="text-body-large font-regular mb-0 mr-4">{label}</label>
@@ -47,15 +56,12 @@ const ScoreInput = ({ label, value, onChange, isEditing, name }: ScoreInputProps
         <input
           ref={inputRef}
           type="text"
+          inputMode="decimal"
           name={name}
           placeholder="-"
           value={value}
           onChange={isEditing ? handleInputChange : undefined}
-          className={`w-16 text-center py-2 rounded-lg bg-monochrome-100 ${
-            isEditing
-              ? 'focus:border-2 border-primary-600 focus:outline-none'
-              : 'border border-monochrome-300 bg-monochrome-100'
-          }`}
+          className={`w-16 text-center py-2 rounded-lg bg-monochrome-100 ${isEditing ? 'focus:border-2 border-primary-600 focus:outline-none' : 'border border-monochrome-300 bg-monochrome-100'}`}
           disabled={!isEditing}
         />
         <span className={`px-4 ${!isEditing ? 'text-monochrome-900' : ''}`}>/100</span>

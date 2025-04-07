@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import { useState, useRef, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Navbar, ChatbotSidebar, AlertBox,ChatComponent } from '@/components/index';
+import { Navbar, ChatbotSidebar, AlertBox, ChatComponent } from '@/components/index';
 import clsx from 'clsx';
 import { trpc } from '@/app/_trpc/client';
 

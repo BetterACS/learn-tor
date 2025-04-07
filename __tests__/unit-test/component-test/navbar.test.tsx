@@ -113,7 +113,7 @@ describe("Navbar Component", () => {
         data: { user: authenticatedUser },
         status: "authenticated",
       });
-  
+
       mockGetUser.mockReturnValue({
         data: {
           data: {
@@ -124,13 +124,13 @@ describe("Navbar Component", () => {
         },
         isLoading: false,
       });
-      
+
       render(
         <SessionProvider>
           <Navbar />
         </SessionProvider>
       );
-      
+
       const avatarImage = await screen.findByAltText("Profile");
       expect(avatarImage).toHaveAttribute("src", "new-updated-avatar.jpg");
     });
@@ -246,7 +246,7 @@ describe("Navbar Component", () => {
           <Navbar />
         </SessionProvider>
       );
-  
+
       fireEvent.click(screen.getByText("Information"));
       const coursesLink = screen.getByText("Courses").closest('a');
       expect(coursesLink).toHaveAttribute('href', '/compare-courses');
@@ -258,11 +258,11 @@ describe("Navbar Component", () => {
           <Navbar />
         </SessionProvider>
       );
-    
+
       const forumLink = screen.getByText("Forum").closest('a');
       expect(forumLink).toHaveAttribute('href', '/forum');
     });
-    
+
     it("TCAS Calculate should link to calculator page", () => {
       render(
         <SessionProvider>
@@ -273,14 +273,14 @@ describe("Navbar Component", () => {
       const tcasCalLink = screen.getByText("TCAS Calculate").closest('a');
       expect(tcasCalLink).toHaveAttribute('href', '/tcascalculator');
     });
-    
+
     it("Chatbot should link to chatbot page", () => {
       render(
         <SessionProvider>
           <Navbar />
         </SessionProvider>
       );
-  
+
       const chatbotLink = screen.getByText("Chatbot").closest('a');
       expect(chatbotLink).toHaveAttribute('href', '/chatbot');
     });
@@ -290,27 +290,27 @@ describe("Navbar Component", () => {
         data: { user: authenticatedUser },
         status: "authenticated",
       });
-      
+
       render(
         <SessionProvider>
           <Navbar />
         </SessionProvider>
       );
-      
+
       const avatarImage = await screen.findByAltText("Profile");
       fireEvent.click(avatarImage);
 
       const profileLink = screen.getByText("Profile").closest('a');
       expect(profileLink).toHaveAttribute('href', '/profile');
     });
-    
+
     it("Login should link to login page", () => {
       render(
         <SessionProvider>
           <Navbar />
         </SessionProvider>
       );
-    
+
       const loginLink = screen.getByText("Login").closest('a');
       expect(loginLink).toHaveAttribute('href', '/login');
     });
