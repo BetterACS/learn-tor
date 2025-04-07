@@ -10,7 +10,7 @@ import { trpc } from '@/app/_trpc/client';
 
 dayjs.extend(relativeTime);
 
-interface PostProps {
+interface TopicId {
   topicId: string;
 }
 
@@ -26,7 +26,7 @@ interface Post {
   n_comment: number,
 }
 
-const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
+const Topic = forwardRef<HTMLDivElement, TopicId>(({ topicId }, ref) => {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -43,14 +43,14 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
   const topicTagsMutation = trpc.topicTags.useMutation();
   
   const [tags, setTags] = useState<string[]>([]);
-  const [post, setPost] = useState<Post | null>(null);
+  const [topic, setTopic] = useState<Topic | null>(null);
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
 
   useEffect(() => {
     if (isLoading) return;
     if (data && Array.isArray(data.data)) {
       const [ dData ] = data.data;
-      setPost(dData);
+      setTopic(dData);
       setTimeout(() => {
         setIsLoaded(true);
       }, 500);
@@ -73,7 +73,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
         }
       }
     );
-  }, [post]);
+  }, [topic]);
 
   if (isLoading) {
     return <MockupTopicLoadingCard />
@@ -83,7 +83,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
 
   return (
     <Link
-    href={{ pathname: `/forum/${post?._id}`
+    href={{ pathname: `/forum/${topic?._id}`
     // ,query: JSON.stringify({ ...post, tags: tags })
     }}
     className="h-full w-full bg-monochrome-50 drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] rounded-xl cursor-default"
@@ -93,20 +93,20 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
         <div className="flex justify-between content-center items-center">
           <div className="flex content-center items-center gap-2">
             <div className="size-10">
-              <img src={post?.user_id && 'avatar' in post.user_id ? post.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
+              <img src={topic?.user_id && 'avatar' in topic.user_id ? topic.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
             </div>
             <div>
               <p className="text-body-large">
-              {post?.user_id.username}
+              {topic?.user_id.username}
               </p>
               <p className="text-subtitle-small text-monochrome-400">
-                {dayjs(post?.created_at).fromNow()}
+                {dayjs(topic?.created_at).fromNow()}
               </p>
             </div>
           </div>
           {ownershipData?.data.permission && (
             <svg 
-              onClick={(e) => {router.push(`/forum/edit-topic/${post?._id}`); e.preventDefault();}}
+              onClick={(e) => {router.push(`/forum/edit-topic/${topic?._id}`); e.preventDefault();}}
               className="text-monochrome-500 size-7 cursor-pointer"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -132,17 +132,17 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
           </div>
           }
           <p className="text-headline-5">
-            {post?.title}
+            {topic?.title}
           </p>
           <p className='text-body-large'>
-            {post?.body}
+            {topic?.body}
           </p>
         </div>
         
-        {post?.img && post.img.trim() !== "" && 
+        {topic?.img && topic.img.trim() !== "" && 
           ( isLoaded ? 
             <div className="h-[25rem] w-full">
-              <img src={post?.img} className="w-full h-full object-contain bg-monochrome-950"/>
+              <img src={topic?.img} className="w-full h-full object-contain bg-monochrome-950"/>
             </div>
           : (
             <div className="h-[25rem] w-full animate-pulse bg-monochrome-100 rounded-md"></div>
@@ -151,7 +151,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
 
         {/* Interaction Bar */}
         <PostInteractionBar 
-          post={{ id: post?._id, img: post?.img, title: post?.title, body: post?.body, like: post?.n_like, isLiked : post?.isLiked, n_comment: post?.n_comment }}
+          post={{ id: topic?._id, img: topic?.img, title: topic?.title, body: topic?.body, like: topic?.n_like, isLiked : topic?.isLiked, n_comment: topic?.n_comment }}
           comment_enable={true}
         />
       </div>
@@ -159,4 +159,4 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
   )
 });
 
-export default Post;
+export default Topic;

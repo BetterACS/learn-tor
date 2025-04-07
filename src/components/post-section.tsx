@@ -1,5 +1,5 @@
 'use client';
-import { Post, SortBy, MockupTopicLoadingCard } from '@/components/index';
+import { Topic, SortBy, MockupTopicLoadingCard } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession } from "next-auth/react";
@@ -62,6 +62,7 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
 
   const { data, isLoading, isError, refetch } = queryData;
   
+  // First Load
   useEffect(() => {
     setPosts([]);
     setCurrentPage(1);
@@ -108,7 +109,7 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
         </p>
         <SortBy filters={["Newest", "Oldest", "Popular"]} sortBy={sortBy} setSortBy={setSortBy}/>
       </div>
-      <div className="h-fit lg:w-[55rem] md:w-[45rem] maxmd:w-full min-w-[26rem] maxmd:px-0 px-[5%]  flex flex-col gap-6">
+      <div className="h-fit lg:w-[55rem] md:w-[45rem] maxmd:w-full min-w-[26rem] maxmd:px-0 px-[5%] flex flex-col gap-6">
         {
           data?.status === 400 && posts.length === 0 && (
             <p className="text-headline-5 self-center">Topic not found</p>
@@ -120,7 +121,7 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
           ||
           (posts.length > 0 && Array.isArray(posts) && 
             posts.map((post, index) => (
-              <Post
+              <Topic
                 ref={posts.length === index + 1 && data?.maxPage !== currentPage ? lastPostElementRef : null}
                 key={post._id}
                 topicId={post?._id}

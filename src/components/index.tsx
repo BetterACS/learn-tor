@@ -21,7 +21,7 @@ import FeatureSection from '@/components/FeatureSection';
 import AlertBox from '@/components/alert-box';
 import Calculator from '@/components/calculator';
 import PostSection from '@/components/post-section';
-import Post from '@/components/post';
+import Topic from '@/components/topic';
 import PostInteractionBar from '@/components/post-interaction-bar';
 import SortBy from '@/components/sortby';
 import SearchBar from '@/components/search-bar';
@@ -67,7 +67,7 @@ export {
   AlertBox,
   Calculator,
   PostSection,
-  Post,
+  Topic,
   PostInteractionBar,
   SortBy,
   SearchBar,
