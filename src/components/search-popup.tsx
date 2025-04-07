@@ -51,14 +51,6 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
     setTagSearchTerm(e.target.value);
   };
 
-  // const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === 'Enter' && searchTerm.trim()) {
-  //     const query = JSON.stringify(selectedTags);
-  //     router.push(`/forum/search/${encodeURIComponent(searchTerm)}?query=${encodeURIComponent(query)}`);
-  //     setIsPopupOpen(false);
-  //   }
-  // };
-
   // Handle icon click to search
   const handleSearch = () => {
     const query = JSON.stringify(selectedTags);
@@ -103,10 +95,10 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
   }, [setIsPopupOpen]);
 
   return (
-    <div className="fixed w-screen h-screen top-0 right-0 backdrop-filter backdrop-brightness-75 backdrop-blur-[2px] z-20">
+    <div className={`fixed w-screen h-screen top-0 right-0 backdrop-filter backdrop-brightness-75 backdrop-blur-[2px] z-20 ${isPopupOpen ? 'visible opacity-100' : 'invisible opacity-0'} transition-all duration-100`}>
       <div
         // ref={popupRef}
-        className="h-full w-full ml-0 mt-[3.1rem] pb-[2rem] z-20 flex justify-center"
+        className={`h-full w-full ml-0 mt-[3.1rem] pb-[2rem] z-20 flex justify-center ${isPopupOpen ? 'scale-100' : 'scale-90'} transition-transform duration-100`}
       >
         <div ref={popupRef} className="w-[90%] h-full px-4 flex flex-col gap-3 items-center justify-center">
           {/* Search area */}

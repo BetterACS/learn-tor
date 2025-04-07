@@ -314,14 +314,13 @@ export default function CreateTopic() {
           />
         </div>
 
-        {isPopupOpen && (
-          <AddTagPopup
-            isPopupOpen={isPopupOpen}
-            setIsPopupOpen={setIsPopupOpen}
-            tags={tags}
-            setTags={setTags}
-          />
-        )}
+        <AddTagPopup
+          isPopupOpen={isPopupOpen}
+          setIsPopupOpen={setIsPopupOpen}
+          tags={tags}
+          setTags={setTags}
+          state={isPopupOpen}
+        />
       </div>
     </div>
   );

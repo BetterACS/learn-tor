@@ -214,21 +214,14 @@ export default function Topic() {
             <div className="size-10">
               <img src={post?.user_id && 'avatar' in post.user_id ? post.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
             </div>
-            <p className="text-headline-6 font-bold">
-              {post?.user_id && 'username' in post.user_id ? post.user_id.username : 'Unknown User'}
-            </p>
-            <p className="text-subtitle-small">•</p>
-            <p className="text-subtitle-small text-monochrome-400">
-              {dayjs(post?.created_at).fromNow()}
-            </p>
-            {/* <div>
-              <p className="text-body-large">
-              {post?.user_id.username}
+            <div>
+              <p className="text-headline-6">
+                {post?.user_id && 'username' in post.user_id ? post.user_id.username : 'Unknown User'}
               </p>
               <p className="text-subtitle-small text-monochrome-400">
                 {dayjs(post?.created_at).fromNow()}
               </p>
-            </div> */}
+            </div>
           </div>
           {ownershipData?.data.permission && (
           <svg 

@@ -26,25 +26,6 @@ export default function SearchBar() {
     }
   };
 
-  // Close popup if clicked outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
-        setIsPopupOpen(false);
-      }
-    };
-
-    if (isPopupOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isPopupOpen]);
-
   return (
     <div className="h-fit py-2 w-full flex justify-center items-center">
       <div className="h-fit w-[80%] maxmd:w-full maxmd:mx-4 flex py-2 px-3 bg-monochrome-100 rounded-md divide-x divide-monochrome-600">
@@ -62,11 +43,7 @@ export default function SearchBar() {
           </div>
         </button>
       </div>
-      {isPopupOpen && 
-      <div ref={popupRef}> {/* Attach ref to popup */}
-        <SearchPopup isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} setSearchTerm={setSearchTerm} searchTerm={searchTerm} />
-      </div>
-      }
+      <SearchPopup isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} setSearchTerm={setSearchTerm} searchTerm={searchTerm} />
     </div>
   )
 }

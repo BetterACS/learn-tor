@@ -9,6 +9,7 @@ interface AddTagPopupProps {
   setIsPopupOpen: (isPopupOpen: boolean) => void;
   tags: Tag[];
   setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  state: boolean;
 };
 
 type Tag = {
@@ -22,7 +23,7 @@ type TagNoCategory = {
   count?: number;
 }
 
-export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags }: AddTagPopupProps) {
+export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags, state }: AddTagPopupProps) {
   // const [searchTerm, setSearchTerm] = useState('');
   const TAG_LIMIT = 20;
   const CATEGORY_ORDER = ["ทั่วไป", "คณะ", "มหาวิทยาลัย"];
@@ -138,10 +139,10 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
   };
 
   return (
-    <div className="fixed w-screen h-screen top-0 right-0 backdrop-filter backdrop-brightness-75 backdrop-blur-[2px] z-20">
+    <div className={`fixed w-screen h-screen top-0 right-0 backdrop-filter backdrop-brightness-75 backdrop-blur-[2px] z-20 ${state ? 'visible opacity-100' : 'invisible opacity-0'} transition-all duration-100`}>
       <div
         // ref={popupRef}
-        className="h-[calc(100%-5rem)] w-full ml-0 mt-[5.5rem] pb-[2rem] z-20 flex justify-center"
+        className={`h-[calc(100%-5rem)] w-full ml-0 mt-[5.5rem] pb-[2rem] z-20 flex justify-center ${state ? 'scale-100' : 'scale-90'} transition-transform duration-100`}
       >
         {/* Body */}
         <div ref={popupRef} className="w-[90%] h-full bg-monochrome-50 rounded-md flex flex-col gap-4">

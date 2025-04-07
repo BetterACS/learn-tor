@@ -439,27 +439,23 @@ export default function EditTopic() {
           onClick={() => setIsConfirmModuleOpen(true)}
         />
 
-        {isPopupOpen && (
-          <AddTagPopup
-            isPopupOpen={isPopupOpen}
-            setIsPopupOpen={setIsPopupOpen}
-            tags={tags}
-            setTags={setTags}
-            // tagsWCategory={tagsWCategory}
-            // setTagsWCategory={setTagsWCategory}
-          />
-        )}
+        <AddTagPopup
+          isPopupOpen={isPopupOpen}
+          setIsPopupOpen={setIsPopupOpen}
+          tags={tags}
+          setTags={setTags}
+          state={isPopupOpen}
+        />
 
-        {isConfirmModuleOpen && (
-          <ConfirmModule 
-            text='Do you want to delete this topic?' 
-            description='This topic will be permanently deleted and cannot be restored.' 
-            confirmText='Delete'
-            cancelText='Cancel'
-            confirmHandle={handleOnDeleteConfirm}
-            cancelHandle={handleOnDeletecancel}
-          />
-        )}
+        <ConfirmModule 
+          text='Do you want to delete this topic?' 
+          description='This topic will be permanently deleted and cannot be restored.' 
+          confirmText='Delete'
+          cancelText='Cancel'
+          confirmHandle={handleOnDeleteConfirm}
+          cancelHandle={handleOnDeletecancel}
+          state={isConfirmModuleOpen}
+        />
 
       </div>
     </div>
