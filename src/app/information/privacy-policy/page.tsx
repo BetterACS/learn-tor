@@ -8,7 +8,7 @@ export default function Page() {
 
       <div className="max-w-4xl mx-auto p-6">
         <p className="text-headline-2 font-semibold text-primary-600 mb-6">Privacy Policy</p>
-        
+
         <p className="text-headline-6 mb-4">
           ที่ <strong>Learntor</strong> เรามุ่งมั่นที่จะปกป้องและเคารพความเป็นส่วนตัวของคุณ นโยบายความเป็นส่วนตัวนี้อธิบายถึงวิธีการที่เรารวบรวม ใช้ และปกป้องข้อมูลของคุณเมื่อคุณเยี่ยมชมเว็บไซต์หรือใช้บริการของเรา
         </p>
@@ -63,7 +63,7 @@ export default function Page() {
           <br />อีเมล: Learntor@example.gmail.com
         </p>
 
-        <p className="textheadline-5 font-semibold mt-6 mb-2">6. การเปลี่ยนแปลงนโยบายความเป็นส่วนตัว</p>
+        <p className="text-headline-5 font-semibold mt-6 mb-2">6. การเปลี่ยนแปลงนโยบายความเป็นส่วนตัว</p>
         <p className="mb-4">
           เราขอสงวนสิทธิ์ในการปรับปรุงหรือเปลี่ยนแปลงนโยบายความเป็นส่วนตัวนี้ได้ตลอดเวลา การเปลี่ยนแปลงจะได้รับการโพสต์ในหน้านี้พร้อมวันที่ที่มีการปรับปรุงล่าสุด เราขอแนะนำให้คุณตรวจสอบนโยบายนี้เป็นประจำเพื่อให้ทราบถึงวิธีการที่เราปกป้องข้อมูลของคุณ
         </p>

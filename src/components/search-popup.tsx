@@ -146,12 +146,12 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
 
           {/* Body */}
           <div className="w-full h-[calc(100%-9rem)] overflow-y-auto bg-monochrome-50 rounded-md pb-3 flex flex-col gap-2">
-            <div className="sticky top-0 flex flex-col gap-2 p-3 px-5 bg-monochrome-50 border-b">
+            <div className="sticky top-0 flex flex-col gap-2 p-4 px-5 bg-monochrome-50 border-b">
               {/* Selected tag display area */}
               {selectedTags.length > 0 &&
-              <div className="flex gap-2 items-center">
-                <p>Selected Tags:</p>
-                <div className="flex gap-2">
+              <div className="flex flex-col gap-1 text-nowrap">
+                <p className="text-body-large font-medium self-start mt-2">Selected Tags</p>
+                <div className="flex gap-2 flex-wrap">
                   {selectedTags.map(({ tagname, category, state }, index) => (
                     <div
                       key={index}

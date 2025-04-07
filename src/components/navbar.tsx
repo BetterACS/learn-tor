@@ -24,7 +24,6 @@ export default function Navbar() {
   const { data: session, status } = useSession() as { data: CustomSession | null };
   const [avatar, setAvatar] = useState<string>("");
   const [isMenuAnimationFinished, setIsMenuAnimationFinished] = useState(false);
-  const [crop, setCrop] = useState<Crop>()
 
   const genericHamburgerLine = `h-[3px] w-9 my-[2.5px] rounded-full bg-slate-200 transition ease transform duration-300`;
 

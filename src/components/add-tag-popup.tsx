@@ -121,12 +121,12 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
       >
         {/* Body */}
         <div ref={popupRef} className="w-[90%] h-full bg-monochrome-50 rounded-md flex flex-col gap-4">
-          <div className="sticky top-0 flex flex-col gap-2 p-3 px-5 bg-monochrome-50 border-b">
+          <div className="sticky top-0 flex flex-col gap-2 p-4 px-5 bg-monochrome-50 border-b">
             {/* Selected tag display area */}
             {tags && tags.length > 0 &&
-            <div className="flex gap-2 items-center">
-              <p>Selected Tags:</p>
-              <div className="flex gap-2">
+            <div className="flex flex-col gap-1 text-nowrap">
+              <p className="text-body-large font-medium self-start mt-2">Selected Tags</p>
+              <div className="flex gap-2 flex-wrap">
               {tags.map((tag, index) => (
                 <div
                   key={index}

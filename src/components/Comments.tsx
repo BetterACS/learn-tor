@@ -13,6 +13,7 @@ interface Comment {
   user_id: {
     email: string;
     username: string;
+    avatar: string;
   };
   comment: string;
   created_at: string;
@@ -42,11 +43,12 @@ const buildCommentTree = (comments: Comment[]) => {
 };
 
 // Component แสดงคอมเมนต์แบบ Nested
-const CommentItem = ({ comment, postId, userEmail }: { comment: Comment & { children: Comment[] }, postId: string, userEmail: string }) => {
+const CommentItem = ({ comment, postId, userEmail, isRoot = false }: { comment: Comment & { children: Comment[] }, postId: string, userEmail: string, isRoot?: boolean }) => {
   const [showInput, setShowInput] = useState(false);
   const [isCommentClicked, setIsCommentClicked] = useState(false);
   const [isLiked, setIsLiked] = useState<boolean | undefined>(undefined);
   const [likesCount, setLikesCount] = useState(comment.n_like || 0);
+  const [showReplies, setShowReplies] = useState(false);
 
   const [buttonStates, setButtonStates] = useState<Record<string, { liked: boolean, isClicked: boolean }>>({
     like: { liked: isLiked ?? false , isClicked: false },
@@ -95,11 +97,19 @@ const CommentItem = ({ comment, postId, userEmail }: { comment: Comment & { chil
     });
   };
 
+  const countAllDescendants = (comment: Comment): number => {
+    if (!comment.children || comment.children.length === 0) return 0;
+  
+    return comment.children.reduce((total, child) => {
+      return total + 1 + countAllDescendants(child);
+    }, 0);
+  };
+
   return (
-    <div className="h-fit w-full flex flex-col item-start mb-1">
+    <div className="h-fit w-full flex flex-col item-start">
       <div className="flex content-center items-center gap-2">
-        <div className="w-10 min-w-10">
-          <img src='/images/profile.avif' className="w-full h-full object-cover rounded-full"/>
+        <div className="w-10 h-10 min-w-[2.5rem]">
+          <img src={comment.user_id.avatar || '/images/profile.avif'}  className="w-full h-full object-cover rounded-full"/>
         </div>
         <p className="text-headline-6 font-bold">
           {comment.user_id.username}
@@ -111,8 +121,13 @@ const CommentItem = ({ comment, postId, userEmail }: { comment: Comment & { chil
       </div>
 
       <div className="h-fit w-full flex">
-        <div className="flex justify-end w-12 min-w-12 pt-2"></div>
+        <div className="flex justify-end w-12 min-w-12 max-w-12">
+          {comment.children && comment.children.length > 0 ? (
+            <div className="h-full w-[1.875rem] border-l-2 border-monochrome-200 mt-1"></div>
+          ) : null}
+        </div>
         <div className="w-full h-fit flex flex-col ml-0 gap-2">
+          
           {/* Comment text */}
           <p className="text-headline-5">
             {comment.comment}
@@ -170,40 +185,47 @@ const CommentItem = ({ comment, postId, userEmail }: { comment: Comment & { chil
       </div>
 
       {/* Nested comments */}
-      {comment.children.length > 0 && (
+      {(showReplies || !isRoot) && comment.children.length > 0 && (
         <div className="relative w-full h-fit flex">
-          {/* Nested comments */}
           <div className="w-full h-fit flex flex-col ml-10 gap-6 pt-4">
             {comment.children.map((nestedComment, index) => {
-              // Function to check if there is a next same-level comment
               const checkIfNextSameLevel = (comments: Comment[], index: number): boolean => {
                 if (index < comments.length - 1) {
                   return comments[index].level === comments[index + 1].level;
                 }
                 return false;
               };
-
-              // Check if the current comment has a sibling at the same level
+              
+              const isLastChild = index === comment.children.length - 1;
               const hasNextSameLevel = checkIfNextSameLevel(comment.children, index);
 
               return (
                 <div key={index} className="relative flex w-full h-fit">
-                  {/* Connecting line to profile image */}
-                  <div 
-                    className={`absolute -left-[14px] -top-6 h-12 w-6 border-b-2 border-l-2 border-monochrome-200 rounded-bl-lg`}
-                  ></div>
-                  {hasNextSameLevel &&
-                    <div 
-                      className={`absolute -left-[14px] top-0 h-full w-6 border-l-2 border-monochrome-200`}
-                      ></div>
-                  }
-
-                  {/* Recursively render nested comments with updated level */}
+                  <div className="absolute -left-[1.375rem] -top-6 h-12 w-4 border-b-2 border-l-2 border-monochrome-200 rounded-bl-lg"></div>
+                  {hasNextSameLevel && (
+                    <div className="absolute -left-[1.375rem] top-0 h-full w-6 border-l-2 border-monochrome-200"></div>
+                  )}
                   <CommentItem comment={nestedComment} postId={postId} userEmail={userEmail} />
                 </div>
               );
             })}
           </div>
+        </div>
+      )}
+                
+      {isRoot && comment.children.length > 0 && (
+        <div className="relative flex items-center pt-2 ml-[2.35rem] pl-2">
+          {!showReplies && (
+            <div className="absolute -left-5 top-0 h-7 w-5 border-b-2 border-l-2 border-monochrome-200 rounded-bl-lg"></div>
+          )}
+          <button
+            onClick={() => setShowReplies(prev => !prev)}
+            className="text-primary-700 text-body-large mt-2 hover:underline"
+          >
+            {showReplies
+              ? `ซ่อนความเห็นตอบกลับของ ${comment.user_id.username}`
+              : `แสดงความเห็นตอบกลับ (${countAllDescendants(comment)})`}
+          </button>
         </div>
       )}
     </div>
@@ -267,7 +289,7 @@ const Comments = ({ topicId, userEmail }: { topicId: string, userEmail: string }
             </select>
           </div>
           {nestedComments.map(comment => (
-            <CommentItem key={comment._id} comment={comment} postId={topicId} userEmail={userEmail} />
+            <CommentItem key={comment._id} comment={comment} postId={topicId} userEmail={userEmail} isRoot={true} />
           ))}
         </div>
       )}

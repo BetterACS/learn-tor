@@ -205,9 +205,9 @@ export default function CreateTopic() {
       <div className="flex flex-col gap-6 ">
         {/* Display selected tags */}
         {tags.length > 0 && (
-          <div className="flex gap-2 items-center">
-            <p className="text-headline-6">Selected Tags:</p>
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-1 items-center">
+            <p className="self-start text-headline-6">Selected Tags</p>
+            <div className="flex gap-2 flex-wrap w-full">
               {tags.map((tag, index) => (
                 <div
                   key={index}
