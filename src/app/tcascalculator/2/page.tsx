@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, ScoreInput, EditButtons, InputField, GpaxInput, SelectPlan  } from '@/components/index';
+import { Navbar, Footer, ScoreInput, EditButtons, SpecialInput, GpaxInput, SelectPlan  } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -145,7 +145,7 @@ export default function Calculator2() {
       return;
     }
   
-    // 🟡 เตรียม MAX object ให้เป็น [{ subject1: score1, subject2: score2, ... }]
+    //MAX object [{ subject1: score1, subject2: score2, ... }]
     const maxScoresObject: Record<string, number> = {};
   
     if (requiredScores) {
@@ -164,12 +164,36 @@ export default function Calculator2() {
   
     console.log('MAX ที่จะเซฟ:', maxScoresObject);
   
+    // SPEACIAL [{ label: value, label + "เต็ม": max }]
+    const specialScoresArray: Array<Record<string, number>> = [];
+
+    if (requiredScores) {
+      Object.entries(requiredScores).forEach(([label, detail]) => {
+        if (detail.type === 'special') {
+          const fullLabel = fullLabelMap[label] || label;
+
+          const score = formData[label]; 
+          const maxValue = formData[`${label}_max`]; 
+
+          if (score && maxValue) {
+            const specialObj: Record<string, number> = {};
+            specialObj[fullLabel] = parseFloat(score);
+            specialObj[`${fullLabel}เต็ม`] = parseFloat(maxValue);
+            specialScoresArray.push(specialObj);
+          }
+        }
+      });
+    }
+  
+    console.log('SPEACIAL ที่จะเซฟ:', specialScoresArray);
+  
     try {
       const scoreResult = await mutation.mutateAsync({
         email: session.user.email,
         scores: {
           ...formData,
           MAX: [maxScoresObject],
+          SPEACIAL: specialScoresArray,
         },
       });
   
@@ -422,13 +446,20 @@ export default function Calculator2() {
                   {Object.entries(formula).map(([name, detail]) => {
                     if (detail.type === 'special') {
                       return (
-                        <ScoreInput
+                        <SpecialInput
                           key={name}
-                          label={fullLabelMap[name] || name}
-                          value={formData[scoreName[name]] || formData[name]} // เผื่อ scoreName ไม่มี mapping
+                          label={`${fullLabelMap[name] || name} / เต็ม`}
+                          name={name}
+                          value={formData[name] || ''}
+                          maxValue={formData[`${name}_max`] || ''}
                           onChange={handleChange}
+                          onMaxChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              [`${name}_max`]: e.target.value,
+                            }))
+                          }
                           isEditing={isEditing}
-                          name={scoreName[name]}
                         />
                       );
                     }

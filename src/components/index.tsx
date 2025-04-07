@@ -42,6 +42,7 @@ import ConfirmModule from '@/components/confirmModule';
 import ChatComponent from './ChatComponent';
 import GpaxInput from './gpaxinput';
 import SelectPlan from './selectplan';
+import SpecialInput from './specialinput';
 
 
 export {
@@ -90,5 +91,6 @@ export {
   ConfirmModule,
   ChatComponent,
   GpaxInput,
-  SelectPlan
+  SelectPlan,
+  SpecialInput
 }

@@ -25,10 +25,13 @@ export default function editCalculate() {
 
         const oldScore = await ScoreModel.findOne({ user_id });
 
-        //อัปเดต MAX 
+        // อัปเดต MAX และ SPEACIAL
         const updatedScores = { ...scores };
         if (scores.MAX) {
           updatedScores.MAX = scores.MAX;
+        }
+        if (scores.SPEACIAL) {
+          updatedScores.SPEACIAL = scores.SPEACIAL;
         }
 
         if (oldScore) {
@@ -42,7 +45,7 @@ export default function editCalculate() {
           result = { status: 200, data: { message: "Score added", newScore } };
         }
 
-        //อัปเดต GPAX และ lesson_plan
+        // อัปเดต GPAX และ lesson_plan
         if (scores.GPAX || scores.lesson_plan) {
           const updatedUser = await UserModel.findOneAndUpdate(
             { _id: user._id },
