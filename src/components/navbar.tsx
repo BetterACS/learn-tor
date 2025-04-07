@@ -14,24 +14,6 @@ interface CustomSession {
   };
 }
 
-export function useClickOutside(
-  ref: React.RefObject<HTMLElement>,
-  handler: () => void
-) {
-  useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      const el = ref?.current;
-      if (!el || el.contains(event.target as Node)) return;
-      handler();
-    };
-
-    document.addEventListener('mousedown', handleClick);
-    return () => {
-      document.removeEventListener('mousedown', handleClick);
-    };
-  }, [ref, handler]);
-}
-
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
