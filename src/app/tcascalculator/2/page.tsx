@@ -137,7 +137,7 @@ export default function Calculator2() {
     setIsEditing(false);
   };
 
-  const mutation = trpc.addScore.useMutation();
+  const mutation = trpc.editCalculate.useMutation();
 
   const handleSaveClick = async () => {
     if (!session?.user?.email) {
@@ -145,10 +145,32 @@ export default function Calculator2() {
       return;
     }
   
+    // 🟡 เตรียม MAX object ให้เป็น [{ subject1: score1, subject2: score2, ... }]
+    const maxScoresObject: Record<string, number> = {};
+  
+    if (requiredScores) {
+      Object.entries(requiredScores).forEach(([label, detail]) => {
+        if (detail.type === 'max' && Array.isArray(detail.base_subjects)) {
+          detail.base_subjects.forEach((subject) => {
+            const fieldName = scoreName[subject]; // เช่น "A_ENGLISH"
+            const value = formData[fieldName];
+            if (value) {
+              maxScoresObject[subject] = parseFloat(value);
+            }
+          });
+        }
+      });
+    }
+  
+    console.log('MAX ที่จะเซฟ:', maxScoresObject);
+  
     try {
       const scoreResult = await mutation.mutateAsync({
         email: session.user.email,
-        scores: formData,
+        scores: {
+          ...formData,
+          MAX: [maxScoresObject],
+        },
       });
   
       console.log('Data saved successfully:', scoreResult);
@@ -176,7 +198,7 @@ export default function Calculator2() {
     "A-Level สังคมศาสตร์": "A_SOCIAL",
     "A-Level ภาษาไทย": "A_THAI",
     "A-Level ภาษาอังกฤษ": "A_ENGLISH",
-    "A-Level ภาษาฝรั่งเศส": "A_FRENCH",
+    "A-Level ภาษาฝรั่งเศส": "A_FRANCE",
     "A-Level ภาษาเยอรมัน": "A_GERMANY",
     "A-Level ภาษาญี่ปุ่น": "A_JAPAN",
     "A-Level ภาษาเกาหลี": "A_KOREAN",
@@ -274,11 +296,11 @@ export default function Calculator2() {
         <div className="w-full max-w-screen-xl mt-10 px-6">
           <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300 overflow-x-auto">
             <div className="text-monochrome-800 text-headline-6 mt-3 relative flex items-center whitespace-nowrap">
-              GPAX เกรดเฉลี่ยรวม
+              GPAX และ ประเภทของหลักสูตรการศึกษา
               <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
                   </div>
                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
-                <GpaxInput label="GPAX" value={formData.GPAX} onChange={handleChange} isEditing={isEditing} name="GPAX"/>
+                <GpaxInput label="GPAX เกรดเฉลี่ยรวม" value={formData.GPAX} onChange={handleChange} isEditing={isEditing} name="GPAX"/>
                 <SelectPlan
                                 label="ประเภทของหลักสูตรการศึกษา"
                                 name="lesson_plan"
@@ -324,7 +346,7 @@ export default function Calculator2() {
                             value={formData[scoreName[name]]}
                             onChange={handleChange}
                             isEditing={isEditing}
-                            name={name}
+                            name={scoreName[name]}
                           />
                         );
                       }
@@ -354,7 +376,7 @@ export default function Calculator2() {
                           value={formData[scoreName[name]]}
                           onChange={handleChange}
                           isEditing={isEditing}
-                          name={name}
+                          name={scoreName[name]}
                         />
                       );
                     }
@@ -363,6 +385,59 @@ export default function Calculator2() {
                 </div>
               </>
             )}
+
+            {Object.entries(formula).some(([_, detail]) => detail.type === 'max' && Array.isArray(detail.base_subjects)) && (
+              <>
+                <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap"> 
+                  กลุ่มวิชาภาษาต่างประเทศ (ไม่จำเป็นต้องใส่ครบทุกอัน)
+                  <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
+                </div>
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
+                  {Object.entries(formula).map(([name, detail]) => {
+                    if (detail.type === 'max' && Array.isArray(detail.base_subjects)) {
+                      return detail.base_subjects.map((subName) => (
+                        <ScoreInput
+                          key={subName}
+                          label={fullLabelMap[subName] || subName}
+                          value={formData[scoreName[subName]]}
+                          onChange={handleChange}
+                          isEditing={isEditing}
+                          name={scoreName[subName]}
+                        />
+                      ));
+                    }
+                    return null;
+                  })}
+                </div>
+              </>
+            )}
+
+            {Object.entries(formula).some(([_, detail]) => detail.type === 'special') && (
+              <>
+                <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap"> 
+                  กลุ่มคะแนนพิเศษ
+                  <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
+                </div>
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
+                  {Object.entries(formula).map(([name, detail]) => {
+                    if (detail.type === 'special') {
+                      return (
+                        <ScoreInput
+                          key={name}
+                          label={fullLabelMap[name] || name}
+                          value={formData[scoreName[name]] || formData[name]} // เผื่อ scoreName ไม่มี mapping
+                          onChange={handleChange}
+                          isEditing={isEditing}
+                          name={scoreName[name]}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </>
+            )}
+
 
           </div>
 

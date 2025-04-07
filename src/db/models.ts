@@ -105,6 +105,7 @@ interface Score extends Document {
   A_KOREAN?: number;
   A_SPANISH?: number;
   SPEACIAL?: Array<Object>;
+  MAX?: Array<Object>;
 }
 
 const ScoreSchema: Schema<Score> = new Schema({
@@ -135,6 +136,7 @@ const ScoreSchema: Schema<Score> = new Schema({
   A_KOREAN: { type: Number },
   A_SPANISH: { type: Number },
   SPEACIAL: { type: [Object], default: [] },
+  MAX: { type: [Object], default: [] },
 });
 
 const ScoreModel = mongoose.models.Score || mongoose.model<Score>('Score', ScoreSchema);
