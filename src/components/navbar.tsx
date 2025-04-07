@@ -24,6 +24,7 @@ export default function Navbar() {
   const { data: session, status } = useSession() as { data: CustomSession | null };
   const [avatar, setAvatar] = useState<string>("");
   const [isMenuAnimationFinished, setIsMenuAnimationFinished] = useState(false);
+  const [crop, setCrop] = useState<Crop>()
 
   const genericHamburgerLine = `h-[3px] w-9 my-[2.5px] rounded-full bg-slate-200 transition ease transform duration-300`;
 
@@ -160,8 +161,8 @@ export default function Navbar() {
 
         {status === "authenticated" ? (
           <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
-            <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] min-w-[3.5rem]">
-              <img src={avatar || "/images/profile.avif"} alt="Profile" />
+            <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full size-[3.5rem]">
+              <img className="w-full h-full object-cover rounded-full" src={avatar || "/images/profile.avif"} alt="Profile" />
             </button>
             {profileDropdownOpen && (
               <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
