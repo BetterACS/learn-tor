@@ -5,6 +5,7 @@ import { Navbar, Footer, ScoreInput, EditButtons, SpecialInput, GpaxInput, Selec
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { AlertBox } from '@/components/index';
 
 interface CustomSession {
   user?: {
@@ -61,6 +62,9 @@ export default function Calculator2() {
     { enabled: !!session?.user?.email }
   );
   const [isEditing, setIsEditing] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState<'success' | 'error'>('success');
+  const [alertMessage, setAlertMessage] = useState('');
 
   const searchParams = useSearchParams(); // ดึง search params จาก URL
   const university = searchParams.get('university');
@@ -139,13 +143,12 @@ export default function Calculator2() {
 
   const mutation = trpc.editCalculate.useMutation();
 
-  const handleSaveClick = async () => {
+  const handleSaveClick = async () => { 
     if (!session?.user?.email) {
       console.error('ไม่พบอีเมลของผู้ใช้');
       return;
     }
   
-    //MAX object [{ subject1: score1, subject2: score2, ... }]
     const maxScoresObject: Record<string, number> = {};
   
     if (requiredScores) {
@@ -164,17 +167,15 @@ export default function Calculator2() {
   
     console.log('MAX ที่จะเซฟ:', maxScoresObject);
   
-    // SPEACIAL [{ label: value, label + "เต็ม": max }]
     const specialScoresArray: Array<Record<string, number>> = [];
-
+  
     if (requiredScores) {
       Object.entries(requiredScores).forEach(([label, detail]) => {
         if (detail.type === 'special') {
           const fullLabel = fullLabelMap[label] || label;
-
           const score = formData[label]; 
           const maxValue = formData[`${label}_max`]; 
-
+  
           if (score && maxValue) {
             const specialObj: Record<string, number> = {};
             specialObj[fullLabel] = parseFloat(score);
@@ -198,8 +199,21 @@ export default function Calculator2() {
       });
   
       console.log('Data saved successfully:', scoreResult);
+
+      setIsEditing(false);
+  
+      setAlertType('success');
+      setAlertMessage('บันทึกคะแนนเรียบร้อยแล้ว!');
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
+  
     } catch (err) {
       console.error('Error saving data:', err);
+  
+      setAlertType('error');
+      setAlertMessage('เกิดข้อผิดพลาดในการบันทึกคะแนน กรุณาลองใหม่อีกครั้ง');
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
     }
   };
 
@@ -282,6 +296,120 @@ export default function Calculator2() {
     A_CHINESE: 'A-Level ภาษาจีน',
     A_PALI: 'A-Level ภาษาบาลี',
     A_SPANISH: 'A-Level ภาษาสเปน',
+  };
+
+  const buildScoreObject = () => {
+    const scoreObj = {};
+  
+    // ถ้า requiredScores มี "เกรดเฉลี่ย" และเป็น type: 'single' → ค่อยดึงค่า GPAX
+    if (
+      requiredScores &&
+      requiredScores['เกรดเฉลี่ย'] &&
+      requiredScores['เกรดเฉลี่ย'].type === 'single'
+    ) {
+      const gpax = parseFloat(formData.GPAX);
+      if (!isNaN(gpax)) {
+        const convertedGpax = (gpax / 4) * 100;
+        scoreObj['เกรดเฉลี่ย'] = {
+          type: 'single',
+          base_subjects: 'เกรดเฉลี่ย',
+          weight: requiredScores['เกรดเฉลี่ย'].weight,
+          score: convertedGpax,
+        };
+      }
+    }
+  
+    if (!requiredScores) return scoreObj;
+  
+    Object.entries(requiredScores).forEach(([label, detail]) => {
+      if (label === 'เกรดเฉลี่ย') return; // ข้ามซ้ำ เพราะจัดการแล้วด้านบน
+  
+      if (detail.type === 'single') {
+        const scoreValue = parseFloat(formData[scoreName[label]]);
+        if (!isNaN(scoreValue)) {
+          scoreObj[label] = {
+            type: 'single',
+            base_subjects: detail.base_subjects,
+            weight: detail.weight,
+            score: scoreValue,
+          };
+        }
+      } else if (detail.type === 'max' && Array.isArray(detail.base_subjects)) {
+        let maxScore = -1;
+        let maxSubject = '';
+        detail.base_subjects.forEach((subj) => {
+          const value = parseFloat(formData[scoreName[subj]]);
+          if (!isNaN(value) && value > maxScore) {
+            maxScore = value;
+            maxSubject = subj;
+          }
+        });
+  
+        if (maxSubject && maxScore !== -1) {
+          scoreObj[label] = {
+            type: 'max',
+            base_subjects: maxSubject,
+            weight: detail.weight,
+            score: maxScore,
+          };
+        }
+      } else if (detail.type === 'special') {
+        const rawScore = parseFloat(formData[label]);
+        const maxScore = parseFloat(formData[`${label}_max`]);
+        if (!isNaN(rawScore) && !isNaN(maxScore) && maxScore > 0) {
+          const calculatedScore = (rawScore / maxScore) * 100;
+          scoreObj[label] = {
+            type: 'special',
+            base_subjects: detail.base_subjects,
+            weight: detail.weight,
+            score: calculatedScore,
+          };
+        }
+      }
+    });
+  
+    return scoreObj;
+  };
+  
+  const saveResult = trpc.saveResult.useMutation();
+
+  const handleCalculateClick = async () => {
+    const scorePayload = {
+      email: session?.user?.email || '',
+      institution: university || '',
+      campus: campus || '',
+      faculty: faculty || '',
+      program: major || '',
+      course_type: language || '',
+      admission_type: examType || '',
+      score: buildScoreObject(), 
+    };
+
+    try {
+      // เรียก saveResult ไป backend
+      const saveResponse = await saveResult.mutateAsync({
+        email: scorePayload.email,
+        institution: scorePayload.institution,
+        campus: scorePayload.campus,
+        faculty: scorePayload.faculty,
+        program: scorePayload.program,
+        course_type: scorePayload.course_type,
+        admission_type: scorePayload.admission_type,
+      });
+
+      console.log("ผลลัพธ์จาก saveResult:", saveResponse);
+
+      // push ไปหน้า /tcascalculator/3 พร้อม query
+      const query = new URLSearchParams({
+        data: JSON.stringify(scorePayload),
+      }).toString();
+
+      router.push(`/tcascalculator/3?${query}`);
+
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดตอน saveResult:", error);
+      alert("ไม่สามารถบันทึกผลได้");
+    }
   };
 
   return (
@@ -478,13 +606,20 @@ export default function Calculator2() {
             </div>
             <button
               className="mt-16 bg-primary-600 text-white max-h-[43px] px-10 py-3 rounded-lg hover:bg-primary-700 transition text-big-button w-120"
-              onClick={() => router.push('/tcascalculator/3')}
+              onClick={handleCalculateClick}
             >
               คำนวณคะแนน
             </button>
           </div>
         </div>
       </div>
+      {showAlert && (
+        <AlertBox
+          alertType={alertType}
+          title={alertType === 'success' ? 'Success' : 'Error'}
+          message={alertMessage}
+        />
+      )}
       <Footer />
     </>
   );
