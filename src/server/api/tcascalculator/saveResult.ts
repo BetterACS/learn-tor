@@ -66,20 +66,44 @@ export default function saveResult(){
                 const inputScoreCalculationFormula = searchAdmissionDetails[0]?.round_3[0]?.score_calculation_formula || {};
                 const inputMinimumCriteria = searchAdmissionDetails[0]?.round_3[0]?.minimum_criteria || {};
                 const inputAdmitted = searchAdmissionDetails[0]?.round_3[0]?.admitted || "";
+
+                const passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
+                const new_culcurate = searchAdmissionDetails[0]?.round_3[0]?.new_culcurate || {};
+                const last_years_register = searchAdmissionDetails[0]?.round_3[0]?.register || "";
+                const last_years_passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
+                const lastscore_score = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score || "";
                 try{
-                    await TcasCalculatorModel.create({
-                        user_id: user_id,
-                        institution: inputInstitution,
-                        campus: inputCampus,
-                        faculty: inputFaculty,
-                        program: inputProgram,
-                        course_type: inputCourse_type,
-                        admission_type: inputAdmission_type,
-                        score_calculation_formula: inputScoreCalculationFormula,
-                        minimum_criteria: inputMinimumCriteria,
-                        admitted: inputAdmitted,
-                        chance: 100,// รอคำนวณ
-                    });
+                    const payload = {
+                        "institution": inputInstitution || "",
+                        "faculty": inputFaculty || "",
+                        "program": inputProgram || "",
+                        "campus": inputCampus || "",
+                        "course_type": inputCourse_type || "",
+                        "student_school_type": user.lesson_plan,
+                        "passed": passed,
+                        "last_years_admitted": inputAdmitted || "",
+                        "last_years_register": last_years_register || "",
+                        "last_years_passed": last_years_passed || "",
+                        "lastscore_score": lastscore_score,
+                        "new_culcurate": new_culcurate || {},
+                        "score": ""
+                    }
+                    return { status: 200, data: { payload } };
+                    // await TcasCalculatorModel.create({
+                    //     user_id: user_id,
+                    //     institution: inputInstitution,
+                    //     campus: inputCampus,
+                    //     faculty: inputFaculty,
+                    //     program: inputProgram,
+                    //     course_type: inputCourse_type,
+                    //     admission_type: inputAdmission_type,
+                    //     score_calculation_formula: inputScoreCalculationFormula,
+                    //     minimum_criteria: inputMinimumCriteria,
+                    //     admitted: inputAdmitted,
+                    //     chance: 100,// รอคำนวณ
+                    // });
+
+
                     return { status: 200, data: { message: "Save result success" } };
                 }catch(error){
                     console.error("Error save result:", error);
