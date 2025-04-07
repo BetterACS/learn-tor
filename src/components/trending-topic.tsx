@@ -48,7 +48,7 @@ export default function TrendingTopic() {
                         Placeholder
                       </p>
                       <p className="w-fit text-subtitle-small text-transparent bg-monochrome-100 rounded-md ">
-                        Placeholrr
+                        Placeholderr
                       </p>
                     </div>
                     

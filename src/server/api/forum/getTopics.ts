@@ -47,9 +47,6 @@ const getTopics = {
         const includedTagsQuery = includedTags.map((tag) => ({ tagname: tag.tagname, category: tag.category }));
         const excludedTagsQuery = excludedTags.map((tag) => ({ tagname: tag.tagname, category: tag.category }));
 
-        console.log(includedTagsQuery);
-        console.log(excludedTagsQuery);
-
         const sortOptions: Record<string, any> = {
           Newest: { created_at: -1 },
           Oldest: { created_at: 1 },

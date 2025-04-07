@@ -4,6 +4,7 @@ import { trpc } from '@/app/_trpc/client';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession } from "next-auth/react";
 import PreviousMap_ from 'postcss/lib/previous-map';
+import { usePathname } from 'next/navigation';
 
 type TagWState = {
   tagname: string;
@@ -31,6 +32,7 @@ interface Post {
 }
 
 export default function PostSection({ searchTerm, filterTags, myTopic=false, myBookmark=false }: PostSectionProps) {
+  const pathname = usePathname();
   const { data: session, status } = useSession();
   const [sortBy, setSortBy] = useState<string>("Newest");
   const [posts, setPosts] = useState<Post[] | []>([]);
@@ -64,14 +66,16 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
   
   // First Load
   useEffect(() => {
-    setPosts([]);
-    setCurrentPage(1);
-    if (data && Array.isArray(data.data)) {
-      setPosts(data.data);
-    } else {
-      // console.log('API response is not an array:', data, isLoading);
-    }
-  }, [searchTerm, filterTags, sortBy]);
+    const runRefetch = async () => {
+      const result = await refetch();
+      if (result.data && Array.isArray(result.data.data)) {
+        setPosts(result.data.data);
+        setCurrentPage(1);
+      }
+    };
+  
+    runRefetch();
+  }, [searchTerm, filterTags, sortBy, pathname]);
 
   // Append new posts when data changes and pagination progresses
   useEffect(() => {
