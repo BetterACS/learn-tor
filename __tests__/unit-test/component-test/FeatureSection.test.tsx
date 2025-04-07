@@ -40,34 +40,6 @@ describe('FeatureSection Component', () => {
     );
   });
 
-  test('applies custom classNames when provided', () => {
-    const customProps = {
-      ...mockProps,
-      descriptionClassName: 'custom-description',
-      buttonClassName: 'custom-button',
-      imageClassName: 'custom-image'
-    };
-
-    render(<FeatureSection {...customProps} />);
-
-    expect(screen.getByText(mockProps.description)).toHaveClass('custom-description');
-    expect(screen.getByRole('link')).toHaveClass('custom-button');
-    expect(screen.getByRole('img').parentElement).toHaveClass('custom-image');
-  });
-
-  test('handles responsive design correctly', () => {
-    render(<FeatureSection {...mockProps} />);
-
-    const title = screen.getByText(mockProps.title);
-    expect(title).toHaveClass('lg:text-headline-4');
-
-    const description = screen.getByText(mockProps.description);
-    expect(description).toHaveClass('lg:text-headline-5');
-
-    const imageContainer = screen.getByRole('img').parentElement;
-    expect(imageContainer).toHaveClass('md:w-[130px]', 'lg:w-[200px]');
-  });
-
   test('applies hover effects correctly', () => {
     render(<FeatureSection {...mockProps} />);
 

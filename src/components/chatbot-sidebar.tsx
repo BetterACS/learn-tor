@@ -73,10 +73,6 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
       });
     }
   }, [email]);
-  
-  
-  
-  
 
   const sidebarRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);

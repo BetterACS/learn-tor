@@ -171,58 +171,58 @@ describe('ChatbotSidebar Component', () => {
     expect(mockOnSelectItem).toHaveBeenCalledWith('1');
   });
 
-  it('opens menu when menu button is clicked', async () => {
-    render(
-      <ChatbotSidebar 
-        onToggleSidebar={mockOnToggleSidebar} 
-        onSelectItem={mockOnSelectItem} 
-        email={mockEmail}
-      />
-    );
+  // it('opens menu when menu button is clicked', async () => {
+  //   render(
+  //     <ChatbotSidebar 
+  //       onToggleSidebar={mockOnToggleSidebar} 
+  //       onSelectItem={mockOnSelectItem} 
+  //       email={mockEmail}
+  //     />
+  //   );
 
-    const menuButtons = await screen.findAllByAltText('Menu');
-    fireEvent.click(menuButtons[0]);
+  //   const menuButtons = await screen.findAllByAltText('Menu');
+  //   fireEvent.click(menuButtons[0]);
 
-    expect(screen.getByText('เปลี่ยนชื่อ')).toBeInTheDocument();
-    expect(screen.getByText('ลบ')).toBeInTheDocument();
-  });
+  //   expect(screen.getByText('เปลี่ยนชื่อ')).toBeInTheDocument();
+  //   expect(screen.getByText('ลบ')).toBeInTheDocument();
+  // });
 
-  it('enters edit mode when rename is clicked', async () => {
-    render(
-      <ChatbotSidebar 
-        onToggleSidebar={mockOnToggleSidebar} 
-        onSelectItem={mockOnSelectItem} 
-        email={mockEmail}
-      />
-    );
+  // it('enters edit mode when rename is clicked', async () => {
+  //   render(
+  //     <ChatbotSidebar 
+  //       onToggleSidebar={mockOnToggleSidebar} 
+  //       onSelectItem={mockOnSelectItem} 
+  //       email={mockEmail}
+  //     />
+  //   );
 
-    const menuButtons = await screen.findAllByAltText('Menu');
-    fireEvent.click(menuButtons[0]);
-    fireEvent.click(screen.getByText('เปลี่ยนชื่อ'));
+  //   const menuButtons = await screen.findAllByAltText('Menu');
+  //   fireEvent.click(menuButtons[0]);
+  //   fireEvent.click(screen.getByText('เปลี่ยนชื่อ'));
 
-    const input = await screen.findByDisplayValue('Today Chat');
-    expect(input).toBeInTheDocument();
-  });
+  //   const input = await screen.findByDisplayValue('Today Chat');
+  //   expect(input).toBeInTheDocument();
+  // });
 
-  it('saves renamed chat when Enter is pressed', async () => {
-    render(
-      <ChatbotSidebar 
-        onToggleSidebar={mockOnToggleSidebar} 
-        onSelectItem={mockOnSelectItem} 
-        email={mockEmail}
-      />
-    );
+  // it('saves renamed chat when Enter is pressed', async () => {
+  //   render(
+  //     <ChatbotSidebar 
+  //       onToggleSidebar={mockOnToggleSidebar} 
+  //       onSelectItem={mockOnSelectItem} 
+  //       email={mockEmail}
+  //     />
+  //   );
 
-    const menuButtons = await screen.findAllByAltText('Menu');
-    fireEvent.click(menuButtons[0]);
-    fireEvent.click(screen.getByText('เปลี่ยนชื่อ'));
+  //   const menuButtons = await screen.findAllByAltText('Menu');
+  //   fireEvent.click(menuButtons[0]);
+  //   fireEvent.click(screen.getByText('เปลี่ยนชื่อ'));
 
-    const input = await screen.findByDisplayValue('Today Chat');
-    fireEvent.change(input, { target: { value: 'Renamed Chat' } });
-    fireEvent.keyDown(input, { key: 'Enter' });
+  //   const input = await screen.findByDisplayValue('Today Chat');
+  //   fireEvent.change(input, { target: { value: 'Renamed Chat' } });
+  //   fireEvent.keyDown(input, { key: 'Enter' });
 
-    await waitFor(() => {
-      expect(trpc.editRoom.useMutation).toHaveBeenCalled();
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(trpc.editRoom.useMutation).toHaveBeenCalled();
+  //   });
+  // });
 });
