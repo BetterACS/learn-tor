@@ -20,7 +20,8 @@ interface Post {
   created_at: string, 
   n_like: number, 
   user_id: { username: string }, 
-  isLiked : boolean
+  isLiked : boolean,
+  n_comment: number,
 }
 
 export default function PostSection({ searchTerm, filterTags, myTopic=false, myBookmark=false }: PostSectionProps) {

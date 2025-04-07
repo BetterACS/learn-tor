@@ -37,7 +37,7 @@ const getTopics = {
         const sortOptions: Record<string, any> = {
           Newest: { created_at: -1 },
           Oldest: { created_at: 1 },
-          Popular: { n_like: -1, created_at: -1 },
+          Popular: { popularityScore: -1 },
         };
 
         const topics = await TopicModel.aggregate([
@@ -76,7 +76,6 @@ const getTopics = {
               tags: { $push: "$tagDetails.tagname" }, // avoid duplicates
             },
           },
-
           {
             $lookup: {
               from: "comments",
@@ -95,7 +94,32 @@ const getTopics = {
               comments: 0
             }
           },
-
+          {
+            $addFields: {
+              popularityScore: {
+                $add: [
+                  { $multiply: ["$n_like", 2] },
+                  { $multiply: ["$n_comment", 1.5] },
+                  {
+                    $multiply: [
+                      5,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $add: [
+                              1,
+                              { $divide: [{ $subtract: [new Date(), "$created_at"] }, 1000 * 60 * 60 * 24] } // age in days
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
           {
             $match: {
               ...(includedTags.length > 0 && {
@@ -162,7 +186,7 @@ const getTopics = {
         const sortOptions: Record<string, any> = {
           Newest: { created_at: -1 },
           Oldest: { created_at: 1 },
-          Popular: { n_like: -1, created_at: -1 },
+          Popular: { popularityScore: -1 },
         };
 
         // Find topics created by the user
@@ -197,6 +221,50 @@ const getTopics = {
               img: { $first: "$img" },
               tags: { $push: "$tagDetails.tagname" },
             },
+          },
+          {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "comments",
+            }
+          },
+          {
+            $addFields: {
+              n_comment: { $size: "$comments" },
+            }
+          },
+          {
+            $project: {
+              comments: 0
+            }
+          },
+          {
+            $addFields: {
+              popularityScore: {
+                $add: [
+                  { $multiply: ["$n_like", 2] },
+                  { $multiply: ["$n_comment", 1.5] },
+                  {
+                    $multiply: [
+                      5,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $add: [
+                              1,
+                              { $divide: [{ $subtract: [new Date(), "$created_at"] }, 1000 * 60 * 60 * 24] } // age in days
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
           },
           {
             $facet: {
@@ -253,7 +321,7 @@ const getTopics = {
         const sortOptions: Record<string, any> = {
           Newest: { created_at: -1 },
           Oldest: { created_at: 1 },
-          Popular: { n_like: -1, created_at: -1 },
+          Popular: { popularityScore: -1 },
         };
   
         // Find bookmarks by the user
@@ -297,6 +365,50 @@ const getTopics = {
               img: { $first: "$topicDetails.img" },
               tags: { $push: "$tagDetails.tagname" },
             },
+          },
+          {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "comments",
+            }
+          },
+          {
+            $addFields: {
+              n_comment: { $size: "$comments" },
+            }
+          },
+          {
+            $project: {
+              comments: 0
+            }
+          },
+          {
+            $addFields: {
+              popularityScore: {
+                $add: [
+                  { $multiply: ["$n_like", 2] },
+                  { $multiply: ["$n_comment", 1.5] },
+                  {
+                    $multiply: [
+                      5,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $add: [
+                              1,
+                              { $divide: [{ $subtract: [new Date(), "$created_at"] }, 1000 * 60 * 60 * 24] } // age in days
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
           },
           {
             $facet: {
