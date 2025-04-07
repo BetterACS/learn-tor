@@ -1,7 +1,7 @@
 import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod'
 import { connectDB } from "@/server/db";
-import { TcasCalculatorModel, UserModel, UniversityModel } from "@/db/models";
+import { TcasCalculatorModel, UserModel, UniversityModel, ScoreModel } from "@/db/models";
 
 export default function saveResult(){
     return{
@@ -15,11 +15,20 @@ export default function saveResult(){
                     program: z.string(),
                     course_type: z.string(),
                     admission_type: z.string(),
+                    score: z.record(
+                        z.string(),
+                        z.object({
+                          type: z.enum(["single", "special", "max"]),
+                          base_subjects: z.string(),
+                          weight: z.number(),
+                          score: z.number()
+                        }).optional()
+                    ).optional()
                   })
             )
             .mutation(async ({input}) => {
                 await connectDB();
-                const { email, institution, faculty, admission_type, campus, program, course_type } = input;
+                const { email, institution, faculty, admission_type, campus, program, course_type, score } = input;
                 const user = await UserModel.findOne({ email: email });
                 if (!user) {
                     return {status:400,data:{ message: "User not found" }};
@@ -56,7 +65,7 @@ export default function saveResult(){
                     }
                     return null;
                 });
-
+                
                 const inputInstitution = searchAdmissionDetails[0]?.institution || "";
                 const inputCampus = searchAdmissionDetails[0]?.campus || "";
                 const inputFaculty = searchAdmissionDetails[0]?.faculty || "";
@@ -72,6 +81,36 @@ export default function saveResult(){
                 const last_years_register = searchAdmissionDetails[0]?.round_3[0]?.register || "";
                 const last_years_passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
                 const lastscore_score = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score || "";
+
+                const scoreUser = await ScoreModel.findOne({ user_id: user_id });
+                const score_GPAX = (user.GPAX/4)*100 || 0;
+                const score_TGAT1 = scoreUser?.TGAT1 || 0;
+                const score_TGAT2 = scoreUser?.TGAT2 || 0;
+                const score_TGAT3 = scoreUser?.TGAT3 || 0;
+                const score_TPAT21 = scoreUser?.TPAT21 || 0;
+                const score_TPAT22 = scoreUser?.TPAT22 || 0;
+                const score_TPAT23 = scoreUser?.TPAT23 || 0;
+                const score_TPAT3 = scoreUser?.TPAT3 || 0;
+                const score_TPAT4 = scoreUser?.TPAT4 || 0;
+                const score_TPAT5 = scoreUser?.TPAT5 || 0;
+                const score_A_MATH1 = scoreUser?.A_MATH1 || 0;
+                const score_A_MATH2 = scoreUser?.A_MATH2 || 0;
+                const score_A_PHYSIC = scoreUser?.A_PHYSIC || 0;
+                const score_A_CHEMISTRY = scoreUser?.A_CHEMISTRY || 0;
+                const score_A_BIOLOGY = scoreUser?.A_BIOLOGY || 0;
+                const score_A_SCIENCE = scoreUser?.A_SCIENCE || 0;
+                const score_A_SOCIAL = scoreUser?.A_SOCIAL || 0;
+                const score_A_THAI = scoreUser?.A_THAI || 0;
+                const score_A_ENGLISH = scoreUser?.A_ENGLISH || 0;
+                const score_A_FRENCH = scoreUser?.A_FRENCH || 0;
+                const score_A_GERMANY = scoreUser?.A_GERMANY || 0;
+                const score_A_JAPAN = scoreUser?.A_JAPAN || 0;
+                const score_A_KOREAN = scoreUser?.A_KOREAN || 0;
+                const score_A_CHINESE = scoreUser?.CHINESE || 0;
+                const score_A_PALI = scoreUser?.A_PALI || 0;
+                const score_A_SPANISH = scoreUser?.A_SPANISH || 0;
+
+
                 try{
                     const payload = {
                         "institution": inputInstitution || "",
@@ -86,7 +125,33 @@ export default function saveResult(){
                         "last_years_passed": last_years_passed || "",
                         "lastscore_score": lastscore_score,
                         "new_culcurate": new_culcurate || {},
-                        "score": ""
+                        "score": score || {},
+                        "score_GPAX": score_GPAX || 0, 
+                        "score_TGAT1": score_TGAT1 || 0,
+                        "score_TGAT2": score_TGAT2,
+                        "score_TGAT3": score_TGAT3,
+                        "score_TPAT21": score_TPAT21,
+                        "score_TPAT22": score_TPAT22, 
+                        "score_TPAT23": score_TPAT23,
+                        "score_TPAT3": score_TPAT3,
+                        "score_TPAT4": score_TPAT4,
+                        "score_TPAT5": score_TPAT5,
+                        "score_A_MATH1": score_A_MATH1,
+                        "score_A_MATH2": score_A_MATH2,
+                        "score_A_PHYSIC": score_A_PHYSIC,
+                        "score_A_CHEMISTRY": score_A_CHEMISTRY,
+                        "score_A_BIOLOGY": score_A_BIOLOGY,
+                        "score_A_SCIENCE": score_A_SCIENCE,
+                        "score_A_SOCIAL": score_A_SOCIAL,
+                        "score_A_THAI": score_A_THAI,
+                        "score_A_ENGLISH": score_A_ENGLISH,
+                        "score_A_FRENCH": score_A_FRENCH,
+                        "score_A_GERMANY": score_A_GERMANY,
+                        "score_A_JAPAN": score_A_JAPAN,
+                        "score_A_KOREAN": score_A_KOREAN,
+                        "score_A_CHINESE": score_A_CHINESE,
+                        "score_A_PALI": score_A_PALI,
+                        "score_A_SPANISH": score_A_SPANISH,
                     }
                     return { status: 200, data: { payload } };
                     // await TcasCalculatorModel.create({
