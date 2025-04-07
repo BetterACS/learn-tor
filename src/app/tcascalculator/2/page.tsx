@@ -395,6 +395,7 @@ export default function Calculator2() {
         program: scorePayload.program,
         course_type: scorePayload.course_type,
         admission_type: scorePayload.admission_type,
+        score: scorePayload.score,
       });
 
       console.log("ผลลัพธ์จาก saveResult:", saveResponse);

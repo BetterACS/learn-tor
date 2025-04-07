@@ -298,6 +298,7 @@ interface TcasCalculator extends Document {
   minimum_criteria: Array<object>,
   admitted: number
   chance: number,
+  calculated_score: number
 }
 
 const TcasCalculatorSchema: Schema<TcasCalculator> = new Schema({
@@ -312,6 +313,7 @@ const TcasCalculatorSchema: Schema<TcasCalculator> = new Schema({
   minimum_criteria: { type: [Object] },
   admitted: { type: Number },
   chance: { type: Number },
+  calculated_score: {type:Number}
 });
 
 const TcasCalculatorModel = mongoose.models.TcasCalculator || mongoose.model<TcasCalculator>('TcasCalculator', TcasCalculatorSchema);

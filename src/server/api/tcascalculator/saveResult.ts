@@ -2,6 +2,16 @@ import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod'
 import { connectDB } from "@/server/db";
 import { TcasCalculatorModel, UserModel, UniversityModel, ScoreModel } from "@/db/models";
+import axios from 'axios';
+const TCAS_CAL_API_URL = process.env.TCAS_CAL_API_URL || "";
+
+const api = axios.create({
+    baseURL: TCAS_CAL_API_URL,
+    timeout: 10000,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 
 export default function saveResult(){
     return{
@@ -75,12 +85,12 @@ export default function saveResult(){
                 const inputScoreCalculationFormula = searchAdmissionDetails[0]?.round_3[0]?.score_calculation_formula || {};
                 const inputMinimumCriteria = searchAdmissionDetails[0]?.round_3[0]?.minimum_criteria || {};
                 const inputAdmitted = searchAdmissionDetails[0]?.round_3[0]?.admitted || "";
-
+                const student_school_type = JSON.parse(searchAdmissionDetails[0]?.round_3[0]?.student_school_type.replace(/'/g, '"')) || [];
                 const passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
                 const new_culcurate = searchAdmissionDetails[0]?.round_3[0]?.new_culcurate || {};
                 const last_years_register = searchAdmissionDetails[0]?.round_3[0]?.register || "";
                 const last_years_passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
-                const lastscore_score = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score || "";
+                const lastscore_score = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score || {};
 
                 const scoreUser = await ScoreModel.findOne({ user_id: user_id });
                 const score_GPAX = (user.GPAX/4)*100 || 0;
@@ -118,7 +128,9 @@ export default function saveResult(){
                         "program": inputProgram || "",
                         "campus": inputCampus || "",
                         "course_type": inputCourse_type || "",
-                        "student_school_type": user.lesson_plan,
+                        "student_school_type": student_school_type ,//user.lesson_plan,
+                        "cur_student_school_type": user.lesson_plan,
+                        "admission_type": inputAdmission_type || "",
                         "passed": passed,
                         "last_years_admitted": inputAdmitted || "",
                         "last_years_register": last_years_register || "",
@@ -153,23 +165,36 @@ export default function saveResult(){
                         "score_A_PALI": score_A_PALI,
                         "score_A_SPANISH": score_A_SPANISH,
                     }
-                    return { status: 200, data: { payload } };
-                    // await TcasCalculatorModel.create({
-                    //     user_id: user_id,
-                    //     institution: inputInstitution,
-                    //     campus: inputCampus,
-                    //     faculty: inputFaculty,
-                    //     program: inputProgram,
-                    //     course_type: inputCourse_type,
-                    //     admission_type: inputAdmission_type,
-                    //     score_calculation_formula: inputScoreCalculationFormula,
-                    //     minimum_criteria: inputMinimumCriteria,
-                    //     admitted: inputAdmitted,
-                    //     chance: 100,// รอคำนวณ
-                    // });
+                    // return { status: 200, data: { payload } };
+
+                    try {            
+                        const response = await api.post('/recommend', JSON.stringify(payload, null, 2)); // Axios จะแปลง data เป็น JSON ให้อัตโนมัติ
+                        // console.log('recommend:', response.data);
+
+                        await TcasCalculatorModel.create({
+                            user_id: user_id,
+                            institution: inputInstitution,
+                            campus: inputCampus,
+                            faculty: inputFaculty,
+                            program: inputProgram,
+                            course_type: inputCourse_type,
+                            admission_type: inputAdmission_type,
+                            score_calculation_formula: inputScoreCalculationFormula,
+                            minimum_criteria: inputMinimumCriteria,
+                            admitted: inputAdmitted,
+                            chance: response.data.chance,
+                            calculated_score: response.data.calculated_score
+                        });
+
+                        return { status: 200, data: { message: "Save result success" } };
+                    
+                      } catch (error) {
+                        return { status: 500, data: { message: "Error in API call time out" } };
+                      }
+                    
 
 
-                    return { status: 200, data: { message: "Save result success" } };
+                    
                 }catch(error){
                     console.error("Error save result:", error);
                     return { status: 500, data: { message: "Internal Server Error" } };
