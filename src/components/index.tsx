@@ -42,6 +42,7 @@ import ConfirmModule from '@/components/confirmModule';
 import ChatComponent from './ChatComponent';
 import CompactSidebar from '@/components/compact-sidebar';
 import TrendingTopicCarousel from '@/components/trending-topic-carousel';
+import ImageFullView from '@/components/image-full-view';
 
 export {
   Test,
@@ -89,5 +90,6 @@ export {
   ConfirmModule,
   ChatComponent,
   CompactSidebar,
-  TrendingTopicCarousel
+  TrendingTopicCarousel,
+  ImageFullView,
 }

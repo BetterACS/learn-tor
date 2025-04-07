@@ -98,8 +98,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         
         {/* Main Content */}
         <div
-          className="h-full flex flex-col flex-1"
-          style={{ width: `calc(100% - ${width > minWidth && width <= maxWidth && width}px)` }}
+          className="h-full flex flex-col w-full flex-1"
+          // style={{ width: `calc(100% - ${width > minWidth && width <= maxWidth && width}px)` }}
         >
           {compactSidebar 
             && 
@@ -116,7 +116,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <SearchBar />
             </div>
           }
-          <main className="w-full h-full overflow-auto py-10 px-[6vw]">
+          <main className="w-full h-full overflow-auto py-10 px-[4%]">
             {children}
           </main>
         </div>

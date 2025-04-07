@@ -24,12 +24,21 @@ export default function Home() {
 
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
-  const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const buttonName = event.currentTarget.name;
+  // const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
+  //   const buttonName = event.currentTarget.name;
+  //   if (!session) {
+  //     router.push('/login');
+  //   } else {
+  //     router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
+  //   }
+  // };
+
+  const handleTagClicked = (tagname: string, category: string) => {
+    const query = [{ tagname, category, state: 'included' }];
     if (!session) {
       router.push('/login');
     } else {
-      router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
+      router.push(`/forum/search/?query=${encodeURIComponent(JSON.stringify(query))}`);
     }
   };
 
@@ -74,7 +83,7 @@ export default function Home() {
                 return (
                   <div className="flex flex-wrap gap-2">
                     {tagsToShow.map((tag: Tag, index: number) => (
-                      <button name={tag.tagname} onClick={handleTagClicked} key={index} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
+                      <button onClick={() => handleTagClicked(tag.tagname, category)} key={index} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
                         <p className="text-monochrome-600 group-hover:text-monochrome-50">{tag.tagname}</p>
                       </button>
                     ))}
@@ -131,7 +140,7 @@ export default function Home() {
               return (
                 <div className="flex flex-wrap gap-2">
                   {tagsToShow.map((tag: Tag, index: number) => (
-                    <button name={tag.tagname} onClick={handleTagClicked} key={index} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
+                    <button onClick={() => handleTagClicked(tag.tagname, category)} key={index} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
                       <p className="text-monochrome-600 group-hover:text-monochrome-50">{tag.tagname}</p>
                     </button>
                   ))}

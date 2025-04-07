@@ -301,7 +301,7 @@ export default function EditTopic() {
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full px-[5%]">
       <p className="text-headline-3 mb-6">
         Edit Topic
       </p>
@@ -367,9 +367,9 @@ export default function EditTopic() {
 
         {/* Image Preview */}
         {postData.img && (
-          <div className="relative w-full h-fit flex flex-col justify-center items-center gap-2 rounded-md">
-            <button onClick={() => setPostData((prev) => ({ ...prev, img: '' }))} className="size-6 text-red-800 self-end">
-              <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+          <div className="relative w-full h-fit flex flex-col justify-center items-center rounded-md">
+            <button onClick={() => setPostData((prev) => ({ ...prev, img: '' }))} className="w-full text-red-800 flex justify-end bg-monochrome-50 py-2">
+              <svg className="size-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                 <path fill="currentColor" d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"></path>
               </svg>
             </button>

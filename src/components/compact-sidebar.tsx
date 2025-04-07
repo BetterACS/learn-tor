@@ -3,25 +3,42 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
+import { useSession } from 'next-auth/react';
+
+type Tag = {
+  tagname: string;
+  category: string;
+};
 
 export default function CompactSidebar() {
+  const LIMIT = 10;
+
   const router = useRouter();
+  const { data: session } = useSession();
+
   const tagExpandRef = useRef(null);
-  const [tagExpand, setTagExpand] = useState(false);
 
   const { data, isLoading, isError, refetch } = trpc.getTopTags.useQuery();
-  const [topTags, setTopTags] = useState<string[]>([]);
-  const top = 10;
+
+  const [topTags, setTopTags] = useState<Tag[]>([]);
+  const [tagExpand, setTagExpand] = useState(false);
+
 
   useEffect(() => {
-      const tagNames = data?.map(tag => tag.tagname);
-      setTopTags(tagNames?.slice(0, top) || []);
-    }, [isLoading]);
+    if (isLoading) return;
+    const Tags: Tag[] = data?.map(tag => ({ tagname: tag.tagname, category: tag.category })) ?? [];
+    setTopTags(Tags.slice(0, LIMIT));
+  }, [isLoading]);
 
-  const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const buttonName = event.currentTarget.name;
+  const handleTagClicked = (tagname: string, category: string) => {
+    const query = [{ tagname, category, state: 'included' }];
+    if (!session) {
+      router.push('/login');
+    } else {
+      router.push(`/forum/search/?query=${encodeURIComponent(JSON.stringify(query))}`);
+    }
+
     setTagExpand(false);
-    router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
   };
 
   const handleRedirect = (path: string) => {
@@ -89,8 +106,8 @@ export default function CompactSidebar() {
           </div>
         ) : (
           <div className="w-full flex flex-col pl-4 gap-4 text-headline-6 py-2 border-b">
-            {topTags.map((item) => (
-              <button name={item} onClick={handleTagClicked} key={item} className="hover:underline w-fit text-start">{item}</button>
+            {topTags.map(({ tagname, category }, index) => (
+              <button onClick={() => handleTagClicked(tagname, category)} key={index} className="hover:underline w-fit text-start">{tagname}</button>
             ))}
           </div>
         )}

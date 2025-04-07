@@ -566,6 +566,26 @@ const getTopics = {
       }
       
     }),
+  queryImageById: publicProcedure
+    .input(
+      z.object({
+        topicId: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { topicId } = input;
+      try {
+        const topic = await TopicModel.findById(topicId);
+
+        return { 
+          status: 200, 
+          data: topic.img
+        };
+      } catch (error) {
+        return { status: 500, data: { message: "Failed to fetch topic image" } };
+      }
+      
+    }),
 }
 
 export default getTopics;

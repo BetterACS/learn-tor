@@ -192,7 +192,7 @@ export default function CreateTopic() {
   
   return (
     <div className="relative h-full w-full px-[5%]">
-      <p className="text-headline-3 w-full maxmd:text-headline-4  mb-6">
+      <p className="text-headline-3 w-full maxmd:text-headline-4 mb-6">
         Create Topic
       </p>
       {error && 
