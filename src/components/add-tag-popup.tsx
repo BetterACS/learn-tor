@@ -18,11 +18,6 @@ type Tag = {
   count?: number;
 }
 
-type TagNoCategory = {
-  tagname: string;
-  count?: number;
-}
-
 export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags, state }: AddTagPopupProps) {
   // const [searchTerm, setSearchTerm] = useState('');
   const TAG_LIMIT = 20;
@@ -31,7 +26,7 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
 
   const [tagList, setTagList] = useState<Record<string, Tag[]>>({});
   const [newTag, setNewTag] = useState<Record<string, string>>({}); // Currently typing tag
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null); // Currently active category
   const [tagSearchTerm, setTagSearchTerm] = useState('');
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
@@ -46,52 +41,32 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
   useEffect(() => {
     if(isLoading) return;
     if(data){
-      tags.forEach((selectedTag) => {
-        const tagCategory = selectedTag.category;
-        const tagExists = data[tagCategory]?.some(
-          (tag: TagNoCategory) => tag.tagname === selectedTag.tagname
-        );
-  
-        if (!tagExists) {
-          if (!data[tagCategory]) {
-            data[tagCategory] = [];
-          }
-          data[tagCategory].push({
-            tagname: selectedTag.tagname,
-            category: selectedTag.category,
-            count: selectedTag.count || 0,
-          });
-        }
-      });
-
       const ordered = CATEGORY_ORDER.reduce((acc, key) => {
         if (data[key]) acc[key] = data[key];
         return acc;
       }, {} as Record<string, Tag[]>);
-  
-      setTagList(ordered);
 
+      setTagList(ordered);
     }
-    
   }, [isLoading, data]);
 
   const handleAddTag = (category: string) => {
     const trimTagName = newTag[category]?.trim();
 
-    if (tagList[category]?.some(item => item.tagname === trimTagName)) {}
+    if (tagList[category]?.some(item => item.tagname === trimTagName)) {
+      const originalTag = tagList[category].find(item => item.tagname === trimTagName);
+      setTags((prev) => ([ 
+        ...prev, 
+        { tagname: trimTagName, category: category, count: originalTag?.count },
+      ]));
+    }
 
     else if (trimTagName) {
-      // setTagList((prev) => ({
-      //   ...prev,
-      //   [category]: [{ tagname: trimTagName, category, count: 0 }, ...(prev[category] || [])]
-      // }));
-
       setTagList((prev) => {
         const updatedTagList = {
           ...prev,
           [category]: [{ tagname: trimTagName, category, count: 0 }, ...(prev[category] || [])],
         };
-        console.log('Updated tag list:', updatedTagList);
         return updatedTagList;
       });
 

@@ -5,9 +5,15 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession } from "next-auth/react";
 import PreviousMap_ from 'postcss/lib/previous-map';
 
+type TagWState = {
+  tagname: string;
+  category: string;
+  state: 'included' | 'excluded';
+}
+
 interface PostSectionProps {
   searchTerm?: string;
-  filterTags?: Record<string, "included" | "excluded">;
+  filterTags?: TagWState[];
   myTopic?: boolean;
   myBookmark?: boolean;
 }
@@ -48,7 +54,7 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
       }) : 
       trpc.searchQuery.useQuery({ 
         searchTerm: searchTerm || '',
-        filterTags: filterTags || {},
+        filterTags: filterTags || [],
         sortBy: sortBy,
         limit: limit,
         page: currentPage

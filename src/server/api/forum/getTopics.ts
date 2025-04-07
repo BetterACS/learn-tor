@@ -10,7 +10,13 @@ const getTopics = {
     .input(
       z.object({
         searchTerm: z.string().optional(),
-        filterTags: z.record(z.string(), z.enum(["included", "excluded"])).optional(),
+        filterTags: z.array(
+          z.object({
+            tagname: z.string(),
+            category: z.string(),
+            state: z.enum(['included', 'excluded']),
+          })
+        ).optional(),
         sortBy: z.string(),
         limit: z.number().default(6),
         page: z.number().min(1).default(1)
@@ -31,8 +37,18 @@ const getTopics = {
             }
           : {}; // If searchTerm === "", fetch all topics
 
-        const includedTags = Object.keys(filterTags ?? {}).filter((tag) => filterTags?.[tag] === "included");
-        const excludedTags = Object.keys(filterTags ?? {}).filter((tag) => filterTags?.[tag] === "excluded");
+        const includedTags = filterTags
+          ? Object.values(filterTags).filter((tag) => tag.state === "included")
+          : [];
+        const excludedTags = filterTags
+          ? Object.values(filterTags).filter((tag) => tag.state === "excluded")
+          : [];
+        
+        const includedTagsQuery = includedTags.map((tag) => ({ tagname: tag.tagname, category: tag.category }));
+        const excludedTagsQuery = excludedTags.map((tag) => ({ tagname: tag.tagname, category: tag.category }));
+
+        console.log(includedTagsQuery);
+        console.log(excludedTagsQuery);
 
         const sortOptions: Record<string, any> = {
           Newest: { created_at: -1 },
@@ -73,7 +89,7 @@ const getTopics = {
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
               img: { $first: "$img" },
-              tags: { $push: "$tagDetails.tagname" }, // avoid duplicates
+              tags: { $push: { tagname: "$tagDetails.tagname", category: "$tagDetails.category" } }, // avoid duplicates
             },
           },
           {
@@ -122,11 +138,11 @@ const getTopics = {
           },
           {
             $match: {
-              ...(includedTags.length > 0 && {
-                tags: { $all: includedTags }
+              ...(includedTagsQuery.length > 0 && {
+                tags: { $all: includedTagsQuery }
               }),
-              ...(excludedTags.length > 0 && {
-                tags: { $not: { $in: excludedTags } }
+              ...(excludedTagsQuery.length > 0 && {
+                tags: { $not: { $in: excludedTagsQuery } }
               }),
             },
           },

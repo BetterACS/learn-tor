@@ -16,13 +16,20 @@ type Tag = {
   count?: number;
 }
 
+type TagWState = {
+  tagname: string;
+  category: string;
+  state: 'included' | 'excluded';
+}
+
 export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm, searchTerm }: SearchPopupProps) {
   const TAG_LIMIT = 20;
   const CATEGORY_ORDER = ["ทั่วไป", "คณะ", "มหาวิทยาลัย"];
 
   const router = useRouter();
   const [tagSearchTerm, setTagSearchTerm] = useState('');
-  const [selectedTags, setSelectedTags] = useState<{ [key: string]: 'included' | 'excluded' }>({});
+  // const [selectedTags, setSelectedTags] = useState<{ [tagname: string]: 'included' | 'excluded' }>({});
+  const [selectedTags, setSelectedTags] = useState<TagWState[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [tagList, setTagList] = useState<Record<string, Tag[]>>({});
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -66,18 +73,34 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
     }
   };
 
-  const toggleTagSelection = (tag: string) => {
-    setSelectedTags((prev) => {
-      if (!prev[tag]) return { ...prev, [tag]: 'included' };
-      if (prev[tag] === 'included') return { ...prev, [tag]: 'excluded' };
-      const { [tag]: _, ...rest } = prev;
-      return rest;
+  const toggleTagSelection = (tagname: string, category: string) => {
+    setSelectedTags((prev = []) => {
+      const existing = prev.find(
+        (tag) => tag.tagname === tagname && tag.category === category
+      );
+  
+      if (!existing) {
+        return [...prev, { tagname, category, state: 'included' }];
+      }
+      if (existing.state === 'included') {
+        return prev.map((tag) =>
+          tag.tagname === tagname && tag.category === category
+            ? { ...tag, state: 'excluded' }
+            : tag
+        );
+      }
+      if (existing.state === 'excluded') {
+        return prev.filter(
+          (tag) => !(tag.tagname === tagname && tag.category === category)
+        );
+      }
+      return prev;
     });
   };
+  
 
-  const handleRemoveSelectedTag = (tag: string) => {
-    const updatedTags = { ...selectedTags };
-    delete updatedTags[tag];
+  const handleRemoveSelectedTag = (tagname: string, category: string) => {
+    const updatedTags = selectedTags.filter(tag => !(tag.tagname === tagname && tag.category === category));
     setSelectedTags(updatedTags);
   };
 
@@ -86,6 +109,7 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
     const handleClickOutside = (event: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
         setIsPopupOpen(false);
+        setSelectedTags([]);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -124,19 +148,19 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
           <div className="w-full h-[calc(100%-9rem)] overflow-y-auto bg-monochrome-50 rounded-md pb-3 flex flex-col gap-2">
             <div className="sticky top-0 flex flex-col gap-2 p-3 px-5 bg-monochrome-50 border-b">
               {/* Selected tag display area */}
-              {Object.keys(selectedTags).length > 0 &&
+              {selectedTags.length > 0 &&
               <div className="flex gap-2 items-center">
                 <p>Selected Tags:</p>
                 <div className="flex gap-2">
-                  {Object.entries(selectedTags).map(([tag, status], index) => (
+                  {selectedTags.map(({ tagname, category, state }, index) => (
                     <div
                       key={index}
-                      onClick={() => handleRemoveSelectedTag(tag)}
+                      onClick={() => handleRemoveSelectedTag(tagname, category)}
                       className={`text-body-1 ${
-                        status === 'included' ? 'bg-green-600' : 'bg-red-600'
+                        state === 'included' ? 'bg-green-600' : 'bg-red-600'
                       } rounded-[1rem] px-3 py-2 group hover:cursor-pointer flex gap-1 items-center`}
                     >
-                      <p>{tag}</p>
+                      <p>{tagname}</p>
                       {/* <svg
                         className={`size-2 group-hover:size-3 transition-all duration-200`}
                         xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 14 14">
@@ -219,12 +243,14 @@ export default function SearchPopup({ isPopupOpen, setIsPopupOpen, setSearchTerm
                         {tagsToShow?.map(({tagname, count}, index) => (
                           <div
                             key={index}
-                            onClick={() => toggleTagSelection(tagname)}
+                            onClick={() => toggleTagSelection(tagname, category)}
                             className={`text-body-1 ${
-                              selectedTags[tagname] === 'included'
-                                ? 'border-green-600 border-2'
-                                : selectedTags[tagname] === 'excluded'
-                                ? 'border-red-600 border-2'
+                              selectedTags.find(
+                                (tag) => tag.tagname === tagname && tag.category === category && tag.state === 'included'
+                              ) ? 'border-green-600 border-2'
+                                : selectedTags.find(
+                                  (tag) => tag.tagname === tagname && tag.category === category && tag.state === 'excluded'
+                                ) ? 'border-red-600 border-2'
                                 : 'border-monochrome-500 border'
                             } rounded-[1rem] cursor-pointer flex gap-2 items-center group hover:bg-monochrome-100 transition-all duration-100`}
                           >

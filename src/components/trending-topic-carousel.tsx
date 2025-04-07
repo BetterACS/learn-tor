@@ -20,7 +20,8 @@ interface Topic {
   n_like: number, 
   user_id: { username: string }, 
   isLiked : boolean,
-  n_comment: number
+  n_comment: number,
+  tags: string[]
 }
 
 export default function TrendingTopicCarousel() {
@@ -83,12 +84,19 @@ export default function TrendingTopicCarousel() {
               </p>
             </div>
           </div>
-          {item.img && item.img.trim() !== "" ? (
+          <div>
+          {/* {item.tags.length > 0 && 
+          <div className="flex gap-2 flex-wrap">
+            {item.tags.map((tag) => (
+              <div key={tag} className="text-subtitle-small rounded-lg border border-primary-500 text-primary-500 px-2 py-1 w-fit">
+                {tag}
+              </div>
+            ))}
+          </div>
+          } */}
+          </div>
+          {item.img && item.img.trim() !== "" && (
             <img src={item.img} className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md"/>
-          ) : (
-            <div className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md bg-monochrome-200 flex items-center justify-center text-monochrome-500">
-              No image
-            </div>
           )}
           <p className="text-headline-6 text-monochrome-950 text-start group-hover:text-primary-600 transition duration-200 break-words">
             {item.title}

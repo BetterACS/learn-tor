@@ -82,7 +82,7 @@ export default function Carousel() {
 
   const { data: carousel_items, isLoading, isError } = trpc.searchQuery.useQuery({
       sortBy: "Popular",
-      filterTags: { "Portfolio": "included" },
+      filterTags: [{ tagname: "Portfolio", category: "ทั่วไป", state: "included" }],
       limit: TOPIC_LIMIT
     });
 

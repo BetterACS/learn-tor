@@ -42,16 +42,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       // Wider than 768px
       setCompactSidebar(false);
     
-      if (window.innerWidth <= 940) {
+      if (window.innerWidth <= 940 && window.innerWidth > 768) {
         // Small tablets
-        setWidthLeft(175);
         setMinWidthLeft(175);
         setMaxWidthLeft(200);
-
-        setWidthRight(250);
         setMinWidthRight(250);
         setMaxWidthRight(325);
-      } else if (window.innerWidth <= 1024) {
+      } else if (window.innerWidth <= 1024 && window.innerWidth > 940) {
         // Medium screens
         setMinWidthLeft(175);
         setMaxWidthLeft(200);
@@ -59,10 +56,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         setMaxWidthRight(325);
       } else {
         // Large screens
-        setWidthLeft(defaultWidthLeft);
         setMinWidthLeft(defaultMinWidthLeft);
         setMaxWidthLeft(defaultMaxWidthLeft);
-        setWidthRight(defaultWidthRight);
         setMinWidthRight(defaultMinWidthRight);
         setMaxWidthRight(defaultMaxWidthRight);
       }
@@ -110,67 +105,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     document.removeEventListener('mousemove', resizeRight);
     document.removeEventListener('mouseup', stopResizingRight);
   };
-
-  // return (
-  //   <div className="w-full h-screen">
-  //     <div className={`fixed top-0 transition-all duration-200 ${isFullyLoaded ? 'opacity-0 size-0' : 'opacity-100 size-full'}`}>
-  //       <LoadingCircle />
-  //     </div>
-  //     <div className="relative h-screen w-full flex flex-col overflow-auto">
-  //       <Navbar />
-  //       <div className="flex w-full">
-  //         {/* Left Sidebar */}
-  //         {!compactSidebar && 
-  //         <aside
-  //           style={{ width: widthLeft, minWidth: minWidthLeft, maxWidth: maxWidthLeft }}
-  //           className="relative h-full bg-monochrome-300 z-10"
-  //         >
-  //           {!compactSidebar && <Sidebar />}
-  //           <div
-  //             className="absolute right-0 top-0 h-full z-20 border border-r border-monochrome-100 cursor-ew-resize"
-  //             onMouseDown={startResizingLeft}
-  //           />
-  //         </aside>
-  //         }
-
-  //         {/* Main Content (Fixed Width) */}
-  //         {/* <div
-  //           className="h-full flex flex-col flex-grow"
-  //           style={{ width: `calc(100% - ${widthLeft > minWidthLeft && widthLeft <= maxWidthLeft && widthLeft}px - ${widthRight > minWidthRight && widthRight <= maxWidthRight && widthRight}px)` }}
-  //         > */}
-  //         <div className="w-full h-full flex flex-col flex-1 items-center">
-  //           {compactSidebar 
-  //             && 
-  //             <div className="sticky top-[5.15rem] w-full h-fit bg-monochrome-50 z-10">
-  //               <CompactSidebar />
-  //             </div>
-  //           }
-  //           <main className="h-full w-full flex justify-center overflow-auto py-6 px-[3vw] maxsm:px-0">{children}</main>
-  //           {compactSidebar 
-  //             && 
-  //             <div className="w-full h-fit">
-  //               <TrendingTopicCarousel />
-  //             </div>
-  //           }
-  //         </div>
-
-  //         {/* Right Sidebar */}
-  //         {!compactSidebar && 
-  //         <aside
-  //           style={{ width: widthRight, minWidth: minWidthRight, maxWidth: maxWidthRight }}
-  //           className="relative h-full bg-monochrome-300 z-10 flex-shrink"
-  //         >
-  //           <TrendingTopic />
-  //           <div
-  //             className="absolute left-0 top-0 h-full z-20 border border-r border-monochrome-100 cursor-ew-resize"
-  //             onMouseDown={startResizingRight}
-  //           />
-  //         </aside>
-  //         }
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
 
   return !isFullyLoaded ? (
     <div className="fixed top-0 w-full h-full">
