@@ -121,7 +121,7 @@ export default function Carousel() {
         <div key={index} className="w-full h-fit flex flex-col gap-2 animate-pulse">
           <div className="w-full h-[10rem] bg-monochrome-100 rounded-md my-4"></div>
           <p className="w-fit text-headline-6 text-transparent text-start bg-monochrome-100 rounded-md">Placeholderrrrrrrrrrrr</p>
-          <p className="w-fit text-transparent text-start bg-monochrome-100 rounded-md">Placeholderrrr6</p>
+          <p className="w-fit text-transparent text-start bg-monochrome-100 rounded-md">Placeholderrrrr</p>
         </div>
         
       ))}

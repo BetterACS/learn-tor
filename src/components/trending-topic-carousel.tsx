@@ -65,48 +65,82 @@ export default function TrendingTopicCarousel() {
     <div className="h-full w-full px-10 my-10">
       <p className="w-full text-headline-5 text-primary-600 my-2">Stayed on Trend Topics</p>
       <Slider {...settings}>
-        {carousel_items?.data.map((item: Topic, index: number) => (
-        <Link 
-        href={{ pathname: `/forum/${item._id}`,
-                query: JSON.stringify(item)}} 
-        key={index} 
-        className="w-[14vw] h-full !flex flex-col my-4 gap-2 outline-none group hover:scale-105 transition duration-200 hover:cursor-pointer">
-          <div className="flex content-center items-center gap-2">
-            <div className="size-10">
-              <img src={item.user_id && 'avatar' in item.user_id ? item.user_id.avatar : '/images/profile.avif'} className="w-full h-full object-cover rounded-full"/>
+      {isLoading ? (
+        Array.from({ length: slideToShow }).map((_, index) => (
+          <div key={index} className="w-[14vw] h-full !flex flex-col my-4 gap-2 outline-none group hover:scale-105 transition duration-200 hover:cursor-pointer">
+            <div className="flex content-center items-center gap-2">
+              <div className="size-10">
+                <div className="w-full h-full rounded-full bg-monochrome-100"></div> {/* Closing div tag added */}
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-body-large text-transparent bg-monochrome-100 rounded-md w-fit">
+                  Placeholder
+                </p>
+                <p className="text-subtitle-small text-transparent bg-monochrome-100 rounded-md w-fit">
+                  Placeholderr
+                </p>
+              </div>
+            </div>
+            <div className="w-full h-[20vh] rounded-xl bg-monochrome-100"></div>
+            <p className="text-headline-6 text-start group-hover:text-primary-600 transition duration-200 break-words text-transparent bg-monochrome-100 rounded-md w-fit">
+              Placeholderrrrrrrrrrrrr
+            </p>
+            <p className="text-body-small text-transparent bg-monochrome-100 rounded-md w-fit">
+              Placeholderrrrrrrr
+            </p>
+          </div>
+        ))
+      ) : (
+        carousel_items?.data.map((item: Topic, index: number) => (
+          <Link 
+            href={{ pathname: `/forum/${item._id}`, query: JSON.stringify(item) }} 
+            key={index} 
+            className="w-[14vw] h-full !flex flex-col my-4 gap-2 outline-none group hover:scale-105 transition duration-200 hover:cursor-pointer"
+          >
+            <div className="flex content-center items-center gap-2">
+              <div className="size-10">
+                <img 
+                  src={item.user_id && 'avatar' in item.user_id ? item.user_id.avatar : '/images/profile.avif'} 
+                  className="w-full h-full object-cover rounded-full" 
+                />
+              </div>
+              <div>
+                <p className="text-body-large">
+                  {item.user_id.username}
+                </p>
+                <p className="text-subtitle-small text-monochrome-400">
+                  {dayjs(item.created_at).fromNow()}
+                </p>
+              </div>
             </div>
             <div>
-              <p className="text-body-large">
-              {item.user_id.username}
-              </p>
-              <p className="text-subtitle-small text-monochrome-400">
-                {dayjs(item.created_at).fromNow()}
-              </p>
-            </div>
-          </div>
-          <div>
-          {/* {item.tags.length > 0 && 
-          <div className="flex gap-2 flex-wrap">
-            {item.tags.map((tag) => (
-              <div key={tag} className="text-subtitle-small rounded-lg border border-primary-500 text-primary-500 px-2 py-1 w-fit">
-                {tag}
+              {/* Uncomment and use tags if needed */}
+              {/* {item.tags.length > 0 && 
+              <div className="flex gap-2 flex-wrap">
+                {item.tags.map((tag) => (
+                  <div key={tag} className="text-subtitle-small rounded-lg border border-primary-500 text-primary-500 px-2 py-1 w-fit">
+                    {tag}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          } */}
-          </div>
-          {item.img && item.img.trim() !== "" && (
-            <img src={item.img} className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md"/>
-          )}
-          <p className="text-headline-6 text-monochrome-950 text-start group-hover:text-primary-600 transition duration-200 break-words">
-            {item.title}
-          </p>
-          <p className="text-body-small text-monochrome-500">
-            {item.n_like} likes • {item.n_comment} comments
-          </p>
-        </Link>
-        ))}
-      </Slider>
+              } */}
+            </div>
+            {item.img && item.img.trim() !== "" && (
+              <img 
+                src={item.img} 
+                className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md"
+              />
+            )}
+            <p className="text-headline-6 text-monochrome-950 text-start group-hover:text-primary-600 transition duration-200 break-words">
+              {item.title}
+            </p>
+            <p className="text-body-small text-monochrome-500">
+              {item.n_like} likes • {item.n_comment} comments
+            </p>
+          </Link>
+        ))
+      )}
+    </Slider>
     </div>
   )
 }
