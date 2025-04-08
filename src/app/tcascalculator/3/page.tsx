@@ -2,14 +2,20 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { Navbar, ResultCalculator } from '@/components/index';
-
+import { useSearchParams } from 'next/navigation';
 
 export default function Calculator3() {
   const router = useRouter();
   const handleBackClick = () => {
     router.push('/tcascalculator/2');
   };
+  const searchParams = useSearchParams();
+  const rawData = searchParams.get('data');
+  const parsedData = rawData ? JSON.parse(rawData) : null;
+  const resultId = searchParams.get('result_id');
 
+  console.log("ข้อมูลจากหน้า Calculator2:", parsedData);
+  console.log("resultId จาก query string:", resultId);
 
   return (
     <>
@@ -58,7 +64,7 @@ export default function Calculator3() {
             </div>
           </div>
         </div>
-      <ResultCalculator />
+      <ResultCalculator resultId={resultId} />
     </>
   );
 }

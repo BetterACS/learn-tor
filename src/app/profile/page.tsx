@@ -1,6 +1,6 @@
   'use client';
   import { useState, useEffect,useRef } from 'react';
-  import { Navbar, Footer, EditButtons, InputField, ScoreInput, AlertBox } from '@/components/index';
+  import { Navbar, Footer, EditButtons, InputField, ScoreInput, AlertBox, SelectPlan } from '@/components/index';
   import Link from 'next/link';
   import { useSession } from 'next-auth/react';
   import { trpc } from '@/app/_trpc/client';
@@ -369,7 +369,21 @@ interface FormData {
             <InputField label="อีเมล" name="email" value={formData.email} disabled={true} onChange={handleChange} />
             <InputField label="สายการเรียน" name="major" value={formData.major} disabled={!isEditing} onChange={handleChange} />
             <InputField label="ความถนัดและความสามารถ" name="talent" value={formData.talent} disabled={!isEditing} onChange={handleChange} />
-            <InputField label="ความสนใจส่วนตัว" name="lesson_plan" value={formData.lesson_plan} disabled={!isEditing} onChange={handleChange} />
+            {/* <InputField label="ประเภทของหลักสูตรการศึกษา" name="lesson_plan" value={formData.lesson_plan} disabled={!isEditing} onChange={handleChange} /> */}
+            <SelectPlan
+                label="ประเภทของหลักสูตรการศึกษา"
+                name="lesson_plan"
+                value={formData.lesson_plan}
+                disabled={!isEditing}
+                onChange={(e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
+                options={[
+                  'หลักสูตรแกนกลาง',
+                  'หลักสูตรนานาชาติ',
+                  'หลักสูตรอาชีวะ',
+                  'หลักสูตรตามอัธยาศัย (กศน.)',
+                  'หลักสูตร GED',
+                ]}
+            />
             <InputField label="GPAX" name="GPAX" value={formData.GPAX} disabled={!isEditing} onChange={handleChange} />
           </div>
           <div className="text-monochrome-300 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">

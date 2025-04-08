@@ -1,8 +1,9 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, Calculator, SearchableDropdown } from '@/components/index';
+import { Navbar, Footer, Calculator, SearchableDropdown, ScoreInput } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
+
 
 interface Target {
   university: string;
@@ -29,12 +30,17 @@ export default function Calculator1() {
   const fetchMutation = trpc.getFilteredUniversities.useMutation({
     onSuccess: (res) => {
       const data = res.data;
-      setUniversityOptions(data.unique_universities || []);
-      setFacultyOptions(data.unique_faculties || []);
-      setCampusOptions(data.unique_campuses || []);
-      setMajorOptions(data.unique_programs || []);
-      setLanguageOptions(data.unique_course_types || []);
-      setExamTypeOptions(data.unique_admissionTypes || []);
+      console.log("Fetched options:", data);
+      if ('unique_universities' in data) {
+        setUniversityOptions(data.unique_universities || []);
+      } else {
+        console.error("Unexpected data structure:", data);
+      }
+      setFacultyOptions('unique_faculties' in data ? data.unique_faculties || [] : []);
+      setCampusOptions('unique_campuses' in data ? data.unique_campuses || [] : []);
+      setMajorOptions('unique_programs' in data ? data.unique_programs || [] : []);
+      setLanguageOptions('unique_course_types' in data ? data.unique_course_types || [] : []);
+      setExamTypeOptions('unique_admissionTypes' in data ? data.unique_admissionTypes || [] : []);
     },
     onError: (error) => {
       console.error("Fetch options error:", error);
@@ -71,7 +77,9 @@ export default function Calculator1() {
   };
 
   const handleNextClick = () => {
-    router.push('/tcascalculator/2');
+    // เลือก target ตัวสุดท้ายจาก targets
+    const target = targets[targets.length - 1];
+    router.push(`/tcascalculator/2?university=${target.university}&campus=${target.campus}&faculty=${target.faculty}&major=${target.major}&language=${target.language}&examType=${target.examType}`);
   };
 
   const addTarget = () => {
@@ -98,6 +106,26 @@ export default function Calculator1() {
     const updatedTargets = targets.filter((_, i) => i !== index);
     setTargets(updatedTargets);
   };
+
+  // Helper function to check if all previous fields are filled
+  const areAllPreviousFieldsFilled = (target: Target) => {
+    return Boolean(
+      target.university && 
+      target.campus && 
+      target.faculty && 
+      target.major && 
+      target.language
+    );
+  };
+
+  const areAllmostFieldsFilled = (target: Target) => {
+    return Boolean(
+      target.university && 
+      target.campus && 
+      target.faculty && 
+      target.language 
+    );
+  }
 
   return (
     <>
@@ -190,6 +218,7 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "major", val)}
                       options={majorOptions}
                       placeholder="เลือกสาขา"
+                      disabled={!areAllmostFieldsFilled(target)}
                     />
                   </div>
 
@@ -212,13 +241,14 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "examType", val)}
                       options={examTypeOptions}
                       placeholder="เลือกรูปแบบการรับ"
+                      disabled={!areAllPreviousFieldsFilled(target)}
                     />
                   </div>
                 </div>
               </div>
             ))}
 
-            {targets.length < 3 && (
+            {targets.length < 1 && (
               <div 
                 className="flex items-center border border-dashed border-primary-600 rounded-lg py-3 px-4 cursor-pointer text-primary-600 text-center mt-4"
                 onClick={addTarget}

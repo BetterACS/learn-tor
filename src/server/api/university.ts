@@ -103,30 +103,53 @@ export default function universityQueries() {
 
                     // สร้าง query object แบบไดนามิก
                     const query: Record<string, any> = {};
-                    if (institution) query.institution = { $regex: new RegExp(institution, "i") };
-                    if (faculty) query.faculty = { $regex: new RegExp(faculty, "i") };
-                    if (program) query.program = { $regex: new RegExp(program, "i") };
-                    if (course_type) query.course_type = { $regex: new RegExp(course_type, "i") };
-                    if (campus) query.campus = { $regex: new RegExp(campus, "i") };
-                    console.log("admission",admissionType)
-                    if (admissionType) {
-                        const escapedAdmissionType = escapeRegex(admissionType);
-                        query["round_3"] = {
-                            $elemMatch: {
-                                admission_type: { $regex: new RegExp(escapedAdmissionType, "i") }
-                            }
-                        };
-                    }
-
+                    if (institution) query.institution = { $regex: new RegExp(escapeRegex(institution), "i") };
+                    if (faculty) query.faculty = { $regex: new RegExp(escapeRegex(faculty), "i") };
+                    
+                    if (course_type) query.course_type = { $regex: new RegExp(escapeRegex(course_type), "i") };
+                    if (campus) query.campus = { $regex: new RegExp(escapeRegex(campus), "i") };
+                    
                     // Query เพื่อหาข้อมูลที่ตรงกับเงื่อนไขทั้งหมด
                     const unique_universities = await UniversityModel.find(query).distinct("institution")
                     ;
                     const unique_faculties = await UniversityModel.find(query).distinct("faculty");
-                    const unique_programs = await UniversityModel.find(query).distinct("program");
+                    
                     const unique_course_types = await UniversityModel.find(query).distinct("course_type");
                     const unique_campuses = await UniversityModel.find(query).distinct("campus");
                     // const unique_admissionTypes = await UniversityModel.find(query).distinct("round_3.admission_type")
-                    const universities = await UniversityModel.find(query);
+                    // const universities = await UniversityModel.find(query);
+                    // console.log("universities", universities);
+                    if (
+                        unique_universities.length === 1 &&
+                        unique_faculties.length === 1 &&
+                        unique_course_types.length === 1 &&
+                        unique_campuses.length === 1
+                    ) { 
+                        if (program) query.program = { $regex: new RegExp(escapeRegex(program), "i") };
+                        const unique_programs = await UniversityModel.find(query).distinct("program");
+                        // console.log("unique_programs", unique_programs.length);
+                        if (unique_programs.length === 1){
+                        if (admissionType) {
+                            const escapedAdmissionType = escapeRegex(admissionType);
+                            query["round_3"] = {
+                                $elemMatch: {
+                                    admission_type: { $regex: new RegExp(escapedAdmissionType, "i") }
+                                }
+                            };
+                        }
+                        const universities = await UniversityModel.find(query);
+                        const unique_admissionTypes = [
+                            ...new Set(
+                                universities.flatMap((uni) =>
+                                    uni.round_3
+                                        .filter((round) =>
+                                            round.admission_type.match(new RegExp(admissionType || "", "i"))
+                                        )
+                                        .map((round) => round.admission_type)
+                                )
+                            ),
+                        ];
+                        if (unique_admissionTypes.length === 1){
                     const unique_admissionTypes = [
                         ...new Set(
                             universities.flatMap((uni) =>
@@ -138,15 +161,6 @@ export default function universityQueries() {
                             )
                         ),
                     ];
-                    if (
-                        unique_universities.length === 1 &&
-                        unique_faculties.length === 1 &&
-                        unique_programs.length === 1 &&
-                        unique_course_types.length === 1 &&
-                        unique_campuses.length === 1 &&
-                        unique_admissionTypes.length === 1
-                    ) {
-                        const result = await UniversityModel.countDocuments(query);
                         return {
                             status: 200,
                             data: {
@@ -158,17 +172,40 @@ export default function universityQueries() {
                                 unique_admissionTypes,
                                 result:universities
                             },
-                        };
+                        };}
+                        else{
+                            return {
+                                status: 200,
+                                data: {
+                                    unique_universities,
+                                    unique_faculties,
+                                    unique_programs,
+                                    unique_course_types,
+                                    unique_campuses,
+                                    unique_admissionTypes,
+                                },
+                            };
+                        }}else{
+                            return {
+                                status: 200,
+                                data: {
+                                    unique_universities,
+                                    unique_faculties,
+                                    unique_course_types,
+                                    unique_campuses,
+                                    unique_programs
+                                },
+                            };
+                        }
                     }
                     return {
                         status: 200,
                         data: {
                             unique_universities,
                             unique_faculties,
-                            unique_programs,
                             unique_course_types,
                             unique_campuses,
-                            unique_admissionTypes,
+                            // unique_admissionTypes,
                         },
                     };
                 } catch (error) {
