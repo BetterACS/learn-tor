@@ -66,14 +66,14 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
   }, [isLoading, data, tags]);
 
   const handleAddTag = (category: string) => {
-    const trimTagName = newTag[category]?.trim();
+    const trimTagName = typeof newTag[category] === 'string' ? newTag[category].trim() : '';
 
     if (tagList[category]?.some(item => item.tagname === trimTagName)) {}
 
     else if (trimTagName) {
       setTagList((prev) => ({
         ...prev,
-        [category]: [...(prev[category] || []), { tagname: newTag[category]!.trim(), category: category, count: 0 }]
+        [category]: [...(prev[category] || []), { tagname: trimTagName, category: category, count: 0 }]
       }));
       setTags((prev) => ([ 
         ...prev, 
