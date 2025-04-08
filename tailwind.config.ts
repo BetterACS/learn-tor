@@ -149,6 +149,18 @@ export default {
         slideInfromleft: 'slideInfromleft 0.8s ease-out',
         slideInfromlate: 'slideInfromleft 1.3s ease-out',
       },
+      screens: {
+        max2sm: {max: '520px'},
+        min2sm: {min: '520px'},
+        mobile: {max: '628px' },
+        maxsm : {max : '640px'},
+        maxmd : {max : '768px'},
+        maxnm: {max : '940px'},
+        nm: {min: '940px'},
+        maxlg : {max : '1024px'},
+        maxxl : {max : '1280px'},
+        max2xl : {max : '1536px'},
+      }
     },
   },
   plugins: [

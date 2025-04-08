@@ -83,17 +83,19 @@ const deleteTopic = {
         }
 
         // Delete image in cloudinary
-        if (topic.img) {
-          try {
-            const imgPublicId = extractPublicId(topic.img);
-            const cloudinaryRes = await cloudinary.uploader.destroy(imgPublicId);
-
-            if (cloudinaryRes?.result !== "ok") {
+        if (Array.isArray(topic.img) && topic.img.length > 0) {
+          for (const image of topic.img) {
+            try {
+              const imgPublicId = extractPublicId(image);
+              const cloudinaryRes = await cloudinary.uploader.destroy(imgPublicId);
+      
+              if (cloudinaryRes?.result !== "ok") {
+                throw new Error("Cloudinary image deletion failed");
+              }
+            } catch (cloudinaryError) {
+              console.error("Error deleting image from Cloudinary:", cloudinaryError);
               throw new Error("Cloudinary image deletion failed");
             }
-          } catch (cloudinaryError) {
-            console.error("Error deleting image from Cloudinary:", cloudinaryError);
-            throw new Error("Cloudinary image deletion failed");
           }
         }
 

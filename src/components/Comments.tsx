@@ -120,10 +120,10 @@ const CommentItem = ({ comment, postId, userEmail, isRoot = false }: { comment: 
         </p>
       </div>
 
-      <div className="h-fit w-full flex mb-3">
-        <div className="flex justify-end w-12 min-w-12 pt-2">
+      <div className="h-fit w-full flex">
+        <div className="flex justify-end w-12 min-w-12 max-w-12">
           {comment.children && comment.children.length > 0 ? (
-            <div className="h-full w-0.5 bg-monochrome-200 mr-6"></div>
+            <div className="h-full w-[1.875rem] border-l-2 border-monochrome-200 mt-1"></div>
           ) : null}
         </div>
         <div className="w-full h-fit flex flex-col ml-0 gap-2">
@@ -201,9 +201,9 @@ const CommentItem = ({ comment, postId, userEmail, isRoot = false }: { comment: 
 
               return (
                 <div key={index} className="relative flex w-full h-fit">
-                  <div className="absolute -left-[14px] -top-6 h-12 w-6 border-b-2 border-l-2 border-monochrome-200 rounded-bl-lg"></div>
+                  <div className="absolute -left-[1.375rem] -top-6 h-12 w-4 border-b-2 border-l-2 border-monochrome-200 rounded-bl-lg"></div>
                   {hasNextSameLevel && (
-                    <div className="absolute -left-[14px] top-0 h-full w-6 border-l-2 border-monochrome-200"></div>
+                    <div className="absolute -left-[1.375rem] top-0 h-full w-6 border-l-2 border-monochrome-200"></div>
                   )}
                   <CommentItem comment={nestedComment} postId={postId} userEmail={userEmail} />
                 </div>
@@ -214,10 +214,10 @@ const CommentItem = ({ comment, postId, userEmail, isRoot = false }: { comment: 
       )}
                 
       {isRoot && comment.children.length > 0 && (
-        <div className="relative flex items-center mt-2 ml-10 pl-2">
-              {!showReplies && (
-                <div className="absolute -left-5 top-0 h-5 w-5 border-b-2 border-l-2 border-monochrome-200 rounded-bl-lg"></div>
-              )}
+        <div className="relative flex items-center pt-2 ml-[2.35rem] pl-2">
+          {!showReplies && (
+            <div className="absolute -left-5 top-0 h-7 w-5 border-b-2 border-l-2 border-monochrome-200 rounded-bl-lg"></div>
+          )}
           <button
             onClick={() => setShowReplies(prev => !prev)}
             className="text-primary-700 text-body-large mt-2 hover:underline"

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { trpc } from '@/app/_trpc/client';
+
 interface CustomSession {
   user?: {
     id?: string;
@@ -17,12 +18,14 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLElement>(null);
+  const profileDropdownRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
   const { data: session, status } = useSession() as { data: CustomSession | null };
   const [avatar, setAvatar] = useState<string>("");
+  const [isMenuAnimationFinished, setIsMenuAnimationFinished] = useState(false);
 
+  const genericHamburgerLine = `h-[3px] w-9 my-[2.5px] rounded-full bg-slate-200 transition ease transform duration-300`;
 
   const userId = session?.user?.id;
   const { data: userData } = trpc.getUser.useQuery(
@@ -31,30 +34,61 @@ export default function Navbar() {
       );
 
   useEffect(() => {
-        if (userData?.data && 'user' in userData.data) {
-          const { user} = userData.data;
-          setAvatar(user.avatar);
-        }
-      }, [userData]);
+    if (userData?.data && 'user' in userData.data) {
+      const { user} = userData.data;
+      setAvatar(user.avatar);
+    }
+  }, [userData]);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) &&
-        (profileDropdownRef.current && !profileDropdownRef.current.contains(e.target as Node)) &&
-        (menuRef.current && !menuRef.current.contains(e.target as Node))
-      ) {
+    let timeout: NodeJS.Timeout;
+    if (menuOpen) {
+      timeout = setTimeout(() => setIsMenuAnimationFinished(true), 100);
+    } else {
+      setIsMenuAnimationFinished(false);
+    }
+    
+    return () => clearTimeout(timeout);
+  }, [menuOpen]);
+
+  // Info dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
-        setProfileDropdownOpen(false);
-        setMenuOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [setDropdownOpen]);
+
+  // Profile Dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [setProfileDropdownOpen]);
+
+  // Menu Dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [setMenuOpen]);
 
   const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -67,21 +101,37 @@ export default function Navbar() {
         <img src="/images/logo.avif" alt="Logo" />
       </Link>
 
-      <div className="md:hidden flex items-center mr-6">
-        <button onClick={() => setMenuOpen(!menuOpen)}>
-          <img
-            src={menuOpen ? '/images/close.avif' : '/images/burger-bar.avif'}
-            className={menuOpen ? 'w-[1.5rem] h-[1.5rem]' : 'w-[2rem] h-[2rem]'}
-            alt="Menu"
+      <div ref={menuRef} className="md:hidden h-fit w-fit flex items-center mr-6">
+        <button
+          className="flex flex-col h-10 w-10 rounded justify-center items-center group"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <div
+            className={`${genericHamburgerLine} ${
+              menuOpen
+                ? "rotate-45 translate-y-[8px]"
+                : ""
+            }`}
+          />
+          <div
+            className={`${genericHamburgerLine} ${
+              menuOpen ? "opacity-0" : ""
+            }`}
+          />
+          <div
+            className={`${genericHamburgerLine} ${
+              menuOpen
+                ? "-rotate-45 -translate-y-[8px]"
+                : ""
+            }`}
           />
         </button>
       </div>
 
       <div
-        ref={menuRef}
-        className={`flex w-full h-fit gap-[2%] items-center justify-end text-monochrome-50 text-nowrap ${menuOpen ? 'absolute top-[5.25rem] left-0 w-full bg-primary-600 py-8' : 'hidden md:flex'}`}
+        className={`flex w-full h-fit gap-[2%] items-center justify-end text-monochrome-50 text-nowrap maxmd:hidden`}
       >
-        <div className="relative" ref={dropdownRef}>
+        <div ref={dropdownRef} className="relative">
           <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex gap-1 items-center">
             <p>Information</p>
             <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'>
@@ -110,8 +160,8 @@ export default function Navbar() {
 
         {status === "authenticated" ? (
           <div className="relative hidden md:block lg:block" ref={profileDropdownRef}>
-            <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full w-[3.5rem] h-[3.5rem] overflow-hidden">
-              <img src={avatar || "/images/profile.avif"} alt="Profile" className="w-full h-full object-cover" />
+            <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} className="rounded-full size-[3.5rem]">
+              <img className="w-full h-full object-cover rounded-full" src={avatar || "/images/profile.avif"} alt="Profile" />
             </button>
             {profileDropdownOpen && (
               <div className="absolute right-0 mt-2 w-[130px] bg-monochrome-50 text-monochrome-950 text-headline-6 rounded shadow-lg overflow-hidden text-center divide-y divide-monochrome-300">
@@ -133,8 +183,51 @@ export default function Navbar() {
         )}
       </div>
 
-      {menuOpen && (
-        <div className="lg:hidden fixed top-[5.25rem] left-0 w-full bg-primary-600 py-8 z-50">
+      {/* Menu Dropdown */}
+      <div className={`${menuOpen ? 'max-h-full visible' : 'max-h-0 invisible'} md:hidden fixed top-[5.15rem] left-0 w-full bg-primary-600 z-50 transition-all duration-200 ease-in`}>
+          <div className="text-monochrome-50">
+            <div className="flex flex-col">
+              <div className="text-center pt-2">
+                {status === "authenticated" && (
+                  <Link href="/profile">
+                    <div className="px-5 py-3 flex justify-start items-center cursor-pointer hover:bg-primary-700 transition duration-150">
+                      <img
+                        src={session?.user?.avatar || '/images/profile.avif'}
+                        className="size-[3rem] rounded-full object-cover"
+                      />
+                      <span className="text-monochrome-50 ml-4">{session?.user?.username || 'Profile'}</span>
+                    </div>
+                  </Link>
+                )}
+              </div>
+              <div className={`flex flex-col pb-2 transition-all duration-100 ${isMenuAnimationFinished ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+                <Link href="/tcas-info" className="block px-5 py-5 hover:bg-primary-700 transition duration-150">
+                  TCAS Info
+                </Link>
+                <Link href="/compare-courses" className="block px-5 py-5 hover:bg-primary-700 transition duration-150">
+                  Courses
+                </Link>
+                <Link href="/forum" className="block px-5 py-5 hover:bg-primary-700 transition duration-150">
+                  Forum
+                </Link>
+                <Link href="/tcascalculator" className="block px-5 py-5 hover:bg-primary-700 transition duration-150">
+                  TCAS Calculate
+                </Link>
+                <Link href="/chatbot" className="block px-5 py-5 hover:bg-primary-700 transition duration-150">
+                  Chatbot
+                </Link>
+                {status === "authenticated" && (
+                  <Link href="#" onClick={handleSignOut} className="block px-5 py-4 hover:bg-primary-700 transition duration-150">
+                    Log out
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      {/* {menuOpen && (
+        <div className="lg:hidden fixed top-[5.15rem] left-0 w-full bg-primary-600 py-8 z-50">
           <div className="text-monochrome-50">
             <div className="flex flex-col gap-4">
               <div className="text-center">
@@ -175,7 +268,7 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

@@ -24,12 +24,14 @@ export function MockupTopicLoadingCard() {
           <div className="size-10">
             <div className="w-full h-full bg-monochrome-100 rounded-full"/>
           </div>
-          <p className="text-body-large font-bold text-transparent bg-monochrome-100 rounded-md">
-            Username
-          </p>
-          <p className="text-subtitle-small text-transparent bg-monochrome-100 rounded-md">
-            second ago
-          </p>
+          <div className="flex flex-col gap-1">
+            <p className="text-body-large text-transparent bg-monochrome-100 rounded-md w-fit">
+              Username
+            </p>
+            <p className="text-subtitle-small text-transparent bg-monochrome-100 rounded-md w-fit">
+              second agooooo
+            </p>
+          </div>
         </div>
         {/* Body */}
         <div className="flex flex-col gap-2">

@@ -10,7 +10,13 @@ const getTopics = {
     .input(
       z.object({
         searchTerm: z.string().optional(),
-        filterTags: z.record(z.string(), z.enum(["included", "excluded"])).optional(),
+        filterTags: z.array(
+          z.object({
+            tagname: z.string(),
+            category: z.string(),
+            state: z.enum(['included', 'excluded']),
+          })
+        ).optional(),
         sortBy: z.string(),
         limit: z.number().default(6),
         page: z.number().min(1).default(1)
@@ -31,13 +37,20 @@ const getTopics = {
             }
           : {}; // If searchTerm === "", fetch all topics
 
-        const includedTags = Object.keys(filterTags ?? {}).filter((tag) => filterTags?.[tag] === "included");
-        const excludedTags = Object.keys(filterTags ?? {}).filter((tag) => filterTags?.[tag] === "excluded");
+        const includedTags = filterTags
+          ? Object.values(filterTags).filter((tag) => tag.state === "included")
+          : [];
+        const excludedTags = filterTags
+          ? Object.values(filterTags).filter((tag) => tag.state === "excluded")
+          : [];
+        
+        const includedTagsQuery = includedTags.map((tag) => ({ tagname: tag.tagname, category: tag.category }));
+        const excludedTagsQuery = excludedTags.map((tag) => ({ tagname: tag.tagname, category: tag.category }));
 
         const sortOptions: Record<string, any> = {
           Newest: { created_at: -1 },
           Oldest: { created_at: 1 },
-          Popular: { n_like: -1, created_at: -1 },
+          Popular: { popularityScore: -1 },
         };
 
         const topics = await TopicModel.aggregate([
@@ -72,18 +85,61 @@ const getTopics = {
               user_id: { $first: "$user_id" },
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
-              img: { $first: "$img" },
-              tags: { $push: "$tagDetails.tagname" }, // avoid duplicates
+              imgs: { $first: "$img" },
+              tags: { $push: { tagname: "$tagDetails.tagname", category: "$tagDetails.category" } }, // avoid duplicates
             },
           },
-
+          {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "comments",
+            }
+          },
+          {
+            $addFields: {
+              n_comment: { $size: "$comments" },
+            }
+          },
+          {
+            $project: {
+              comments: 0
+            }
+          },
+          {
+            $addFields: {
+              popularityScore: {
+                $add: [
+                  { $multiply: ["$n_like", 2] },
+                  { $multiply: ["$n_comment", 1.5] },
+                  {
+                    $multiply: [
+                      5,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $add: [
+                              1,
+                              { $divide: [{ $subtract: [new Date(), "$created_at"] }, 1000 * 60 * 60 * 24] } // age in days
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
           {
             $match: {
-              ...(includedTags.length > 0 && {
-                tags: { $all: includedTags }
+              ...(includedTagsQuery.length > 0 && {
+                tags: { $all: includedTagsQuery }
               }),
-              ...(excludedTags.length > 0 && {
-                tags: { $not: { $in: excludedTags } }
+              ...(excludedTagsQuery.length > 0 && {
+                tags: { $not: { $in: excludedTagsQuery } }
               }),
             },
           },
@@ -143,7 +199,7 @@ const getTopics = {
         const sortOptions: Record<string, any> = {
           Newest: { created_at: -1 },
           Oldest: { created_at: 1 },
-          Popular: { n_like: -1, created_at: -1 },
+          Popular: { popularityScore: -1 },
         };
 
         // Find topics created by the user
@@ -175,9 +231,53 @@ const getTopics = {
               user_id: { $first: "$user_id" },
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
-              img: { $first: "$img" },
+              imgs: { $first: "$img" },
               tags: { $push: "$tagDetails.tagname" },
             },
+          },
+          {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "comments",
+            }
+          },
+          {
+            $addFields: {
+              n_comment: { $size: "$comments" },
+            }
+          },
+          {
+            $project: {
+              comments: 0
+            }
+          },
+          {
+            $addFields: {
+              popularityScore: {
+                $add: [
+                  { $multiply: ["$n_like", 2] },
+                  { $multiply: ["$n_comment", 1.5] },
+                  {
+                    $multiply: [
+                      5,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $add: [
+                              1,
+                              { $divide: [{ $subtract: [new Date(), "$created_at"] }, 1000 * 60 * 60 * 24] } // age in days
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
           },
           {
             $facet: {
@@ -234,7 +334,7 @@ const getTopics = {
         const sortOptions: Record<string, any> = {
           Newest: { created_at: -1 },
           Oldest: { created_at: 1 },
-          Popular: { n_like: -1, created_at: -1 },
+          Popular: { popularityScore: -1 },
         };
   
         // Find bookmarks by the user
@@ -275,9 +375,53 @@ const getTopics = {
               user_id: { $first: "$topicDetails.user_id" },
               created_at: { $first: "$topicDetails.created_at" },
               n_like: { $first: "$topicDetails.n_like" },
-              img: { $first: "$topicDetails.img" },
+              imgs: { $first: "$topicDetails.img" },
               tags: { $push: "$tagDetails.tagname" },
             },
+          },
+          {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "comments",
+            }
+          },
+          {
+            $addFields: {
+              n_comment: { $size: "$comments" },
+            }
+          },
+          {
+            $project: {
+              comments: 0
+            }
+          },
+          {
+            $addFields: {
+              popularityScore: {
+                $add: [
+                  { $multiply: ["$n_like", 2] },
+                  { $multiply: ["$n_comment", 1.5] },
+                  {
+                    $multiply: [
+                      5,
+                      {
+                        $divide: [
+                          1,
+                          {
+                            $add: [
+                              1,
+                              { $divide: [{ $subtract: [new Date(), "$created_at"] }, 1000 * 60 * 60 * 24] } // age in days
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
           },
           {
             $facet: {
@@ -351,12 +495,30 @@ const getTopics = {
               user_id: { $first: "$user_id" },
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
-              img: { $first: "$img" },
+              imgs: { $first: "$img" },
               tags: { $push: {
                 tagname: "$tagDetails.tagname",
                 category: "$tagDetails.category"
               } },
             },
+          },
+          {
+            $lookup: {
+              from: "comments",
+              localField: "_id",
+              foreignField: "topic_id",
+              as: "comments",
+            }
+          },
+          {
+            $addFields: {
+              n_comment: { $size: "$comments" },
+            }
+          },
+          {
+            $project: {
+              comments: 0
+            }
           }
         ])
 
@@ -401,6 +563,26 @@ const getTopics = {
         };
       } catch (error) {
         return { status: 500, data: { message: "Failed to fetch topic by id", permission: false } };
+      }
+      
+    }),
+  queryImageById: publicProcedure
+    .input(
+      z.object({
+        topicId: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { topicId } = input;
+      try {
+        const topic = await TopicModel.findById(topicId);
+
+        return { 
+          status: 200, 
+          data: { imgs: topic.img }
+        };
+      } catch (error) {
+        return { status: 500, data: { message: "Failed to fetch topic image" } };
       }
       
     }),

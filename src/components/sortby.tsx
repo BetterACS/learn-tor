@@ -29,7 +29,7 @@ export default function SortBy({ filters, sortBy, setSortBy }: FilterProps) {
   return (
     <div ref={sortDropdownRef} className="relative h-full flex w-fit gap-2 items-center">
       <button
-        className="w-36 flex py-2 px-1 gap-1 items-center justify-between border-b border-monochrome-200 transition duration-100 hover:bg-monochrome-100"
+        className="w-36 flex py-2 px-1 gap-1 items-center justify-between border-b border-monochrome-200 transition duration-100 hover:bg-monochrome-100 rounded-md"
         onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
       >
         <p className="text-headline-6 text-nowrap">

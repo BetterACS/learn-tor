@@ -412,7 +412,8 @@ const ComparisonResults = ({
                     } = item ?? {}; // ใช้ Nullish Coalescing เพื่อป้องกัน undefined
   
                     const enrollment_count = Math.round((passed * parseFloat(enrollment_rate ?? 0)) / 100);
-  
+                    const failed_count = register - passed; // คำนวณจำนวนคนไม่ผ่าน
+
                     return (
                       <div key={idx} className="mb-4 p-4 border border-gray-200 rounded-lg shadow-sm">
                         <p className="font-semibold text-primary-700 text-headline-5 mb-2">
@@ -434,6 +435,7 @@ const ComparisonResults = ({
                           <span>สถิติการรับเข้าเรียน</span><br />
                           <span>  &nbsp;- สมัครสอบ: </span> {register ?? '-'}<br />
                           <span>  &nbsp;- ผ่าน: </span> {passed ?? '-'}<br />
+                           <span>  &nbsp;- ไม่ผ่าน: </span> {failed_count ?? '-'}<br />
                           <span>  &nbsp;- คะแนนสูงสุด: </span>
                           <span style={{ color: getColor(max_score ?? 0, maxOfMaxScores, minOfMaxScores, medianOfMaxScores) }}>
                             {max_score ?? '-'}
@@ -442,11 +444,11 @@ const ComparisonResults = ({
                           <span style={{ color: getColor(min_score ?? 0, maxOfMinScores, minOfMinScores, medianOfMinScores) }}>
                             {min_score ?? '-'}
                           </span><br />
-                          <span>  &nbsp;- อัตราการรับเข้าเรียน: </span>
+                          <span>  &nbsp;- โอกาสสอบติด: </span>
                           <span style={{ color: getColor(acceptance_rate ?? 0, maxOfAcceptanceRates, minOfAcceptanceRates, medianOfAcceptanceRates) }}>
                             {acceptance_rate ?? '-'}
                           </span><br />
-                          <span>  &nbsp;- อัตราการลงทะเบียน: </span> {enrollment_rate ?? '-'}<br />
+                          <span>  &nbsp;- อัตราคนที่เลือกเรียนจริงจากจำนวนที่สอบติด: </span> {enrollment_rate ?? '-'}<br />
                           <span>  &nbsp;- จำนวนคนที่ยืนยันสิทธิ์: </span> {enrollment_count ?? '-'}<br />
                         </p>
                       </div>

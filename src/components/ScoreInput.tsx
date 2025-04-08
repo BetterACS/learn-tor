@@ -14,21 +14,22 @@ const ScoreInput = ({ label, value, onChange, isEditing, name }: ScoreInputProps
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleContainerClick = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const inputValue = e.target.value;
+    
+    if (inputValue === '' || /^\d*\.?\d{0,3}$/.test(inputValue)) {
+      if (inputValue === '') {
+        onChange(e);
+        return;
+      }
 
-    if (value === '') {
-      onChange(e);
-      return;
-    }
+      const parts = inputValue.split('.');
+      if (parts.length > 2) return;
 
-    if (/^\d*$/.test(value)) {
-      const numericValue = parseInt(value, 10);
+      const numericValue = parseFloat(inputValue);
       if (numericValue >= 0 && numericValue <= 100) {
         onChange(e);
       }
@@ -47,6 +48,7 @@ const ScoreInput = ({ label, value, onChange, isEditing, name }: ScoreInputProps
         <input
           ref={inputRef}
           type="text"
+          inputMode="decimal"
           name={name}
           placeholder="-"
           value={value}

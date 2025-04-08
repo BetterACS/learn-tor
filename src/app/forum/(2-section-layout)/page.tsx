@@ -1,33 +1,46 @@
 'use client';
 import Link from 'next/link';
-import { Carousel, PostSection, SearchBar } from '@/components/index';
+import { useState, useEffect } from 'react';
+import { Carousel, LoadingCircle, PostSection, SearchBar } from '@/components/index';
 import { useRouter } from  'next/navigation';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 
+type Tag = {
+  tagname: string,
+  count: number,
+}
+
 export default function Home() {
+  const TAG_LIMIT = 15;
+
   const router = useRouter();
   const { data: session } = useSession();
-  const { data: carousel_items, isLoading, isError } = trpc.queryTopic.useQuery();
-  const { data: allTags, isLoading: isLoadingTags, isError: isTagsError } = trpc.getTags.useQuery();
 
-  const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const buttonName = event.currentTarget.name;
+  // const { data: topic, isLoading, isError } = trpc.queryTopic.useQuery();
+  const { data: allTags, isLoading: isLoadingTags, isError: isTagsError } = trpc.getSearchTags.useQuery({
+    query: "",
+  });
+
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  // const handleTagClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
+  //   const buttonName = event.currentTarget.name;
+  //   if (!session) {
+  //     router.push('/login');
+  //   } else {
+  //     router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
+  //   }
+  // };
+
+  const handleTagClicked = (tagname: string, category: string) => {
+    const query = [{ tagname, category, state: 'included' }];
     if (!session) {
       router.push('/login');
     } else {
-      router.push(`/forum/search/?query=${encodeURIComponent(buttonName)}`);
+      router.push(`/forum/search/?query=${encodeURIComponent(JSON.stringify(query))}`);
     }
   };
-
-  
-  if (isLoading) return <div className="h-full w-full flex justify-center items-center">
-    <svg className="animate-spin size-10 -ml-1 mr-3 text-monochrome-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-  </div>;
-  if (isError) return <div>Error loading posts</div>;
 
   return (
     <div className="h-full w-full flex flex-col items-center text-center gap-12">
@@ -38,8 +51,8 @@ export default function Home() {
           </p>
         </div>
         {/* Carosal */}
-        <div className="w-auto h-fit">
-          {carousel_items?<Carousel carousel_items={carousel_items} />:<div>Loading...</div>}
+        <div className="w-full h-fit">
+          <Carousel />
         </div>
       </div>
       <div className="w-full h-fit flex gap-[12%]">
@@ -47,19 +60,57 @@ export default function Home() {
         <div className="relative flex flex-1 flex-col gap-4 overflow-hidden">
           <div className="flex">
             <div className="flex w-fit border-b-4 border-primary-600">
-              <p className="text-headline-4 text-nowrap text-primary-600 py-1">
+              <p className="text-headline-4 maxsm:text-headline-5 text-nowrap text-primary-600 py-1">
                 รีวิวคณะ
               </p>
             </div>
             <div className="flex flex-auto border-b-2 border-monochrome-300 mb-[1px]"></div>
           </div>
 
-          <div className="w-full h-fit flex flex-wrap gap-2">
-            {(allTags["คณะ"] as string[]).map((key) => (
-              <button name={key} onClick={handleTagClicked} key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
-                <p className="text-monochrome-600 group-hover:text-monochrome-50">{key}</p>
-              </button>
-            ))}
+          <div className="w-full h-fit">
+            {isLoadingTags ? (
+              <div className="w-full h-full my-3">
+                <LoadingCircle />
+              </div>
+            ) : isTagsError ? (
+              <div className="text-body-large text-monochrome-500">Error loading tags</div>
+            ) : (
+              (() => {
+                const category = "คณะ"
+                const isExpanded = expandedCategories[category] || false;
+                const tagsToShow = isExpanded ? allTags[category] : allTags[category].slice(0, TAG_LIMIT);
+
+                return (
+                  <div className="flex flex-wrap gap-2">
+                    {tagsToShow.map((tag: Tag, index: number) => (
+                      <button onClick={() => handleTagClicked(tag.tagname, category)} key={index} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
+                        <p className="text-monochrome-600 group-hover:text-monochrome-50">{tag.tagname}</p>
+                      </button>
+                    ))}
+                    {allTags[category].length > TAG_LIMIT && !isExpanded && (
+                      <div className="w-full flex items-center justify-center">
+                        <button 
+                          onClick={() => setExpandedCategories({ ...expandedCategories, [category]: true })}
+                          className="w-fit text-primary-600 mt-3 hover:underline"
+                        >
+                          Show More
+                        </button>
+                      </div>
+                    )}
+                    {isExpanded && (
+                      <div className="w-full flex items-center justify-center">
+                        <button 
+                          onClick={() => setExpandedCategories({ ...expandedCategories, [category]: false })}
+                          className="w-fit text-primary-600 mt-3 hover:underline"
+                        >
+                          Show Less
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()
+            )}
           </div>
         </div>
 
@@ -67,19 +118,56 @@ export default function Home() {
         <div className="relative flex flex-1 flex-col gap-4 overflow-hidden">
           <div className="flex">
             <div className="flex w-fit border-b-4 border-primary-600">
-              <p className="text-headline-4 text-nowrap text-primary-600 py-1">
+              <p className="text-headline-4 maxsm:text-headline-5 text-nowrap text-primary-600 py-1">
                 รีวิวมหาวิทยาลัย
               </p>
             </div>
             <div className="flex flex-auto border-b-2 border-monochrome-300 mb-[1px]"></div>
           </div>
+          <div className="w-full h-fit">
+          {isLoadingTags ? (
+            <div className="w-full h-full my-3">
+              <LoadingCircle />
+            </div>
+          ) : isTagsError ? (
+            <div className="text-body-large text-monochrome-500">Error loading tags</div>
+          ) : (
+            (() => {
+              const category = "มหาวิทยาลัย"
+              const isExpanded = expandedCategories[category] || false;
+              const tagsToShow = isExpanded ? allTags[category] : allTags[category].slice(0, TAG_LIMIT);
 
-          <div className="w-full h-fit flex flex-wrap gap-2">
-            {(allTags["มหาวิทยาลัย"] as string[]).map((key) => (
-              <button name={key} onClick={handleTagClicked} key={key} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
-                <p className="text-monochrome-600 group-hover:text-monochrome-50">{key}</p>
-              </button>
-            ))}
+              return (
+                <div className="flex flex-wrap gap-2">
+                  {tagsToShow.map((tag: Tag, index: number) => (
+                    <button onClick={() => handleTagClicked(tag.tagname, category)} key={index} className="w-fit h-fit border border-monochrome-600 rounded-[1rem] py-2 px-3 hover:bg-primary-600 hover:border-primary-600 transform duration-200 group">
+                      <p className="text-monochrome-600 group-hover:text-monochrome-50">{tag.tagname}</p>
+                    </button>
+                  ))}
+                  {allTags[category].length > TAG_LIMIT && !isExpanded && (
+                    <div className="w-full flex items-center justify-center">
+                      <button 
+                        onClick={() => setExpandedCategories({ ...expandedCategories, [category]: true })}
+                        className="w-fit text-primary-600 mt-3 hover:underline"
+                      >
+                        Show More
+                      </button>
+                    </div>
+                  )}
+                  {isExpanded && (
+                    <div className="w-full flex items-center justify-center">
+                      <button 
+                        onClick={() => setExpandedCategories({ ...expandedCategories, [category]: false })}
+                        className="w-fit text-primary-600 mt-3 hover:underline"
+                      >
+                        Show Less
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()
+          )}
           </div>
         </div>
       </div>

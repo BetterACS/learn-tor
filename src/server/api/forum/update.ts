@@ -13,11 +13,11 @@ const updateTopic = {
         title: z.string(),
         body: z.string(),
         email: z.string(),
-        img: z.string(),
+        imgs: z.array(z.string()),
       })
     )
     .mutation(async ({ input }) => {
-      const { id, title, body, email, img } = input;
+      const { id, title, body, email, imgs } = input;
       try {
         await connectDB();
 
@@ -32,7 +32,7 @@ const updateTopic = {
 
         const updatedTopic = await TopicModel.findOneAndUpdate(
           { _id: id, user_id: user._id },
-          { title, body, img },
+          { title, body, img: imgs },
           { new: true }
         ).populate("user_id", "username");
 

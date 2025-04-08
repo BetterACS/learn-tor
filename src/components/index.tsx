@@ -21,7 +21,7 @@ import FeatureSection from '@/components/FeatureSection';
 import AlertBox from '@/components/alert-box';
 import Calculator from '@/components/calculator';
 import PostSection from '@/components/post-section';
-import Post from '@/components/post';
+import Topic from '@/components/topic';
 import PostInteractionBar from '@/components/post-interaction-bar';
 import SortBy from '@/components/sortby';
 import SearchBar from '@/components/search-bar';
@@ -40,6 +40,9 @@ import SearchableDropdown from './SearchableDropdown';
 import { LoadingCircle, ErrorLoading, MockupTopicLoadingCard } from '@/components/loading';
 import ConfirmModule from '@/components/confirmModule';
 import ChatComponent from './ChatComponent';
+import CompactSidebar from '@/components/compact-sidebar';
+import TrendingTopicCarousel from '@/components/trending-topic-carousel';
+import ImageFullView from '@/components/image-full-view';
 import GpaxInput from './gpaxinput';
 import SelectPlan from './selectplan';
 import SpecialInput from './specialinput';
@@ -69,7 +72,7 @@ export {
   AlertBox,
   Calculator,
   PostSection,
-  Post,
+  Topic,
   PostInteractionBar,
   SortBy,
   SearchBar,
@@ -90,7 +93,7 @@ export {
   MockupTopicLoadingCard,
   ConfirmModule,
   ChatComponent,
-  GpaxInput,
-  SelectPlan,
-  SpecialInput
+  CompactSidebar,
+  TrendingTopicCarousel,
+  ImageFullView,
 }

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Button, AlertBox , AddTagPopup, LoadingCircle, ErrorLoading, ConfirmModule } from '@/components/index';
+import { Button, AlertBox , AddTagPopup, LoadingCircle, ErrorLoading, ConfirmModule, ImageFullView } from '@/components/index';
 import { useParams, useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
@@ -12,7 +12,7 @@ interface PostData {
   id?: string,
   title: string,
   body: string,
-  img: string
+  imgs: string[]
 }
 
 type Tag = {
@@ -37,15 +37,19 @@ export default function EditTopic() {
     id: '',
     title: '',
     body: '',
-    img: '',
+    imgs: [],
   });
-  const [originalImage, setOriginalImage] = useState<string>('');
+  const [originalImages, setOriginalImages] = useState<string[]>([]);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   const [tags, setTags] = useState<Tag[]>([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
   const [isConfirmModuleOpen, setIsConfirmModuleOpen] = useState(false);
+  const [isImageFull, setIsImageFull] = useState(false);
+  const [clickedId, setClickedId] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -54,14 +58,14 @@ export default function EditTopic() {
     setPostData({
       title: fetchedData.title,
       body: fetchedData.body,
-      img: fetchedData.img,
+      imgs: fetchedData.imgs,
     });
 
     setTimeout(() => {
       setIsLoaded(true);
     }, 500);
 
-    setOriginalImage(fetchedData.img);
+    setOriginalImages(fetchedData.imgs);
 
     if (tags.some(tag => Object.keys(tag).length > 0)) {
       setTags(fetchedData.tags);
@@ -70,7 +74,6 @@ export default function EditTopic() {
   }, [isLoading, data])
 
   
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -88,162 +91,170 @@ export default function EditTopic() {
   const handleOnClickSave = async () => {
     setError('');
     setSuccess('');
+    setIsSaving(true);
   
-    // NO TITLE
-    if (postData.title === "") {
-      setError("Title is required");
-      return;
-    }
-  
-    // UPLOAD IMAGE
-    let imageUrl = '';
-    // True if selected image is same image as original image (prevent duplicate upload)
-    const compareResult = await compareImages(originalImage, postData.img); //link, base64 
-    if (postData.img && !compareResult) {
-      try {
-        const res = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: JSON.stringify({ file: postData.img }),
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-  
-        const data = await res.json();
-        if (data.secure_url) {
-          imageUrl = data.secure_url;
-          console.log('Image uploaded successfully:', data.secure_url);
-        }
-      } catch (error) {
-        console.error('Image upload failed', error);
-        setError('Image upload failed');
-        return; // Exit early on error
+    try {
+      // NO TITLE
+      if (postData.title === "") {
+        setError("Title is required");
+        return;
       }
-    } else if (postData.img && compareResult) {
-      console.log("old image");
-      imageUrl = originalImage;
-    } else {
-      console.log("remove image");
-      imageUrl = '';
-    }
-  
-    // DELETE OLD IMAGE
-    if (originalImage && originalImage !== imageUrl) {
-      try {
-        const oldImagePublicId = extractPublicId(originalImage);
-        const deleteRes = await fetch('/api/delete-image', {
-          method: 'POST',
-          body: JSON.stringify({ public_id: oldImagePublicId }),
-          headers: {
-            'Content-Type': 'application/json',
+
+      // UPLOAD IMAGES
+      const imageUrls: string[] = [];
+
+      for (const img of postData.imgs) {
+        let imageUrl = '';
+        const compareResult = await compareImages(originalImages, img); //link, base64
+
+        if (img && !compareResult) {
+          try {
+            const res = await fetch('/api/upload-image', {
+              method: 'POST',
+              body: JSON.stringify({ file: img }),
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+
+            const data = await res.json();
+            if (data.secure_url) {
+              imageUrl = data.secure_url;
+              console.log('Image uploaded successfully:', data.secure_url);
+            }
+          } catch (error) {
+            console.error('Image upload failed', error);
+            setError('Image upload failed');
+            return; // Exit early on error
+          }
+        } else if (img && compareResult) {
+          console.log("old image");
+          imageUrl = compareResult;
+        } else {
+          console.log("remove image");
+          imageUrl = '';
+        }
+
+        if (imageUrl) imageUrls.push(imageUrl);
+      }
+
+      // DELETE OLD IMAGE
+      for (let i = 0; i < originalImages.length; i++) {
+        const originalImage = originalImages[i];
+
+        if (!imageUrls.includes(originalImage)) {
+          try {
+            const oldImagePublicId = extractPublicId(originalImage);
+            const deleteRes = await fetch('/api/delete-image', {
+              method: 'POST',
+              body: JSON.stringify({ public_id: oldImagePublicId }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+
+            const deleteResult = await deleteRes.json();
+            if (deleteResult.status !== 'ok') {
+              console.error('Failed to delete the old image');
+              setError('Failed to delete the old image');
+              return;
+            }
+
+            console.log('Old image deleted successfully');
+          } catch (error) {
+            console.error('Error deleting old image', error);
+            setError('Error deleting old image');
+            return;
+          }
+        }
+      }
+
+      // Save data
+      mutation.mutate(
+        {
+          id: topicId,
+          title: postData.title,
+          body: postData.body,
+          email: session?.user?.email || '',
+          imgs: imageUrls, // Send the array of images
+        },
+        {
+          onSuccess: (data) => {
+            if (data.status === 200) {
+              const topicId = data.data.topic._id;
+              if (tags.length > 0) {
+                mutationTag.mutate(
+                  {
+                    topicId: topicId,
+                    tags: tags.map(({ tagname, category }) => ({ tagname, category })),
+                    email: session?.user?.email || '',
+                  },
+                  {
+                    onSuccess: (data) => {
+                      console.log("Edit topic with tags success!");
+                      setSuccess(data.data.message);
+                      setTimeout(() => {
+                        router.push(`/forum/${topicId}`);
+                      }, 2000);
+                    },
+                    onError: (error) => {
+                      console.error("Tag mutation error:", error);
+                      setError(error.message);
+                    },
+                  }
+                );
+              } else {
+                console.log("Edit topic success!");
+                setSuccess(data.data.message);
+                setTimeout(() => {
+                  router.push(`/forum/${topicId}`);
+                }, 2000);
+              }
+            }
           },
-        });
-  
-        const deleteResult = await deleteRes.json();
-        if (deleteResult.status !== 'ok') {
-          // If the delete fails, rollback = delete the newly uploaded image
-          console.error('Failed to delete the old image');
-          await fetch(`/api/delete-image`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ public_id: extractPublicId(imageUrl) }),
-          });
-          setError('Failed to delete the old image, rollback changes');
-          return; // Exit early on error
+          onError: (error) => {
+            console.error("Mutation Failed:", error);
+            setError(error.message);
+          },
         }
-  
-        console.log('Old image deleted successfully');
-      } catch (error) {
-        console.error('Error deleting old image', error);
-        setError('Error deleting old image');
-        return; // Exit early on error
-      }
+      );
+    } finally {
+      setIsSaving(false);
     }
-  
-    // Finally, update data after everything is complete
-    mutation.mutate(
-      {
-        id: topicId,
-        title: postData.title,
-        body: postData.body,
-        email: session?.user?.email || '',
-        img: imageUrl || ''
-      },
-      {
-        onSuccess: (data) => {
-          if (data.status !== 200) {
-            setError(data.data.message);
-          } else if (data.status === 200) {
-            console.log("Mutation Successful:", data);
-            setSuccess(data.data.message);
-  
-            const topicId = data.data.topic._id;
-  
-            if (tags.length > 0) {
-              mutationTag.mutate(
-                {
-                  topicId: topicId,
-                  tags: tags.map(({ tagname, category }) => ({ tagname, category })),
-                  email: session?.user?.email || '',
-                },
-                {
-                  onSuccess: (data) => {
-                    console.log("After add tag success" + data);
-                    setSuccess(data.data.message);
-                  },
-                  onError: (error) => {
-                    console.error("Tag mutation error:", error);
-                  },
-                }
-              );
-            }
-  
-            if ('topic' in data.data) {
-              router.push(`/forum/${(data.data.topic as Topic)._id}`)
-            } else {
-              setError("Topic data is missing");
-            }
-          }
-        },
-        onError: (error) => {
-          console.error("Mutation Failed:", error);
-          setError(error.message);
-        },
-      }
-    );
   };
-  
 
   const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
+    const files = event.target.files;
+    if (files) {
+      const selectedImages: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const maxSizeMB = 10;
         if (file.size / 1024 / 1024 <= maxSizeMB) {
-          console.log('File size is already under the limit, no compression needed.');
           const base64file = await blobToBase64(file) as string;
-          setPostData((prev) => ({ ...prev, img: base64file }));
+          selectedImages.push(base64file);
         } else {
           const options = {
             maxSizeMB,
             maxWidthOrHeight: 1920,
             useWebWorker: true,
-          }
+          };
   
           try {
             const compressedFile = await imageCompression(file, options);
-            console.log('compressedFile instanceof Blob', compressedFile instanceof Blob);
-            console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`);
-            
             const base64file = await blobToBase64(compressedFile) as string;
-            setPostData((prev) => ({ ...prev, img: base64file }));
+            selectedImages.push(base64file);
           } catch (error) {
             console.log(error);
           }
-        };
-      };
-    };
+        }
+      }
+      setPostData((prev) => ({ ...prev, imgs: [ ...prev.imgs, ...selectedImages ] }));
+    }
+  };
     
   const handleOnDeleteConfirm = () => {
+    setIsDeleting(true);
     deleteTopicMutation.mutate(
       {
         topicId: topicId,
@@ -253,11 +264,16 @@ export default function EditTopic() {
         onSuccess: (data) => {
           console.log("Delete successfully" + data);
           setSuccess(data.data.message);
-          router.push(`/forum`)
+          setTimeout(() => {
+            router.push(`/forum`)
+          }, 2000);
         },
         onError: (error) => {
           console.error("Delete error:", error);
           setError(error.message);
+        },
+        onSettled: () => {
+          setIsDeleting(false);
         },
       }
     );
@@ -267,8 +283,6 @@ export default function EditTopic() {
     setIsConfirmModuleOpen(false);
   };
 
-  
-  
   const blobToBase64 = (blob: Blob) => {
     return new Promise((resolve, _) => {
       const reader = new FileReader();
@@ -277,22 +291,35 @@ export default function EditTopic() {
     });
   }
 
-  const compareImages = async (cloudinaryImageUrl: string, base64Image: string): Promise<boolean> => {
-    if (cloudinaryImageUrl === base64Image) return true;
-
+  const compareImages = async (cloudinaryImageUrls: string[], base64Image: string): Promise<string | null> => {
+    for (let url of cloudinaryImageUrls) {
+      const result = await compareSingleImage(url, base64Image);
+      if (result) {
+        return result
+      }
+    }
+    return null;
+  };
+  
+  const compareSingleImage = async (cloudinaryImageUrl: string, base64Image: string): Promise<string | null> => {
+    if (cloudinaryImageUrl === base64Image) return cloudinaryImageUrl;
     try {
-      // Fetch Cloudinary url -> Blob
+      // Fetch Cloudinary image URL -> Blob
       const response = await fetch(cloudinaryImageUrl);
       const imageBlob = await response.blob();
   
-      // Blob -> base64
+      // Convert Blob -> base64
       const cloudinaryBase64 = await blobToBase64(imageBlob);
   
-      // Compare
-      return cloudinaryBase64 === base64Image;
+      // Compare the base64
+      if (cloudinaryBase64 === base64Image) {
+        return cloudinaryImageUrl; // url
+      } else {
+        return null;
+      }
     } catch (error) {
       console.error('Error comparing images:', error);
-      return false;
+      return null;
     }
   };
 
@@ -303,7 +330,7 @@ export default function EditTopic() {
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full px-[5%]">
       <p className="text-headline-3 mb-6">
         Edit Topic
       </p>
@@ -314,19 +341,19 @@ export default function EditTopic() {
         message={error}
       />
       }
-      {/* {success &&
+      {success &&
         <AlertBox
         alertType="success"
         title="Success"
         message={success}
         />
-      } */}
+      }
       <div className="flex flex-col gap-6">
         {/* Display selected tags */}
         {tags.some(tag => Object.keys(tag).length > 0) && (
-          <div className="flex gap-2 items-center">
-            <p className="text-headline-6">Selected Tags:</p>
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-1 items-center">
+            <p className="self-start text-headline-6">Selected Tags</p>
+            <div className="flex gap-2 flex-wrap w-full">
               {tags.map((tag, index) => (
                 <div
                   key={index}
@@ -368,54 +395,184 @@ export default function EditTopic() {
         </div>
 
         {/* Image Preview */}
-        {postData.img && (
-          <div className="relative w-full h-fit flex flex-col justify-center items-center gap-2 rounded-md">
-            <button onClick={() => setPostData((prev) => ({ ...prev, img: '' }))} className="size-6 text-red-800 self-end">
-              <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-                <path fill="currentColor" d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"></path>
-              </svg>
-            </button>
-            <div className="flex w-fit h-[15rem] self-center pointer-events-none">
-              <img
-                src={postData.img}
-                alt="Uploaded"
-                className="w-full h-full object-cover"
-              />
-            </div>
+        {Array.isArray(postData?.imgs) && postData.imgs.length > 0 && (
+          <div className="w-full h-fit flex flex-col gap-4 justify-center items-center my-6 mb-[3rem]">
+            <p className="text-headline-5">Image Preview</p>
+              {!isLoaded ? (
+                <div className="w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem] animate-pulse">
+                  <div className="w-full h-full bg-monochrome-100 rounded-md"/>
+                </div>
+              ) : (
+                // Display multiple images layout
+                postData.imgs.length === 1 && (
+                  <div className="flex w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => (
+                      <div 
+                        id={img} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className="h-full w-full rounded-sm bg-monochrome-950"
+                      >
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    ))}
+                  </div>
+                )
+                ||
+                postData.imgs.length === 2 && (
+                  <div className="grid grid-cols-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => (
+                      <div 
+                        id={img} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className="h-full w-full rounded-sm bg-monochrome-950"
+                      >
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    ))}
+                  </div>
+                )
+                ||
+                postData.imgs.length === 3 && (
+                  <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => (
+                      <div 
+                        id={img} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className="w-full h-full rounded-sm bg-monochrome-950 first:row-span-2"
+                      >
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    ))}
+                  </div>
+                )
+                ||
+                postData.imgs.length === 4 && (
+                  <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => (
+                      <div 
+                        id={img} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className="w-full h-full rounded-sm bg-monochrome-950"
+                      >
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    ))}
+                  </div>
+                )
+                ||
+                postData.imgs.length === 5 && (
+                  <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => {
+                      const gridStyles = [
+                        "col-span-3 row-span-3",
+                        "col-start-4 col-span-3 row-span-3",
+                        "col-span-2 row-start-4 row-span-3",
+                        "col-start-3 col-span-2 row-start-4 row-span-3",
+                        "col-start-5 col-span-2 row-start-4 row-span-3",
+                      ];
+
+                      return (
+                        <div 
+                          id={img} 
+                          key={index} 
+                          onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                          className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950`}
+                        >
+                          <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        </div>
+                      );
+                      
+                    })}
+                  </div>
+                )
+                ||
+                postData.imgs.length > 5 && (
+                  <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {Array.from({ length: 5 }, (_, index) => {
+                      const gridStyles = [
+                        "col-span-3 row-span-3",
+                        "col-start-4 col-span-3 row-span-3",
+                        "col-span-2 row-start-4 row-span-3",
+                        "col-start-3 col-span-2 row-start-4 row-span-3",
+                        "col-start-5 col-span-2 row-start-4 row-span-3",
+                      ];
+                      return (
+                        <div 
+                          id={postData.imgs[index]} 
+                          key={index} 
+                          onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                          className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950 relative`}
+                        >
+                          {index === 4 && (
+                            <>
+                              <div className="absolute w-full h-full bg-monochrome-950 opacity-60"/>
+                              <div className="absolute w-full h-full flex items-center justify-center">
+                                <p className="text-monochrome-50 font-medium text-headline-4 mr-4">
+                                  +{postData.imgs.length-5}
+                                </p>
+                              </div>
+                            </>
+                          )}
+                          <img src={postData.imgs[index] || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )
+              )}
           </div>
+        )}
+
+        {/* Image Select */}
+        {postData.imgs.length > 0 && (
+        <div className="w-full h-fit flex flex-col gap-8 justify-center items-center">
+          <p className="text-headline-5">Selected Image</p>
+          <div className="w-full h-full flex flex-wrap gap-4 justify-center">
+            {postData.imgs.map((img, index) => (
+              <div key={index} className="relative w-fit h-fit flex flex-col justify-center items-center gap-2 rounded-md">
+                <button 
+                  onClick={() => setPostData((prev) => ({ ...prev, imgs: postData.imgs.filter(item => item !== img) }))} className="size-6 text-red-800 self-end"
+                >
+                  <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                    <path fill="currentColor" d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"></path>
+                  </svg>
+                </button>
+                <div className="flex w-fit h-[15rem] self-center pointer-events-none">
+                  <img
+                    src={img}
+                    alt="Uploaded"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         )}
 
         <div className="w-full flex justify-between">
           <div className="flex items-center gap-4">
-            {postData.img ? (
-              <svg 
-                onClick={() => document.getElementById('file-input')?.click()}
-                className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
-                xmlns="http://www.w3.org/2000/svg"
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-              >
-                <path fill="currentColor" d="M21.5 1.5a1 1 0 0 0-1 1a5 5 0 1 0 .3 7.75a1 1 0 0 0-1.32-1.51a3 3 0 1 1 .25-4.25H18.5a1 1 0 0 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-.99m-3 12a1 1 0 0 0-1 1v.39L16 13.41a2.77 2.77 0 0 0-3.93 0l-.7.7l-2.46-2.49a2.79 2.79 0 0 0-3.93 0L3.5 13.1V7.5a1 1 0 0 1 1-1h5a1 1 0 0 0 0-2h-5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a1 1 0 0 0-1-1m-14 7a1 1 0 0 1-1-1v-3.57L6.4 13a.79.79 0 0 1 1.09 0l3.17 3.17L15 20.5Zm13-1a1 1 0 0 1-.18.53l-4.51-4.51l.7-.7a.78.78 0 0 1 1.1 0l2.89 2.9Z"></path>
-              </svg>
-            ) : (
-              <svg 
-                onClick={() => document.getElementById('file-input')?.click()}
-                className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
-                xmlns="http://www.w3.org/2000/svg"
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-              >
-                <path fill="currentColor" d="M19 10a1 1 0 0 0-1 1v3.38l-1.48-1.48a2.79 2.79 0 0 0-3.93 0l-.7.71l-2.48-2.49a2.79 2.79 0 0 0-3.93 0L4 12.61V7a1 1 0 0 1 1-1h8a1 1 0 0 0 0-2H5a3 3 0 0 0-3 3v12.22A2.79 2.79 0 0 0 4.78 22h12.44a3 3 0 0 0 .8-.12a2.74 2.74 0 0 0 2-2.65V11A1 1 0 0 0 19 10M5 20a1 1 0 0 1-1-1v-3.57l2.89-2.89a.78.78 0 0 1 1.1 0L15.46 20Zm13-1a1 1 0 0 1-.18.54L13.3 15l.71-.7a.77.77 0 0 1 1.1 0L18 17.21Zm3-15h-1V3a1 1 0 0 0-2 0v1h-1a1 1 0 0 0 0 2h1v1a1 1 0 0 0 2 0V6h1a1 1 0 0 0 0-2"></path>
-              </svg>
-            )}
+            <svg 
+              onClick={() => document.getElementById('file-input')?.click()}
+              className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
+              xmlns="http://www.w3.org/2000/svg"
+              width={24}
+              height={24}
+              viewBox="0 0 24 24"
+            >
+              <path fill="currentColor" d="M19 10a1 1 0 0 0-1 1v3.38l-1.48-1.48a2.79 2.79 0 0 0-3.93 0l-.7.71l-2.48-2.49a2.79 2.79 0 0 0-3.93 0L4 12.61V7a1 1 0 0 1 1-1h8a1 1 0 0 0 0-2H5a3 3 0 0 0-3 3v12.22A2.79 2.79 0 0 0 4.78 22h12.44a3 3 0 0 0 .8-.12a2.74 2.74 0 0 0 2-2.65V11A1 1 0 0 0 19 10M5 20a1 1 0 0 1-1-1v-3.57l2.89-2.89a.78.78 0 0 1 1.1 0L15.46 20Zm13-1a1 1 0 0 1-.18.54L13.3 15l.71-.7a.77.77 0 0 1 1.1 0L18 17.21Zm3-15h-1V3a1 1 0 0 0-2 0v1h-1a1 1 0 0 0 0 2h1v1a1 1 0 0 0 2 0V6h1a1 1 0 0 0 0-2"></path>
+            </svg>
 
             {/* Image input */}
             <input
               type="file"
               id="file-input"
               accept="image/*"
+              multiple
               style={{ display: 'none' }}
               onChange={handleImageSelect}
             />
@@ -424,12 +581,15 @@ export default function EditTopic() {
               button_name="Add tags"
               variant="secondary"
               onClick={handleOnClickAddTags}
+              pending={isSaving}
             />
           </div>
           <Button
             button_name="Save"
             variant="primary"
+            pending_state_text="Saving"
             onClick={handleOnClickSave}
+            pending={isSaving}
           />
         </div>
 
@@ -437,31 +597,33 @@ export default function EditTopic() {
           button_name="Delete"
           variant="red"
           onClick={() => setIsConfirmModuleOpen(true)}
+          pending={isSaving}
         />
 
-        {isPopupOpen && (
-          <AddTagPopup
-            isPopupOpen={isPopupOpen}
-            setIsPopupOpen={setIsPopupOpen}
-            tags={tags}
-            setTags={setTags}
-            // tagsWCategory={tagsWCategory}
-            // setTagsWCategory={setTagsWCategory}
-          />
-        )}
+        <AddTagPopup
+          isPopupOpen={isPopupOpen}
+          setIsPopupOpen={setIsPopupOpen}
+          tags={tags}
+          setTags={setTags}
+          state={isPopupOpen}
+        />
 
-        {isConfirmModuleOpen && (
-          <ConfirmModule 
-            text='Do you want to delete this topic?' 
-            description='This topic will be permanently deleted and cannot be restored.' 
-            confirmText='Delete'
-            cancelText='Cancel'
-            confirmHandle={handleOnDeleteConfirm}
-            cancelHandle={handleOnDeletecancel}
-          />
-        )}
-
+        <ConfirmModule 
+          text='Do you want to delete this topic?' 
+          description='This topic will be permanently deleted and cannot be restored.' 
+          confirmText='Delete'
+          pendingText='Deleting'
+          cancelText='Cancel'
+          confirmHandle={handleOnDeleteConfirm}
+          cancelHandle={handleOnDeletecancel}
+          state={isConfirmModuleOpen}
+          pending={isDeleting}
+        />
       </div>
+      {/* Image Full View */}
+      {postData && (
+        <ImageFullView isImageFull={isImageFull} setIsImageFull={setIsImageFull} imgs={postData.imgs || []} clickedId={clickedId}/>
+      )}
     </div>
   );
 }

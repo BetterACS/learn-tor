@@ -3,11 +3,27 @@ import { connectDB } from "@/server/db";
 import { z } from "zod";
 import { publicProcedure } from "../trpc";
 import { SortOrder } from "mongoose";
+import { startOfToday } from "date-fns";
 
 function escapeRegex(str: string) {
     return str.replace(/[.*+?^=!:${}()|\[\]\/\\]/g, "\\$&");
 }
 
+async function resetViewTodayIfNeeded() {
+    await connectDB();
+    const todayStart = startOfToday();
+
+    await UniversityModel.updateMany(
+      { last_reset_view_today: { $lt: todayStart } },
+      {
+        $set: {
+          view_today: 0,
+          last_reset_view_today: new Date(),
+        },
+      }
+    );
+  }
+  
 export default function universityQueries() {
     return {
         searchUniversities: publicProcedure
@@ -37,7 +53,8 @@ export default function universityQueries() {
                     if (course_id) {
                         query["course_id"] = course_id;
                     }
-                    
+                    await resetViewTodayIfNeeded();
+
                     const sortOrder = order === "asc" ? 1 : -1;
                     const sortCondition: Record<string, SortOrder> = { [sortBy]: sortOrder, _id: 1 };
                     const totalResults = await UniversityModel.countDocuments(query);
