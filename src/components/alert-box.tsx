@@ -12,28 +12,28 @@ const AlertBox: React.FC<AlertBoxProps> = ({ alertType, title, message }) => {
 
   const alertConfig = {
     success: {
-      img: "images/alert/success.avif",
+      img: "/images/alert/success.avif",
       defaultTitle: "Success",
       defaultMessage: "Your request has been processed successfully.",
       border: "border-green-600",
       bg: "bg-green-50",
     },
     error: {
-      img: "images/alert/error.avif",
+      img: "/images/alert/error.avif",
       defaultTitle: "Error",
       defaultMessage: "An error occurred while processing your request.",
       border: "border-red-600",
       bg: "bg-red-50",
     },
     warning: {
-      img: "images/alert/warning.avif",
+      img: "/images/alert/warning.avif",
       defaultTitle: "Warning",
       defaultMessage: "Certain features are unavailable for this selection.",
       border: "border-yellow-700",
       bg: "bg-yellow-50",
     },
     info: {
-      img: "images/alert/info.avif",
+      img: "/images/alert/info.avif",
       defaultTitle: "Info",
       defaultMessage: "You will receive a notification once the process is complete.",
       border: "border-purple-600",

@@ -100,8 +100,8 @@ export default function universityQueries() {
                     const unique_course_types = await UniversityModel.find(query).distinct("course_type");
                     const unique_campuses = await UniversityModel.find(query).distinct("campus");
                     // const unique_admissionTypes = await UniversityModel.find(query).distinct("round_3.admission_type")
-                    const universities = await UniversityModel.find(query);
-                    console.log("universities", universities);
+                    // const universities = await UniversityModel.find(query);
+                    // console.log("universities", universities);
                     if (
                         unique_universities.length === 1 &&
                         unique_faculties.length === 1 &&
@@ -110,7 +110,7 @@ export default function universityQueries() {
                     ) { 
                         if (program) query.program = { $regex: new RegExp(escapeRegex(program), "i") };
                         const unique_programs = await UniversityModel.find(query).distinct("program");
-                        console.log("unique_programs", unique_programs.length);
+                        // console.log("unique_programs", unique_programs.length);
                         if (unique_programs.length === 1){
                         if (admissionType) {
                             const escapedAdmissionType = escapeRegex(admissionType);
