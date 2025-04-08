@@ -90,8 +90,8 @@ export default function saveResult(){
                 const student_school_type = JSON.parse(searchAdmissionDetails[0]?.round_3[0]?.student_school_type.replace(/'/g, '"')) || [];
                 const new_culcurate = searchAdmissionDetails[0]?.round_3[0]?.new_culcurate || {};
                 const last_years_admitted = searchAdmissionDetails[0]?.round_3[0]?.last_years_admitted || "";
-                const last_years_register = searchAdmissionDetails[0]?.round_3[0]?.last_year_register || "";
-                const last_years_passed = searchAdmissionDetails[0]?.round_3[0]?.last_year_passed || "";
+                const last_years_register = searchAdmissionDetails[0]?.round_3[0]?.last_years_register || "";
+                const last_years_passed = searchAdmissionDetails[0]?.round_3[0]?.last_years_passed || "";
                 const lastscore_score = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score || {};
                 let last_year_score_min = 0
                 let last_year_score_max = 0
@@ -143,7 +143,6 @@ export default function saveResult(){
                         "student_school_type": student_school_type ,//user.lesson_plan,
                         "cur_student_school_type": user.lesson_plan,
                         "admission_type": inputAdmission_type || "",
-                        // "passed": passed,
                         "admitted" : inputAdmitted,
                         "last_years_admitted": last_years_admitted || "",
                         "last_years_register": last_years_register || "",
@@ -181,6 +180,8 @@ export default function saveResult(){
                     // return { status: 200, data: { payload } };
 
                     try {            
+                        // console.log("json",JSON.stringify(payload, null, 2))
+
                         const response = await api.post('/recommend', JSON.stringify(payload, null, 2)); // Axios จะแปลง data เป็น JSON ให้อัตโนมัติ
                         // console.log('recommend:', response.data);
                         // console.log('min_score', inputMinScore);
