@@ -11,7 +11,7 @@ export default function queryResult() {
                     email: z.string().email(), 
                 })
             )
-            .mutation(async ({ input }) => { //ลอง ใช้ query แล้วใน postman ขึ้น error 
+            .query(async ({ input }) => {  // เปลี่ยนจาก mutation เป็น query
                 await connectDB();
                 const { email } = input;
                 const user = await UserModel.findOne({ email });

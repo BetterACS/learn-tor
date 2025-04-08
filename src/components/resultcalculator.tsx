@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { trpc } from '@/app/_trpc/client';
+import { AlertBox } from '@/components/index';
 
 const SemiCircleProgressBar = ({ score }: { score: number }) => {
   const getGradientColor = (score: number) => {
@@ -55,11 +56,23 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
   const [showDetails, setShowDetails] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
   const [calculationResult, setCalculationResult] = useState<any>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState<'success' | 'error'>('success');
+  const [alertMessage, setAlertMessage] = useState('');
 
   const handleConfirmClick = () => {
     sessionStorage.setItem('calculationResult', 'true');
-    router.replace('/tcascalculator'); // ใช้ replace เพื่อ refresh state ใหม่
+    router.replace('/tcascalculator');
   };
+
+  const deleteResult = trpc.deleteResult.useMutation({
+    onSuccess: () => {
+      setIsDeleted(true);
+    },
+    onError: (error) => {
+      console.error("Error deleting result:", error);
+    },
+  });
 
   const handleBackClick = () => {
     router.push('/tcascalculator/2');
@@ -69,14 +82,27 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
     setShowDetails(!showDetails);
   };
 
-  const handleDeleteClick = () => {
-    sessionStorage.removeItem('calculationResult'); // ลบข้อมูลออกจาก sessionStorage
-    setIsDeleted(true);
-  };
+  const handleDeleteClick = async () => {
+    try {
+      if (resultId) {
+        // ลบผลลัพธ์จาก backend
+        await deleteResult.mutateAsync({ result_id: resultId });
 
-  if (isDeleted) {
-    return null;
-  }
+        setAlertType('success');
+        setAlertMessage('ลบการคำนวณนี้สำเร็จ');
+        setShowAlert(true);
+
+        setTimeout(() => {
+          window.location.reload(); // รีเฟรชหน้า
+        }, 3000); 
+      }
+    } catch (error) {
+      setAlertType('error');
+      setAlertMessage('ไม่สามารถลบการคำนวณนี้ได้');
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
+    }
+  };
 
   const showResult = trpc.showResult.useMutation();
 
@@ -298,6 +324,13 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
           </div>
         )}
       </div>
+      {showAlert && (
+        <AlertBox
+          alertType={alertType}
+          title={alertType === 'success' ? 'Success' : 'Error'}
+          message={alertMessage}
+        />
+      )}
     </>
   );
 }

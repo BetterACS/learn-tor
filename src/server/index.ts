@@ -42,6 +42,7 @@ import editScore from './api/tcascalculator/editScore';
 import queryResult from './api/tcascalculator/queryResult';
 import editCalculate from './api/tcascalculator/editCalculate';
 import showResult from './api/tcascalculator/showResult';
+import deleteResult from './api/tcascalculator/deleteResult';
 
 export const appRouter = router({
 	...apiTest(),
@@ -87,6 +88,7 @@ export const appRouter = router({
     ...queryResult(),
     ...editCalculate(),
     ...showResult(),
+    ...deleteResult()
 });
 const createCaller = createCallerFactory(appRouter);
 

@@ -2,18 +2,26 @@
 import React, { useState, useEffect } from 'react';
 import { ResultCalculator } from '@/components/index';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { trpc } from '@/app/_trpc/client';
 
 
 const Calculator = () => {
+  const { data: session } = useSession();
   const router = useRouter();
 
   const [showResult, setShowResult] = useState(false);
-  
 
+  const { data: resultData, isLoading, error } = trpc.queryResult.useQuery(
+    { email: session?.user?.email || '' }, 
+    { enabled: !!session?.user?.email } 
+  );
+  
   useEffect(() => {
-    const resultExists = sessionStorage.getItem('calculationResult');
-    setShowResult(!!resultExists);
-  }, []);
+    if (resultData?.data?.length) {
+      setShowResult(true); 
+    }
+  }, [resultData]);
 
   const handleClick = () => {
     router.push('/tcascalculator/1');
@@ -61,8 +69,10 @@ const Calculator = () => {
 
         <div className="flex flex-col items-center justify-center">
         {showResult ? (
-            <ResultCalculator hideConfirmButton={true} />
-          ) : (
+          resultData.data.map((result: any) => (
+            <ResultCalculator key={result._id} resultId={result._id} hideConfirmButton={true} />
+          ))
+        ) : (
             <div className="bg-white w-full max-w-[1300px] h-auto md:h-[300px] rounded-lg shadow-md flex flex-col items-center justify-center p-6 md:p-12 border border-gray-200">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-20 h-20 mb-4 text-primary-600">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 014-4h10a4 4 0 014 4v1a4 4 0 01-4 4H7a4 4 0 01-4-4v-1z" />
