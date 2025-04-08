@@ -11,6 +11,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const defaultMinWidth = 200;
   const defaultMaxWidth = 280;
 
+  const temp = 178;
+
+  const [screenWidth, setScreenWidth] = useState(0);
+
   // Sidebar width states
   const [width, setWidth] = useState<number>(defaultWidth);
 
@@ -21,35 +25,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [compactSidebar, setCompactSidebar] = useState(false);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
 
+  const handleResize = () => {
+    const w = window.innerWidth;
+    setScreenWidth(w); // trigger layout reactivity
+  
+    if (w <= 768) {
+      setCompactSidebar(true);
+      setWidth(0);
+      setMinWidth(0);
+      setMaxWidth(0);
+      return;
+    }
+  
+    setCompactSidebar(false);
+  
+    if (w <= 1024 && w > 768) {
+      setMinWidth(175);
+      setMaxWidth(225);
+      setWidth((prev) => Math.min(Math.max(prev, 175+1), 225));
+    } else {
+      setMinWidth(defaultMinWidth);
+      setMaxWidth(defaultMaxWidth);
+    }
+  };
+
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setCompactSidebar(true);
-        setWidth(0);
-        setMinWidth(0);
-        setMaxWidth(0);
-        return;
-      }
-
-      setCompactSidebar(false);
-
-      if (window.innerWidth <= 1024 && window.innerWidth > 768) {
-        setMinWidth(175);
-        setMaxWidth(225);
-      } else {
-        // Large screens
-        setMinWidth(defaultMinWidth);
-        setMaxWidth(defaultMaxWidth);
-      }
-    };
-
     handleResize();
     setIsFullyLoaded(true);
     window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize); 
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+  
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -60,7 +66,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const resize = (e: MouseEvent) => {
     if (!isResizing.current) return;
-    setWidth(Math.min(Math.max(e.clientX, minWidth), maxWidth));
+    setWidth(Math.min(Math.max(e.clientX, minWidth+1), maxWidth));
   };
 
   const stopResizing = () => {
@@ -98,8 +104,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         
         {/* Main Content */}
         <div
-          className="h-full flex flex-col w-full flex-1"
-          // style={{ width: `calc(100% - ${width > minWidth && width <= maxWidth && width}px)` }}
+          // className="h-full flex flex-col w-full flex-1"
+          style={{ width: `calc(100% - ${width > minWidth && width <= maxWidth ? width : 0}px)` }}
         >
           {compactSidebar 
             && 

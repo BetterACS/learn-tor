@@ -16,7 +16,7 @@ interface TopicId {
 
 interface Post {
   _id: string, 
-  img: string, 
+  imgs: string[], 
   title: string, 
   body: string, 
   created_at: string, 
@@ -43,9 +43,10 @@ const Topic = forwardRef<HTMLDivElement, TopicId>(({ topicId }, ref) => {
   const topicTagsMutation = trpc.topicTags.useMutation();
   
   const [tags, setTags] = useState<string[]>([]);
-  const [topic, setTopic] = useState<Post | null>(null);
+  const [topic, setTopic] = useState<Post>();
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
   const [isImageFull, setIsImageFull] = useState(false);
+  const [clickedId, setClickedId] = useState<string>('');
 
   useEffect(() => {
     if (isLoading) return;
@@ -80,7 +81,7 @@ const Topic = forwardRef<HTMLDivElement, TopicId>(({ topicId }, ref) => {
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsImageFull(true);
-    console.log("Image Clicked!");
+    setClickedId(e.currentTarget.id);
   };
 
   if (isLoading) {
@@ -159,27 +160,152 @@ const Topic = forwardRef<HTMLDivElement, TopicId>(({ topicId }, ref) => {
               {topic?.body}
             </p>
           </div>
-          
-          {topic?.img && topic.img.trim() !== "" && 
-            (isLoaded ? 
-              <div onClick={handleImageClick} className="h-[25rem] w-full rounded-md">
-                <img src={topic?.img} className="w-full h-full object-contain bg-monochrome-950 rounded-md"/>
+
+          {Array.isArray(topic?.imgs) && topic.imgs.length > 0 && 
+            (!isLoaded ? (
+              <div className="w-full h-fit flex justify-center">
+                <div className="w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem] animate-pulse">
+                  <div className="w-full h-full bg-monochrome-100 rounded-md"/>
+                </div>
               </div>
-            : (
-              <div className="h-[25rem] w-full animate-pulse bg-monochrome-100 rounded-md"/>
+            ) : (
+              <div className="w-full h-fit flex justify-center">
+                {
+                  // Display multiple images layout
+                  topic.imgs.length === 1 && (
+                    <div className="flex w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                      {topic.imgs.map((img, index) => (
+                        <div 
+                          id={img} 
+                          key={index} 
+                          onClick={handleImageClick}
+                          className="h-full w-full rounded-sm bg-monochrome-950"
+                        >
+                          <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                  ||
+                  topic.imgs.length === 2 && (
+                    <div className="grid grid-cols-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                      {topic.imgs.map((img, index) => (
+                        <div 
+                          id={img} 
+                          key={index} 
+                          onClick={handleImageClick}
+                          className="h-full w-full rounded-sm bg-monochrome-950"
+                        >
+                          <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                  ||
+                  topic.imgs.length === 3 && (
+                    <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                      {topic.imgs.map((img, index) => (
+                        <div 
+                          id={img} 
+                          key={index} 
+                          onClick={handleImageClick}
+                          className="w-full h-full rounded-sm bg-monochrome-950 first:row-span-2"
+                        >
+                          <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                  ||
+                  topic.imgs.length === 4 && (
+                    <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                      {topic.imgs.map((img, index) => (
+                        <div 
+                          id={img} 
+                          key={index} 
+                          onClick={handleImageClick}
+                          className="w-full h-full rounded-sm bg-monochrome-950"
+                        >
+                          <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                  ||
+                  topic.imgs.length === 5 && (
+                    <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                      {topic.imgs.map((img, index) => {
+                        const gridStyles = [
+                          "col-span-3 row-span-3",
+                          "col-start-4 col-span-3 row-span-3",
+                          "col-span-2 row-start-4 row-span-3",
+                          "col-start-3 col-span-2 row-start-4 row-span-3",
+                          "col-start-5 col-span-2 row-start-4 row-span-3",
+                        ];
+
+                        return (
+                          <div 
+                            id={img} 
+                            key={index} 
+                            onClick={handleImageClick}
+                            className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950`}
+                          >
+                            <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                          </div>
+                        );
+                        
+                      })}
+                    </div>
+                  )
+                  ||
+                  topic.imgs.length > 5 && (
+                    <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                      {Array.from({ length: 5 }, (_, index) => {
+                        const gridStyles = [
+                          "col-span-3 row-span-3",
+                          "col-start-4 col-span-3 row-span-3",
+                          "col-span-2 row-start-4 row-span-3",
+                          "col-start-3 col-span-2 row-start-4 row-span-3",
+                          "col-start-5 col-span-2 row-start-4 row-span-3",
+                        ];
+                        return (
+                          <div 
+                            id={topic.imgs[index]} 
+                            key={index} 
+                            onClick={handleImageClick}
+                            className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950 relative`}
+                          >
+                            {index === 4 && (
+                              <>
+                                <div className="absolute w-full h-full bg-monochrome-950 opacity-60"/>
+                                <div className="absolute w-full h-full flex items-center justify-center">
+                                  <p className="text-monochrome-50 font-medium text-headline-4 mr-4">
+                                    +{topic.imgs.length-5}
+                                  </p>
+                                </div>
+                              </>
+                            )}
+                            <img src={topic.imgs[index] || '/'} className="h-full w-full object-cover rounded-sm"/>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )
+                }
+              </div>
             ))
           }
 
           {/* Interaction Bar */}
           <PostInteractionBar 
-            post={{ id: topic?._id, img: topic?.img, title: topic?.title, body: topic?.body, like: topic?.n_like, isLiked : topic?.isLiked, n_comment: topic?.n_comment }}
+            post={{ id: topic?._id, n_comment: topic?.n_comment }}
             comment_enable={true}
           />
         </div>
       </Link>
       {/* Image Full View */}
       {topic && (
-        <ImageFullView isImageFull={isImageFull} setIsImageFull={setIsImageFull} topicId={topic._id}/>
+        <ImageFullView isImageFull={isImageFull} setIsImageFull={setIsImageFull} imgs={topic?.imgs || []} clickedId={clickedId}/>
       )}
     </>
   )

@@ -51,7 +51,7 @@ export default function Home() {
           </p>
         </div>
         {/* Carosal */}
-        <div className="w-auto h-fit">
+        <div className="w-full h-fit">
           <Carousel />
         </div>
       </div>

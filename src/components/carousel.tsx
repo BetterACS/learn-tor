@@ -11,7 +11,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 interface Topic {
   _id: string, 
-  img: string, 
+  imgs: string, 
   title: string, 
   body: string, 
   created_at: string, 
@@ -81,10 +81,10 @@ export default function Carousel() {
   const [slideToShow, setSlideToShow] = useState(4);
 
   const { data: carousel_items, isLoading, isError } = trpc.searchQuery.useQuery({
-      sortBy: "Popular",
-      filterTags: [{ tagname: "Portfolio", category: "ทั่วไป", state: "included" }],
-      limit: TOPIC_LIMIT
-    });
+    sortBy: "Popular",
+    filterTags: [{ tagname: "Portfolio", category: "ทั่วไป", state: "included" }],
+    limit: TOPIC_LIMIT
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -135,8 +135,8 @@ export default function Carousel() {
                 query: JSON.stringify(item)}} 
         key={index} 
         className="w-[15vw] h-full !flex flex-col my-4 gap-2 outline-none group hover:scale-105 transition duration-200 hover:cursor-pointer">
-          {item.img && item.img.trim() !== "" ? (
-            <img src={item.img} className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md"/>
+          {Array.isArray(item.imgs) && item.imgs.length > 0 && item.imgs[0] ? (
+            <img src={item.imgs[0]} className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md"/>
           ) : (
             <div className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md bg-monochrome-200 flex items-center justify-center text-monochrome-500">
               No image

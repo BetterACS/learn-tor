@@ -45,7 +45,8 @@ interface Topic extends Document {
   created_at: Date;
   n_like?: number;
   forum?: string;
-  img?: string;
+  // img?: string;
+  img?: string[];
 }
 
 const TopicSchema: Schema<Topic> = new Schema({
@@ -56,7 +57,8 @@ const TopicSchema: Schema<Topic> = new Schema({
   created_at: { type: Date, default: Date.now },
   n_like: { type: Number, default: 0 },
   forum: { type: String },
-  img: { type: String },
+  // img: { type: String },
+  img: { type: [String], default: [] }
 });
 
 const TopicModel = mongoose.models.Topic || mongoose.model<Topic>('Topic', TopicSchema);

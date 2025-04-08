@@ -12,7 +12,7 @@ dayjs.extend(relativeTime);
 
 interface Post {
   _id: string, 
-  img: string, 
+  imgs: string[], 
   title: string, 
   body: string, 
   created_at: string, 
@@ -22,6 +22,7 @@ interface Post {
 }
 export default function Topic() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const router = useRouter();
   const { topicId } = useParams<{ topicId: string }>();
 
@@ -51,6 +52,7 @@ export default function Topic() {
   });
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
   const [isImageFull, setIsImageFull] = useState(false);
+  const [clickedId, setClickedId] = useState<string>('');
 
   useEffect(() => {
     if (isLoading) return;
@@ -63,7 +65,7 @@ export default function Topic() {
     } else {
       // console.log('API response is not an array:', data, isLoading);
     }
-  }, [data])
+  }, [data, pathname])
 
   useEffect(() => {
     if (session?.user?.email && post?._id) {
@@ -252,15 +254,132 @@ export default function Topic() {
           }
           <div className="w-full h-fit text-headline-4">{post?.title}</div>
           <div className="text-headline-6 w-full">{post?.body}</div>
-          {post?.img && 
+          {Array.isArray(post?.imgs) && post.imgs.length > 0 && 
             (!isLoaded ? (
-              <div className="h-[25rem] w-full animate-pulse">
+              <div className="w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem] animate-pulse">
                 <div className="w-full h-full bg-monochrome-100 rounded-md"/>
               </div>
             ) : (
-              <div onClick={() => setIsImageFull(true)} className="h-[25rem] w-full rounded-md">
-                <img src={post?.img || '/'} className="w-full h-full object-contain bg-monochrome-950 rounded-md"/>
-              </div>
+              // Display multiple images layout
+              post.imgs.length === 1 && (
+                <div className="flex w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {post.imgs.map((img, index) => (
+                    <div 
+                      id={img} 
+                      key={index} 
+                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                      className="h-full w-full rounded-sm bg-monochrome-950"
+                    >
+                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                    </div>
+                  ))}
+                </div>
+              )
+              ||
+              post.imgs.length === 2 && (
+                <div className="grid grid-cols-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {post.imgs.map((img, index) => (
+                    <div 
+                      id={img} 
+                      key={index} 
+                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                      className="h-full w-full rounded-sm bg-monochrome-950"
+                    >
+                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                    </div>
+                  ))}
+                </div>
+              )
+              ||
+              post.imgs.length === 3 && (
+                <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {post.imgs.map((img, index) => (
+                    <div 
+                      id={img} 
+                      key={index} 
+                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                      className="w-full h-full rounded-sm bg-monochrome-950 first:row-span-2"
+                    >
+                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                    </div>
+                  ))}
+                </div>
+              )
+              ||
+              post.imgs.length === 4 && (
+                <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {post.imgs.map((img, index) => (
+                    <div 
+                      id={img} 
+                      key={index} 
+                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                      className="w-full h-full rounded-sm bg-monochrome-950"
+                    >
+                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                    </div>
+                  ))}
+                </div>
+              )
+              ||
+              post.imgs.length === 5 && (
+                <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {post.imgs.map((img, index) => {
+                    const gridStyles = [
+                      "col-span-3 row-span-3",
+                      "col-start-4 col-span-3 row-span-3",
+                      "col-span-2 row-start-4 row-span-3",
+                      "col-start-3 col-span-2 row-start-4 row-span-3",
+                      "col-start-5 col-span-2 row-start-4 row-span-3",
+                    ];
+
+                    return (
+                      <div 
+                        id={img} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950`}
+                      >
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    );
+                    
+                  })}
+                </div>
+              )
+              ||
+              post.imgs.length > 5 && (
+                <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {Array.from({ length: 5 }, (_, index) => {
+                    const gridStyles = [
+                      "col-span-3 row-span-3",
+                      "col-start-4 col-span-3 row-span-3",
+                      "col-span-2 row-start-4 row-span-3",
+                      "col-start-3 col-span-2 row-start-4 row-span-3",
+                      "col-start-5 col-span-2 row-start-4 row-span-3",
+                    ];
+                    return (
+                      <div 
+                        id={post.imgs[index]} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950 relative`}
+                      >
+                        {index === 4 && (
+                          <>
+                            <div className="absolute w-full h-full bg-monochrome-950 opacity-60"/>
+                            <div className="absolute w-full h-full flex items-center justify-center">
+                              <p className="text-monochrome-50 font-medium text-headline-4 mr-4">
+                                +{post.imgs.length-5}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                        <img src={post.imgs[index] || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    );
+                  })}
+                </div>
+              )
             ))
           }
           <div className="flex gap-2 self-start">
@@ -297,8 +416,8 @@ export default function Topic() {
       </div>
 
       {/* Image Full View */}
-      {topicId && (
-        <ImageFullView isImageFull={isImageFull} setIsImageFull={setIsImageFull} topicId={topicId}/>
+      {post && (
+        <ImageFullView isImageFull={isImageFull} setIsImageFull={setIsImageFull} imgs={post.imgs || []} clickedId={clickedId}/>
       )}
     </div>
   )

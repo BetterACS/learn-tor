@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Button, AlertBox , AddTagPopup } from '@/components/index';
+import { Button, AlertBox , AddTagPopup, ImageFullView } from '@/components/index';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
@@ -10,7 +10,7 @@ import imageCompression from 'browser-image-compression';
 interface PostData {
   title: string;
   body: string;
-  img: string;
+  imgs: string[];
 }
 
 type Tag = {
@@ -30,12 +30,19 @@ export default function CreateTopic() {
   const [postData, setPostData] = useState<PostData>({
     title: '',
     body: '',
-    img: '',
+    imgs: [],
   });
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
   // const [tagsWCategory, setTagsWCategory] = useState<Record<string, Tag[]>>({});
   const [tags, setTags] = useState<Tag[]>([]);
   const [error, setError] = useState('');
+  const [isImageFull, setIsImageFull] = useState(false);
+  const [clickedId, setClickedId] = useState<string>('');
+  const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   const handleOnClickPost = async () => {
     setError('');
@@ -46,25 +53,26 @@ export default function CreateTopic() {
       return;
     } 
 
-    // UPLOAD IMAGE
-    let uploadedImageUrl = '';
-    if (postData.img) {
-      try {
-        const res = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: JSON.stringify({ file: postData.img }),
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
+    let uploadedImageUrls: string[] = [];
 
-        const data = await res.json();
-        if (data.secure_url) {
-          uploadedImageUrl = data.secure_url;
-          console.log("Upload image successfully");
-        }
-      } catch (error) {
-        console.error('Image upload failed', error);
+    if (postData.imgs.length > 0) {
+      try {
+        const uploadResults = await Promise.all(postData.imgs.map(async (img) => {
+          const res = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: JSON.stringify({ file: img }),
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+
+          const data = await res.json();
+          return data.secure_url || null;
+        }));
+
+        uploadedImageUrls = uploadResults.filter(Boolean) as string[];
+      } catch (err) {
+        console.error('Image upload failed', err);
         return;
       }
     }
@@ -75,7 +83,7 @@ export default function CreateTopic() {
         title: postData.title,
         body: postData.body,
         email: session?.user?.email || '',
-        img: uploadedImageUrl,
+        imgs: uploadedImageUrls,
       },
       {
         onSuccess: async (data) => {
@@ -97,10 +105,7 @@ export default function CreateTopic() {
   
                 // After successful tag addition, navigate to the new post
                 if ('topic' in data.data) {
-                  router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
-                    ...data.data.topic,
-                    img: uploadedImageUrl,
-                  })}`);
+                  router.push(`/forum/${(data.data.topic as Topic)._id}`);
                 } else {
                   setError("Topic data is missing");
                 }
@@ -122,11 +127,7 @@ export default function CreateTopic() {
                 setError("Failed to add tags, topic has been deleted.");
               }
             } else if ('topic' in data.data) {
-              console.log("No tags to add.");
-              router.push(`/forum/${(data.data.topic as Topic)._id}?${JSON.stringify({
-                ...data.data.topic,
-                img: uploadedImageUrl,
-              })}`);
+              router.push(`/forum/${(data.data.topic as Topic)._id}`);
             }
           }
         },
@@ -139,34 +140,38 @@ export default function CreateTopic() {
   };
 
   const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const maxSizeMB = 10;
-
-      if (file.size / 1024 / 1024 <= maxSizeMB) {
-        console.log('File size is already under the limit, no compression needed.');
-        const base64file = await blobToBase64(file) as string;
-        setPostData((prev) => ({ ...prev, img: base64file }));
-      } else {
-        const options = {
-          maxSizeMB,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+  
+    const maxSizeMB = 10;
+    const newImages: string[] = [];
+  
+    for (const file of files) {
+      try {
+        let fileToUse = file;
+  
+        if (file.size / 1024 / 1024 > maxSizeMB) {
+          const options = {
+            maxSizeMB,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+          };
+          fileToUse = await imageCompression(file, options);
         }
-
-        try {
-          const compressedFile = await imageCompression(file, options);
-          console.log('compressedFile instanceof Blob', compressedFile instanceof Blob);
-          console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`);
-          
-          const base64file = await blobToBase64(compressedFile) as string;
-          setPostData((prev) => ({ ...prev, img: base64file }));
-        } catch (error) {
-          console.log(error);
-        }
+  
+        const base64 = await blobToBase64(fileToUse) as string;
+        newImages.push(base64);
+      } catch (error) {
+        console.error('Error processing file:', file.name, error);
       }
     }
+  
+    setPostData((prev) => ({
+      ...prev,
+      imgs: [...prev.imgs, ...newImages],
+    }));
   };
+  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -249,54 +254,184 @@ export default function CreateTopic() {
         </div>
 
         {/* Image Preview */}
-        {postData.img && (
-          <div className="relative w-full h-fit flex flex-col justify-center items-center gap-2 rounded-md">
-            <button onClick={() => setPostData((prev) => ({ ...prev, img: '' }))} className="size-6 text-red-800 self-end">
-              <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-                <path fill="currentColor" d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"></path>
-              </svg>
-            </button>
-            <div className="flex w-fit h-[15rem] self-center pointer-events-none">
-              <img
-                src={postData.img}
-                alt="Uploaded"
-                className="w-full h-full object-cover"
-              />
-            </div>
+        <div className="w-full h-fit flex flex-col gap-4 justify-center items-center my-6 mb-[3rem]">
+          <p className="text-headline-5">Image Preview</p>
+          {Array.isArray(postData?.imgs) && postData.imgs.length > 0 && 
+            (!isLoaded ? (
+              <div className="w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem] animate-pulse">
+                <div className="w-full h-full bg-monochrome-100 rounded-md"/>
+              </div>
+            ) : (
+              // Display multiple images layout
+              postData.imgs.length === 1 && (
+                <div className="flex w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {postData.imgs.map((img, index) => (
+                    <div 
+                      id={img} 
+                      key={index} 
+                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                      className="h-full w-full rounded-sm bg-monochrome-950"
+                    >
+                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                    </div>
+                  ))}
+                </div>
+              )
+              ||
+              postData.imgs.length === 2 && (
+                <div className="grid grid-cols-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {postData.imgs.map((img, index) => (
+                    <div 
+                      id={img} 
+                      key={index} 
+                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                      className="h-full w-full rounded-sm bg-monochrome-950"
+                    >
+                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                    </div>
+                  ))}
+                </div>
+              )
+              ||
+              postData.imgs.length === 3 && (
+                <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {postData.imgs.map((img, index) => (
+                    <div 
+                      id={img} 
+                      key={index} 
+                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                      className="w-full h-full rounded-sm bg-monochrome-950 first:row-span-2"
+                    >
+                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                    </div>
+                  ))}
+                </div>
+              )
+              ||
+              postData.imgs.length === 4 && (
+                <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {postData.imgs.map((img, index) => (
+                    <div 
+                      id={img} 
+                      key={index} 
+                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                      className="w-full h-full rounded-sm bg-monochrome-950"
+                    >
+                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                    </div>
+                  ))}
+                </div>
+              )
+              ||
+              postData.imgs.length === 5 && (
+                <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {postData.imgs.map((img, index) => {
+                    const gridStyles = [
+                      "col-span-3 row-span-3",
+                      "col-start-4 col-span-3 row-span-3",
+                      "col-span-2 row-start-4 row-span-3",
+                      "col-start-3 col-span-2 row-start-4 row-span-3",
+                      "col-start-5 col-span-2 row-start-4 row-span-3",
+                    ];
+
+                    return (
+                      <div 
+                        id={img} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950`}
+                      >
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    );
+                    
+                  })}
+                </div>
+              )
+              ||
+              postData.imgs.length > 5 && (
+                <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                  {Array.from({ length: 5 }, (_, index) => {
+                    const gridStyles = [
+                      "col-span-3 row-span-3",
+                      "col-start-4 col-span-3 row-span-3",
+                      "col-span-2 row-start-4 row-span-3",
+                      "col-start-3 col-span-2 row-start-4 row-span-3",
+                      "col-start-5 col-span-2 row-start-4 row-span-3",
+                    ];
+                    return (
+                      <div 
+                        id={postData.imgs[index]} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950 relative`}
+                      >
+                        {index === 4 && (
+                          <>
+                            <div className="absolute w-full h-full bg-monochrome-950 opacity-60"/>
+                            <div className="absolute w-full h-full flex items-center justify-center">
+                              <p className="text-monochrome-50 font-medium text-headline-4 mr-4">
+                                +{postData.imgs.length-5}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                        <img src={postData.imgs[index] || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    );
+                  })}
+                </div>
+              )
+            ))
+          }
+        </div>
+
+        {/* Image Select */}
+        <div className="w-full h-fit flex flex-col gap-8 justify-center items-center">
+          <p className="text-headline-5">Selected Image</p>
+          <div className="w-full h-full flex flex-wrap gap-4 justify-center">
+          {postData.imgs && (
+            postData.imgs.map((img, index) => (
+              <div key={index} className="relative w-fit h-fit flex flex-col justify-center items-center gap-2 rounded-md">
+                <button 
+                  onClick={() => setPostData((prev) => ({ ...prev, imgs: postData.imgs.filter(item => item !== img) }))} className="size-6 text-red-800 self-end"
+                >
+                  <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                    <path fill="currentColor" d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"></path>
+                  </svg>
+                </button>
+                <div className="flex w-fit h-[15rem] self-center pointer-events-none">
+                  <img
+                    src={img}
+                    alt="Uploaded"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+            ))
+          )}
           </div>
-        )}
+        </div>
 
         <div className="w-full flex justify-between">
           <div className="flex items-center gap-4">
-            {postData.img ? (
-              <svg 
-                onClick={() => document.getElementById('file-input')?.click()}
-                className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
-                xmlns="http://www.w3.org/2000/svg"
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-              >
-                <path fill="currentColor" d="M21.5 1.5a1 1 0 0 0-1 1a5 5 0 1 0 .3 7.75a1 1 0 0 0-1.32-1.51a3 3 0 1 1 .25-4.25H18.5a1 1 0 0 0 0 2h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-.99m-3 12a1 1 0 0 0-1 1v.39L16 13.41a2.77 2.77 0 0 0-3.93 0l-.7.7l-2.46-2.49a2.79 2.79 0 0 0-3.93 0L3.5 13.1V7.5a1 1 0 0 1 1-1h5a1 1 0 0 0 0-2h-5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5a1 1 0 0 0-1-1m-14 7a1 1 0 0 1-1-1v-3.57L6.4 13a.79.79 0 0 1 1.09 0l3.17 3.17L15 20.5Zm13-1a1 1 0 0 1-.18.53l-4.51-4.51l.7-.7a.78.78 0 0 1 1.1 0l2.89 2.9Z"></path>
-              </svg>
-            ) : (
-              <svg 
-                onClick={() => document.getElementById('file-input')?.click()}
-                className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
-                xmlns="http://www.w3.org/2000/svg"
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-              >
-                <path fill="currentColor" d="M19 10a1 1 0 0 0-1 1v3.38l-1.48-1.48a2.79 2.79 0 0 0-3.93 0l-.7.71l-2.48-2.49a2.79 2.79 0 0 0-3.93 0L4 12.61V7a1 1 0 0 1 1-1h8a1 1 0 0 0 0-2H5a3 3 0 0 0-3 3v12.22A2.79 2.79 0 0 0 4.78 22h12.44a3 3 0 0 0 .8-.12a2.74 2.74 0 0 0 2-2.65V11A1 1 0 0 0 19 10M5 20a1 1 0 0 1-1-1v-3.57l2.89-2.89a.78.78 0 0 1 1.1 0L15.46 20Zm13-1a1 1 0 0 1-.18.54L13.3 15l.71-.7a.77.77 0 0 1 1.1 0L18 17.21Zm3-15h-1V3a1 1 0 0 0-2 0v1h-1a1 1 0 0 0 0 2h1v1a1 1 0 0 0 2 0V6h1a1 1 0 0 0 0-2"></path>
-              </svg>
-            )}
+            <svg 
+              onClick={() => document.getElementById('file-input')?.click()}
+              className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
+              xmlns="http://www.w3.org/2000/svg"
+              width={24}
+              height={24}
+              viewBox="0 0 24 24"
+            >
+              <path fill="currentColor" d="M19 10a1 1 0 0 0-1 1v3.38l-1.48-1.48a2.79 2.79 0 0 0-3.93 0l-.7.71l-2.48-2.49a2.79 2.79 0 0 0-3.93 0L4 12.61V7a1 1 0 0 1 1-1h8a1 1 0 0 0 0-2H5a3 3 0 0 0-3 3v12.22A2.79 2.79 0 0 0 4.78 22h12.44a3 3 0 0 0 .8-.12a2.74 2.74 0 0 0 2-2.65V11A1 1 0 0 0 19 10M5 20a1 1 0 0 1-1-1v-3.57l2.89-2.89a.78.78 0 0 1 1.1 0L15.46 20Zm13-1a1 1 0 0 1-.18.54L13.3 15l.71-.7a.77.77 0 0 1 1.1 0L18 17.21Zm3-15h-1V3a1 1 0 0 0-2 0v1h-1a1 1 0 0 0 0 2h1v1a1 1 0 0 0 2 0V6h1a1 1 0 0 0 0-2"></path>
+            </svg>
             
             {/* Image input */}
             <input
               type="file"
               id="file-input"
               accept="image/*"
+              multiple
               style={{ display: 'none' }}
               onChange={handleImageSelect}
             />
@@ -322,6 +457,10 @@ export default function CreateTopic() {
           state={isPopupOpen}
         />
       </div>
+      {/* Image Full View */}
+      {postData && (
+        <ImageFullView isImageFull={isImageFull} setIsImageFull={setIsImageFull} imgs={postData.imgs || []} clickedId={clickedId}/>
+      )}
     </div>
   );
 }

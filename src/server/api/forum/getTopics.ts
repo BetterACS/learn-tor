@@ -85,7 +85,7 @@ const getTopics = {
               user_id: { $first: "$user_id" },
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
-              img: { $first: "$img" },
+              imgs: { $first: "$img" },
               tags: { $push: { tagname: "$tagDetails.tagname", category: "$tagDetails.category" } }, // avoid duplicates
             },
           },
@@ -231,7 +231,7 @@ const getTopics = {
               user_id: { $first: "$user_id" },
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
-              img: { $first: "$img" },
+              imgs: { $first: "$img" },
               tags: { $push: "$tagDetails.tagname" },
             },
           },
@@ -375,7 +375,7 @@ const getTopics = {
               user_id: { $first: "$topicDetails.user_id" },
               created_at: { $first: "$topicDetails.created_at" },
               n_like: { $first: "$topicDetails.n_like" },
-              img: { $first: "$topicDetails.img" },
+              imgs: { $first: "$topicDetails.img" },
               tags: { $push: "$tagDetails.tagname" },
             },
           },
@@ -495,7 +495,7 @@ const getTopics = {
               user_id: { $first: "$user_id" },
               created_at: { $first: "$created_at" },
               n_like: { $first: "$n_like" },
-              img: { $first: "$img" },
+              imgs: { $first: "$img" },
               tags: { $push: {
                 tagname: "$tagDetails.tagname",
                 category: "$tagDetails.category"
@@ -579,7 +579,7 @@ const getTopics = {
 
         return { 
           status: 200, 
-          data: topic.img
+          data: { imgs: topic.img }
         };
       } catch (error) {
         return { status: 500, data: { message: "Failed to fetch topic image" } };

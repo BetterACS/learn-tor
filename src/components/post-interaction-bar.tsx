@@ -9,11 +9,6 @@ import { count } from 'console';
 interface PostProps {
   post: { 
     id: string | undefined, 
-    img: string | undefined, 
-    title: string | undefined, 
-    body: string | undefined, 
-    like: number | undefined, 
-    isLiked: boolean | undefined,
     n_comment: number | undefined,
   };
   comment_enable: boolean;

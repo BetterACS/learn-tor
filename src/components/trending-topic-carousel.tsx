@@ -13,7 +13,7 @@ dayjs.extend(relativeTime);
 
 interface Topic {
   _id: string, 
-  img: string, 
+  imgs: string[], 
   title: string, 
   body: string, 
   created_at: string, 
@@ -82,7 +82,7 @@ export default function TrendingTopicCarousel() {
               </div>
             </div>
             <div className="w-full h-[20vh] rounded-xl bg-monochrome-100"></div>
-            <p className="text-headline-6 text-start group-hover:text-primary-600 transition duration-200 break-words text-transparent bg-monochrome-100 rounded-md w-fit">
+            <p className="text-headline-6 text-start transition duration-200 break-words text-transparent bg-monochrome-100 rounded-md w-fit">
               Placeholderrrrrrrrrrrrr
             </p>
             <p className="text-body-small text-transparent bg-monochrome-100 rounded-md w-fit">
@@ -125,9 +125,9 @@ export default function TrendingTopicCarousel() {
               </div>
               } */}
             </div>
-            {item.img && item.img.trim() !== "" && (
+            {Array.isArray(item.imgs) && item.imgs.length > 0 && item.imgs[0] && (
               <img 
-                src={item.img} 
+                src={item.imgs[0]} 
                 className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md"
               />
             )}
