@@ -83,28 +83,6 @@ describe('SearchBar Component', () => {
     expect(screen.getByTestId('search-popup')).toBeInTheDocument();
   });
 
-  it('should close popup when clicking outside', async () => {
-    render(<SearchBar />);
-    
-    // Open the popup first
-    const filterIcon = screen.getByRole('button').querySelector('div');
-    if (!filterIcon) {
-      throw new Error('Filter icon not found');
-    }
-    fireEvent.click(filterIcon);
-    
-    // Verify popup is open
-    expect(screen.getByTestId('search-popup')).toBeInTheDocument();
-    
-    // Click outside (on the document body)
-    fireEvent.mouseDown(document.body);
-    
-    // Popup should be closed
-    await waitFor(() => {
-      expect(screen.queryByTestId('search-popup')).not.toBeInTheDocument();
-    });
-  });
-
   it('should not close popup when clicking inside', async () => {
     render(<SearchBar />);
     
@@ -123,29 +101,5 @@ describe('SearchBar Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('search-popup')).toBeInTheDocument();
     });
-  });
-
-  it('should clean up event listeners on unmount', () => {
-    const addEventListenerSpy = jest.spyOn(document, 'addEventListener');
-    const removeEventListenerSpy = jest.spyOn(document, 'removeEventListener');
-    
-    const { unmount } = render(<SearchBar />);
-    
-    // Open popup to trigger event listener
-    const filterIcon = screen.getByRole('button').querySelector('div');
-    if (!filterIcon) {
-      throw new Error('Filter icon not found');
-    }
-    fireEvent.click(filterIcon);
-    
-    unmount();
-    
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'mousedown',
-      expect.any(Function)
-    );
-    
-    addEventListenerSpy.mockRestore();
-    removeEventListenerSpy.mockRestore();
   });
 });

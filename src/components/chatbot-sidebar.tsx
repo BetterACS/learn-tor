@@ -189,7 +189,9 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
       // ถ้าไม่ตรงกับที่กำหนด ให้ใช้การเปรียบเทียบ string ธรรมดา
       return a.localeCompare(b);
     });
-
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempLabel(e.target.value);
+  };
   const mutationEditRoom = trpc.editRoom.useMutation();
   const handleSaveRename = (item: string) => {
     const originalLabel = labels.find((label) => label._id === item)?.name || '';
