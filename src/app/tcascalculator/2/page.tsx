@@ -115,10 +115,15 @@ export default function Calculator2() {
     if (scoreData) {
       const { score, GPAX, lesson_plan } = scoreData;
       const { __v, _id, user_id, SPEACIAL, ...restScores } = score || {};
+
+      const cleanedScores: Partial<FormData> = {};
+      for (const [key, value] of Object.entries(restScores)) {
+        cleanedScores[key] = value !== null ? String(value) : '';
+      }
   
       setFormData((prev) => ({
         ...prev,
-        ...restScores,
+        ...cleanedScores,
         GPAX: GPAX?.toString() || '', // แปลงเป็น string สำหรับ input
         lesson_plan: lesson_plan || '',
       }));
@@ -370,10 +375,59 @@ export default function Calculator2() {
   
     return scoreObj;
   };
+
+  const isAllRequiredFieldsFilled = () => {
+    if (!requiredScores || Object.keys(requiredScores).length === 0) return false;
+  
+    let hasAtLeastOneMaxScore = false;
+  
+    for (const [label, detail] of Object.entries(requiredScores)) {
+      if (detail.type === 'single') {
+        const value = formData[scoreName[label]];
+        if (!value || String(value).trim() === '') return false;
+      } else if (detail.type === 'special') {
+        const value = formData[label];
+        const max = formData[`${label}_max`];
+        if (!value || !max || String(value).trim() === '' || String(max).trim() === '') return false;
+      } else if (detail.type === 'max' && Array.isArray(detail.base_subjects)) {
+        const hasFilled = detail.base_subjects.some(
+          (subj) =>
+            formData[scoreName[subj]] &&
+            String(formData[scoreName[subj]]).trim() !== ''
+        );
+        if (hasFilled) hasAtLeastOneMaxScore = true;
+      }
+    }
+  
+    // เช็คเฉพาะตอนมี max-type
+    const hasMaxSubject = Object.values(requiredScores).some((r: any) => r.type === 'max');
+    if (hasMaxSubject && !hasAtLeastOneMaxScore) return false;
+  
+    // GPAX
+    if (
+      requiredScores['เกรดเฉลี่ย']?.type === 'single' &&
+      (!formData.GPAX || String(formData.GPAX).trim() === '')
+    ) return false;
+  
+    // แผนการเรียน
+    if (!formData.lesson_plan || String(formData.lesson_plan).trim() === '') return false;
+  
+    return true;
+  };
+  
+  
   
   const saveResult = trpc.saveResult.useMutation();
 
   const handleCalculateClick = async () => {
+    if (!isAllRequiredFieldsFilled()) {
+      setAlertType('error');
+      setAlertMessage('กรุณากรอกคะแนนให้ครบทุกช่องที่จำเป็นก่อนคำนวณ');
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 3000);
+      return;
+    }
+
     const scorePayload = {
       email: session?.user?.email || '',
       institution: university || '',
@@ -606,8 +660,13 @@ export default function Calculator2() {
               <EditButtons isEditing={isEditing} onEditClick={handleEditClick} onCancelClick={handleCancelClick} onSaveClick={handleSaveClick} />
             </div>
             <button
-              className="mt-16 bg-primary-600 text-white max-h-[43px] px-10 py-3 rounded-lg hover:bg-primary-700 transition text-big-button w-120"
+              className={`mt-16 px-10 py-3 rounded-lg text-big-button w-120 max-h-[43px] transition ${
+                isAllRequiredFieldsFilled()
+                  ? 'bg-primary-600 text-white hover:bg-primary-700'
+                  : 'bg-gray-300 text-white cursor-not-allowed'
+              }`}
               onClick={handleCalculateClick}
+              disabled={!isAllRequiredFieldsFilled()}
             >
               คำนวณคะแนน
             </button>
