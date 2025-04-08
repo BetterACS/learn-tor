@@ -63,7 +63,7 @@ const authOptions: NextAuthOptions = {
     warn: console.warn,
     debug: console.log,
   },
-  debug: true,
+  debug: false,
 };
 
 export default authOptions;

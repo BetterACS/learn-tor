@@ -87,7 +87,7 @@ export default function Carousel({ carousel_items }: CarouselProps) {
                 query: JSON.stringify(item)}} 
         key={item._id} 
         className="w-[15vw] h-full !flex flex-col my-4 gap-2 outline-none group hover:scale-105 transition duration-200 hover:cursor-pointer">
-          {item.img && item.img.trim() !== "" ? (
+          {item.img && item.img !== "" ? (
             <img src={item.img} className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md"/>
           ) : (
             <div className="w-full h-[20vh] rounded-xl object-cover group-hover:drop-shadow-md bg-monochrome-200 flex items-center justify-center text-monochrome-500">

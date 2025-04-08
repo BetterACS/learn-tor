@@ -43,7 +43,7 @@
 				const newTagIds = allTagNames.map(tag => tag._id);
 
 				// Add new tags (only if they don't already exist)
-				for (let tagId of newTagIds) {
+				for (const tagId of newTagIds) {
 					const existingTag = await TopicAndTagModel.findOne({ topic_id: topicId, tag_id: tagId });
 					if (!existingTag) {
 						await TopicAndTagModel.create({ topic_id: topicId, tag_id: tagId });

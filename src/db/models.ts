@@ -104,8 +104,8 @@ interface Score extends Document {
   A_CHINESE?: number;
   A_KOREAN?: number;
   A_SPANISH?: number;
-  SPEACIAL?: Array<Object>;
-  MAX?: Array<Object>;
+  MAX?: Array<object>;
+  SPEACIAL?: Array<object>;
 }
 
 const ScoreSchema: Schema<Score> = new Schema({
@@ -197,7 +197,7 @@ interface University extends Document {
   info : info, 
   round_1: Array<string>,
   round_2: Array<string>,
-  round_3: Array<Object>,
+  round_3: Array<object>,
   round_4: Array<string>,
   logo: string
   image: string
