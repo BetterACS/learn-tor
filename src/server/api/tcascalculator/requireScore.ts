@@ -2,6 +2,7 @@ import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod';
 import { connectDB } from "@/server/db";
 import { UniversityModel } from "@/db/models";
+import { stat } from "fs";
 
 export default function requireScore() {
     return {
@@ -57,31 +58,22 @@ export default function requireScore() {
         course_type,
         "round_3.admission_type": admission_type,
       });
-
-      const extractedData = universities.map((uni) => {
-        const matchedRound = uni.round_3.find((r3) => r3.admission_type === admission_type);
-
-        const transformScores = (data) =>
-          Object.fromEntries(
-            Object.entries(data || {}).map(([key, value]) => [
-              Object.keys(scoreName).find((shortName) => scoreName[shortName] === key) || key,
-              value,
-            ])
-          );
-
+      console.log("universities", universities);
+      const round3Data = universities[0]?.round_3 || [];
+      const matchedRound = round3Data.find(
+        (round: any) => round.admission_type === admission_type
+      );
+      const new_culcurate = matchedRound?.new_culcurate || null;
+      
+      if (!new_culcurate) {
         return {
-          institution: uni.institution,
-          faculty: uni.faculty,
-          program: uni.program,
-          admission_type: matchedRound?.admission_type,
-          score_calculation_formula: transformScores(matchedRound?.score_calculation_formula),
-          minimum_criteria: transformScores(matchedRound?.minimum_criteria),
+          status: 404,
+          message: "No data found",
         };
-      });
-
+      }
       return {
         status: 200,
-        data: { message: "Successful load data", requireScore: extractedData },
+        data: { message: "Successful load data", new_culcurate: new_culcurate },
       };
     } catch (error) {
       console.error("Error fetching required scores:", error);
