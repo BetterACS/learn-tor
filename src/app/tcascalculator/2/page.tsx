@@ -454,9 +454,12 @@ export default function Calculator2() {
 
       console.log("ผลลัพธ์จาก saveResult:", saveResponse);
 
+      const resultId = saveResponse.data.result_id;
+
       // push ไปหน้า /tcascalculator/3 พร้อม query
       const query = new URLSearchParams({
         data: JSON.stringify(saveResponse.data),
+        result_id: resultId,
       }).toString();
 
       router.push(`/tcascalculator/3?${query}`);
