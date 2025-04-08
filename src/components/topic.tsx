@@ -94,7 +94,6 @@ const Topic = forwardRef<HTMLDivElement, TopicId>(({ topicId }, ref) => {
     <>
       <Link
       href={{ pathname: `/forum/${topic?._id}`
-      // ,query: JSON.stringify({ ...post, tags: tags })
       }}
       className="h-full w-full bg-monochrome-50 drop-shadow-[0_0_6px_rgba(0,0,0,0.1)] rounded-xl cursor-default"
       >

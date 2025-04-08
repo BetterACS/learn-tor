@@ -51,7 +51,7 @@ export default function AddTagPopup({ isPopupOpen, setIsPopupOpen, tags, setTags
   }, [isLoading, data]);
 
   const handleAddTag = (category: string) => {
-    const trimTagName = newTag[category]?.trim();
+    const trimTagName = typeof newTag[category] === 'string' ? newTag[category].trim() : '';
 
     if (tagList[category]?.some(item => item.tagname === trimTagName)) {
       const originalTag = tagList[category].find(item => item.tagname === trimTagName);
