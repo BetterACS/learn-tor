@@ -456,7 +456,7 @@ export default function Calculator2() {
 
       // push ไปหน้า /tcascalculator/3 พร้อม query
       const query = new URLSearchParams({
-        data: JSON.stringify(scorePayload),
+        data: JSON.stringify(saveResponse.data),
       }).toString();
 
       router.push(`/tcascalculator/3?${query}`);

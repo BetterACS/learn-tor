@@ -85,12 +85,24 @@ export default function saveResult(){
                 const inputScoreCalculationFormula = searchAdmissionDetails[0]?.round_3[0]?.score_calculation_formula || {};
                 const inputMinimumCriteria = searchAdmissionDetails[0]?.round_3[0]?.minimum_criteria || {};
                 const inputAdmitted = searchAdmissionDetails[0]?.round_3[0]?.admitted || "";
+                const inputMinScore = searchAdmissionDetails[0]?.round_3[0]?.min_score || 0;
+                const inputMaxScore = searchAdmissionDetails[0]?.round_3[0]?.max_score || 0;
                 const student_school_type = JSON.parse(searchAdmissionDetails[0]?.round_3[0]?.student_school_type.replace(/'/g, '"')) || [];
                 const passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
                 const new_culcurate = searchAdmissionDetails[0]?.round_3[0]?.new_culcurate || {};
                 const last_years_register = searchAdmissionDetails[0]?.round_3[0]?.register || "";
                 const last_years_passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
                 const lastscore_score = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score || {};
+                let last_year_score_min = 0
+                let last_year_score_max = 0
+                try{
+                    last_year_score_min = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score["ประมวลผลครั้งที่ 2"]["ต่ำ"] || 0;
+                    last_year_score_max = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score["ประมวลผลครั้งที่ 2"]["สูง"] || 0;
+                }
+                catch{
+                  
+                }
+                
 
                 const scoreUser = await ScoreModel.findOne({ user_id: user_id });
                 const score_GPAX = (user.GPAX/4)*100 || 0;
@@ -170,7 +182,11 @@ export default function saveResult(){
                     try {            
                         const response = await api.post('/recommend', JSON.stringify(payload, null, 2)); // Axios จะแปลง data เป็น JSON ให้อัตโนมัติ
                         // console.log('recommend:', response.data);
-
+                        // console.log('min_score', inputMinScore);
+                        // console.log('max_score', inputMaxScore);
+                        // console.log('last_year_score_min', last_year_score_min);
+                        // console.log('last_year_score_max', last_year_score_max);
+                        // console.log('student_school_type', student_school_type);
                         const result = await TcasCalculatorModel.create({
                             user_id: user_id,
                             institution: inputInstitution,
@@ -183,10 +199,15 @@ export default function saveResult(){
                             minimum_criteria: inputMinimumCriteria,
                             admitted: inputAdmitted,
                             chance: response.data.chance,
-                            calculated_score: response.data.calculated_score
+                            calculated_score: response.data.calculated_score,
+                            max_score: inputMaxScore,
+                            min_score: inputMinScore,
+                            last_year_min_score: last_year_score_min,
+                            last_year_max_score: last_year_score_max,
+                            student_school_type: student_school_type,
                         });
                         const result_id = result._id;
-                        return { status: 200, data: { message: "Save result success", result_id: result_id } };
+                        return { status: 200, data: { message: "Save result success", result_id: result_id, result : result } };
                     
                       } catch (error) {
                         return { status: 500, data: { message: "Error in API call time out" } };

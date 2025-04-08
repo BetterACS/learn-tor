@@ -298,7 +298,12 @@ interface TcasCalculator extends Document {
   minimum_criteria: Array<object>,
   admitted: number
   chance: number,
-  calculated_score: number
+  calculated_score: number,
+  min_score: number,
+  max_score: number,
+  last_year_min_score: number,
+  last_year_max_score: number,
+  student_school_type: Array<string>,
 }
 
 const TcasCalculatorSchema: Schema<TcasCalculator> = new Schema({
@@ -313,7 +318,12 @@ const TcasCalculatorSchema: Schema<TcasCalculator> = new Schema({
   minimum_criteria: { type: [Object] },
   admitted: { type: Number },
   chance: { type: Number },
-  calculated_score: {type:Number}
+  calculated_score: {type:Number},
+  max_score: {type:Number},
+  min_score: {type:Number},
+  last_year_min_score: {type:Number},
+  last_year_max_score: {type:Number},
+  student_school_type: { type: [String] },
 });
 
 const TcasCalculatorModel = mongoose.models.TcasCalculator || mongoose.model<TcasCalculator>('TcasCalculator', TcasCalculatorSchema);
