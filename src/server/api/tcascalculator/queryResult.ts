@@ -21,7 +21,7 @@ export default function queryResult() {
                 }
 
                 const user_id = user._id;
-                const result = await TcasCalculatorModel.findOne({ user_id });
+                const result = await TcasCalculatorModel.find({ user_id });
 
                 return {
                     status: 200,
