@@ -39,6 +39,7 @@ export default function CreateTopic() {
   const [isImageFull, setIsImageFull] = useState(false);
   const [clickedId, setClickedId] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -46,7 +47,7 @@ export default function CreateTopic() {
 
   const handleOnClickPost = async () => {
     setError('');
-
+    setIsCreating(true);
     // NO TITLE
     if (postData.title === "") {
       setError("Title is required");
@@ -127,6 +128,7 @@ export default function CreateTopic() {
                 setError("Failed to add tags, topic has been deleted.");
               }
             } else if ('topic' in data.data) {
+              setIsCreating(false);
               router.push(`/forum/${(data.data.topic as Topic)._id}`);
             }
           }
@@ -254,144 +256,144 @@ export default function CreateTopic() {
         </div>
 
         {/* Image Preview */}
-        <div className="w-full h-fit flex flex-col gap-4 justify-center items-center my-6 mb-[3rem]">
-          <p className="text-headline-5">Image Preview</p>
-          {Array.isArray(postData?.imgs) && postData.imgs.length > 0 && 
-            (!isLoaded ? (
-              <div className="w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem] animate-pulse">
-                <div className="w-full h-full bg-monochrome-100 rounded-md"/>
-              </div>
-            ) : (
-              // Display multiple images layout
-              postData.imgs.length === 1 && (
-                <div className="flex w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
-                  {postData.imgs.map((img, index) => (
-                    <div 
-                      id={img} 
-                      key={index} 
-                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
-                      className="h-full w-full rounded-sm bg-monochrome-950"
-                    >
-                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
-                    </div>
-                  ))}
+        {Array.isArray(postData?.imgs) && postData.imgs.length > 0 && (
+          <div className="w-full h-fit flex flex-col gap-4 justify-center items-center my-6 mb-[3rem]">
+            <p className="text-headline-5">Image Preview</p>
+              {!isLoaded ? (
+                <div className="w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem] animate-pulse">
+                  <div className="w-full h-full bg-monochrome-100 rounded-md"/>
                 </div>
-              )
-              ||
-              postData.imgs.length === 2 && (
-                <div className="grid grid-cols-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
-                  {postData.imgs.map((img, index) => (
-                    <div 
-                      id={img} 
-                      key={index} 
-                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
-                      className="h-full w-full rounded-sm bg-monochrome-950"
-                    >
-                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
-                    </div>
-                  ))}
-                </div>
-              )
-              ||
-              postData.imgs.length === 3 && (
-                <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
-                  {postData.imgs.map((img, index) => (
-                    <div 
-                      id={img} 
-                      key={index} 
-                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
-                      className="w-full h-full rounded-sm bg-monochrome-950 first:row-span-2"
-                    >
-                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
-                    </div>
-                  ))}
-                </div>
-              )
-              ||
-              postData.imgs.length === 4 && (
-                <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
-                  {postData.imgs.map((img, index) => (
-                    <div 
-                      id={img} 
-                      key={index} 
-                      onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
-                      className="w-full h-full rounded-sm bg-monochrome-950"
-                    >
-                      <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
-                    </div>
-                  ))}
-                </div>
-              )
-              ||
-              postData.imgs.length === 5 && (
-                <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
-                  {postData.imgs.map((img, index) => {
-                    const gridStyles = [
-                      "col-span-3 row-span-3",
-                      "col-start-4 col-span-3 row-span-3",
-                      "col-span-2 row-start-4 row-span-3",
-                      "col-start-3 col-span-2 row-start-4 row-span-3",
-                      "col-start-5 col-span-2 row-start-4 row-span-3",
-                    ];
-
-                    return (
+              ) : (
+                // Display multiple images layout
+                postData.imgs.length === 1 && (
+                  <div className="flex w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => (
                       <div 
                         id={img} 
                         key={index} 
                         onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
-                        className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950`}
+                        className="h-full w-full rounded-sm bg-monochrome-950"
                       >
                         <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
                       </div>
-                    );
-                    
-                  })}
-                </div>
-              )
-              ||
-              postData.imgs.length > 5 && (
-                <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
-                  {Array.from({ length: 5 }, (_, index) => {
-                    const gridStyles = [
-                      "col-span-3 row-span-3",
-                      "col-start-4 col-span-3 row-span-3",
-                      "col-span-2 row-start-4 row-span-3",
-                      "col-start-3 col-span-2 row-start-4 row-span-3",
-                      "col-start-5 col-span-2 row-start-4 row-span-3",
-                    ];
-                    return (
+                    ))}
+                  </div>
+                )
+                ||
+                postData.imgs.length === 2 && (
+                  <div className="grid grid-cols-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => (
                       <div 
-                        id={postData.imgs[index]} 
+                        id={img} 
                         key={index} 
                         onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
-                        className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950 relative`}
+                        className="h-full w-full rounded-sm bg-monochrome-950"
                       >
-                        {index === 4 && (
-                          <>
-                            <div className="absolute w-full h-full bg-monochrome-950 opacity-60"/>
-                            <div className="absolute w-full h-full flex items-center justify-center">
-                              <p className="text-monochrome-50 font-medium text-headline-4 mr-4">
-                                +{postData.imgs.length-5}
-                              </p>
-                            </div>
-                          </>
-                        )}
-                        <img src={postData.imgs[index] || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
                       </div>
-                    );
-                  })}
-                </div>
-              )
-            ))
-          }
-        </div>
+                    ))}
+                  </div>
+                )
+                ||
+                postData.imgs.length === 3 && (
+                  <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => (
+                      <div 
+                        id={img} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className="w-full h-full rounded-sm bg-monochrome-950 first:row-span-2"
+                      >
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    ))}
+                  </div>
+                )
+                ||
+                postData.imgs.length === 4 && (
+                  <div className="grid grid-cols-2 grid-rows-2 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => (
+                      <div 
+                        id={img} 
+                        key={index} 
+                        onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                        className="w-full h-full rounded-sm bg-monochrome-950"
+                      >
+                        <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                      </div>
+                    ))}
+                  </div>
+                )
+                ||
+                postData.imgs.length === 5 && (
+                  <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {postData.imgs.map((img, index) => {
+                      const gridStyles = [
+                        "col-span-3 row-span-3",
+                        "col-start-4 col-span-3 row-span-3",
+                        "col-span-2 row-start-4 row-span-3",
+                        "col-start-3 col-span-2 row-start-4 row-span-3",
+                        "col-start-5 col-span-2 row-start-4 row-span-3",
+                      ];
+
+                      return (
+                        <div 
+                          id={img} 
+                          key={index} 
+                          onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                          className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950`}
+                        >
+                          <img src={img || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        </div>
+                      );
+                      
+                    })}
+                  </div>
+                )
+                ||
+                postData.imgs.length > 5 && (
+                  <div className="grid grid-cols-6 grid-rows-6 gap-[1px] w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem]">
+                    {Array.from({ length: 5 }, (_, index) => {
+                      const gridStyles = [
+                        "col-span-3 row-span-3",
+                        "col-start-4 col-span-3 row-span-3",
+                        "col-span-2 row-start-4 row-span-3",
+                        "col-start-3 col-span-2 row-start-4 row-span-3",
+                        "col-start-5 col-span-2 row-start-4 row-span-3",
+                      ];
+                      return (
+                        <div 
+                          id={postData.imgs[index]} 
+                          key={index} 
+                          onClick={(e) => {setIsImageFull(true); setClickedId(e.currentTarget.id);}}
+                          className={`${gridStyles[index]} w-full h-full rounded-sm bg-monochrome-950 relative`}
+                        >
+                          {index === 4 && (
+                            <>
+                              <div className="absolute w-full h-full bg-monochrome-950 opacity-60"/>
+                              <div className="absolute w-full h-full flex items-center justify-center">
+                                <p className="text-monochrome-50 font-medium text-headline-4 mr-4">
+                                  +{postData.imgs.length-5}
+                                </p>
+                              </div>
+                            </>
+                          )}
+                          <img src={postData.imgs[index] || '/'} className="h-full w-full object-cover rounded-sm"/>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )
+              )}
+          </div>
+        )}
 
         {/* Image Select */}
+        {postData.imgs.length > 0 && (
         <div className="w-full h-fit flex flex-col gap-8 justify-center items-center">
           <p className="text-headline-5">Selected Image</p>
           <div className="w-full h-full flex flex-wrap gap-4 justify-center">
-          {postData.imgs && (
-            postData.imgs.map((img, index) => (
+            {postData.imgs.map((img, index) => (
               <div key={index} className="relative w-fit h-fit flex flex-col justify-center items-center gap-2 rounded-md">
                 <button 
                   onClick={() => setPostData((prev) => ({ ...prev, imgs: postData.imgs.filter(item => item !== img) }))} className="size-6 text-red-800 self-end"
@@ -408,10 +410,10 @@ export default function CreateTopic() {
                   />
                 </div>
               </div>
-            ))
-          )}
+            ))}
           </div>
         </div>
+        )}
 
         <div className="w-full flex justify-between">
           <div className="flex items-center gap-4">
@@ -446,6 +448,7 @@ export default function CreateTopic() {
             button_name="Post"
             variant="primary"
             onClick={handleOnClickPost}
+            loading={isCreating}
           />
         </div>
 
