@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Navbar, Sidebar, SearchBar, CompactSidebar, LoadingCircle } from '@/components/index';
+import { Navbar, Sidebar, SearchBar, CompactSidebar, LoadingCircle, Button } from '@/components/index';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const isResizing = useRef(false);
@@ -76,7 +76,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return !isFullyLoaded ? (
-    <div className="fixed w-full h-full z-50">
+    <div className="fixed w-full h-full z-50 flex justify-center items-center">
       <LoadingCircle />
     </div>
   ) : (
@@ -104,7 +104,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         
         {/* Main Content */}
         <div
-          // className="h-full flex flex-col w-full flex-1"
+          className="h-full flex flex-col flex-1"
           style={{ width: `calc(100% - ${width > minWidth && width <= maxWidth ? width : 0}px)` }}
         >
           {compactSidebar 

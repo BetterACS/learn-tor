@@ -7,20 +7,24 @@ interface ConfirmModuleProps {
   text: string;
   description: string;
   confirmText: string;
+  pendingText?: string;
   cancelText: string;
   confirmHandle: () => void;
   cancelHandle: () => void;
   state: boolean;
+  pending?: boolean;
 }
 
 export default function ConfirmModule ({ 
   text, 
   description, 
   confirmText,
+  pendingText,
   cancelText,
   confirmHandle,
   cancelHandle,
-  state
+  state,
+  pending
 }: ConfirmModuleProps) {
   const moduleRef = useRef<HTMLDivElement>(null);
 
@@ -45,8 +49,19 @@ export default function ConfirmModule ({
           <p className="font-bold text-3xl">{text}</p>
           {description && <p className="font-medium text-xl">{description}</p>}
           <div className="flex justify-end gap-4 mt-6">
-            <Button button_name={confirmText} variant='red' onClick={confirmHandle} />
-            <Button button_name={cancelText} variant='secondary' onClick={cancelHandle} />
+            <Button 
+              button_name={confirmText}
+              pending_state_text={pendingText}
+              variant='red' 
+              onClick={confirmHandle}
+              pending={pending}
+            />
+            <Button 
+              button_name={cancelText}
+              variant='secondary'
+              onClick={cancelHandle}
+              pending={pending}
+            />
           </div>
         </div>
       </div>

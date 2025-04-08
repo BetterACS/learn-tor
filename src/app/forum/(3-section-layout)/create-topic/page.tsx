@@ -36,6 +36,7 @@ export default function CreateTopic() {
   // const [tagsWCategory, setTagsWCategory] = useState<Record<string, Tag[]>>({});
   const [tags, setTags] = useState<Tag[]>([]);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isImageFull, setIsImageFull] = useState(false);
   const [clickedId, setClickedId] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
@@ -47,6 +48,7 @@ export default function CreateTopic() {
 
   const handleOnClickPost = async () => {
     setError('');
+    setSuccess('');
     setIsCreating(true);
     // NO TITLE
     if (postData.title === "") {
@@ -120,7 +122,7 @@ export default function CreateTopic() {
                     email: session?.user?.email || '',
                   });
   
-                  console.log("Topic rolled back successfully");
+                  console.log("Topic rolled back successfully.");
                 } catch (rollbackError) {
                   console.error("Rollback failed", rollbackError);
                 }
@@ -128,8 +130,11 @@ export default function CreateTopic() {
                 setError("Failed to add tags, topic has been deleted.");
               }
             } else if ('topic' in data.data) {
+              setSuccess("Create topic successfully.");
               setIsCreating(false);
-              router.push(`/forum/${(data.data.topic as Topic)._id}`);
+              setTimeout(() => {
+                router.push(`/forum/${(data.data.topic as Topic)._id}`);
+              }, 2000);
             }
           }
         },
@@ -208,6 +213,13 @@ export default function CreateTopic() {
         title="Error"
         message={error}
       />
+      }
+      {success &&
+        <AlertBox
+        alertType="success"
+        title="Success"
+        message={success}
+        />
       }
       <div className="flex flex-col gap-6 ">
         {/* Display selected tags */}
@@ -442,13 +454,15 @@ export default function CreateTopic() {
               button_name="Add tags"
               variant="secondary"
               onClick={handleOnClickAddTags}
+              pending={isCreating}
             />
           </div>
           <Button
             button_name="Post"
+            pending_state_text="Posting"
             variant="primary"
             onClick={handleOnClickPost}
-            loading={isCreating}
+            pending={isCreating}
           />
         </div>
 

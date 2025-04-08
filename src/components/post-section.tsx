@@ -3,7 +3,7 @@ import { Topic, SortBy, MockupTopicLoadingCard, LoadingCircle } from '@/componen
 import { trpc } from '@/app/_trpc/client';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSession } from "next-auth/react";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 type TagWState = {
   tagname: string;
@@ -34,6 +34,7 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
   const LIMIT = 6;
 
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
 
   const observer = useRef<IntersectionObserver | null>(null);
@@ -67,29 +68,34 @@ export default function PostSection({ searchTerm, filterTags, myTopic=false, myB
 
   const { data, isLoading } = queryData;
 
-  // Handle first load
   useEffect(() => {
     isFirstLoadRef.current = true;
     setCurrentPage(1);
     setPosts([]);
   }, [searchTerm, filterTags, sortBy, pathname]);
 
-  // Handle appending new topics if not first load
   useEffect(() => {
     if (data && Array.isArray(data.data)) {
       setPosts(prev => {
-        const seen = new Set(prev.map(p => p._id));
-        const newPosts = data.data.filter(p => !seen.has(p._id));
-      
         if (isFirstLoadRef.current) {
           isFirstLoadRef.current = false;
           return data.data;
-        } else {
-          return [...prev, ...newPosts];
+        } 
+        else {
+          const existingPostsMap = new Map(prev.map(p => [p._id, p]));
+          const newPosts = data.data.filter(p => !existingPostsMap.has(p._id));
+          
+          // if first page & have no topic
+          if (currentPage === 1 && newPosts.length > 0) {
+            console.log("Detected new posts on first page");
+            return [ ...data.data ];
+          } else {
+            return [...prev, ...newPosts];
+          }
         }
       });
     }
-  }, [data]);
+  }, [data, currentPage]);
 
   const lastPostElementRef = useCallback(
     (node: HTMLElement | null) => {

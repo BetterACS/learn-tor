@@ -67,7 +67,7 @@ export default function TrendingTopicCarousel() {
       <Slider {...settings}>
       {isLoading ? (
         Array.from({ length: slideToShow }).map((_, index) => (
-          <div key={index} className="w-[14vw] h-full !flex flex-col my-4 gap-2 outline-none group hover:scale-105 transition duration-200 hover:cursor-pointer">
+          <div key={index} className="w-[14vw] h-full !flex flex-col my-4 gap-2 outline-none transition duration-200">
             <div className="flex content-center items-center gap-2">
               <div className="size-10">
                 <div className="w-full h-full rounded-full bg-monochrome-100"></div> {/* Closing div tag added */}

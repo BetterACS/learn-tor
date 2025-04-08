@@ -48,6 +48,8 @@ export default function EditTopic() {
   const [isConfirmModuleOpen, setIsConfirmModuleOpen] = useState(false);
   const [isImageFull, setIsImageFull] = useState(false);
   const [clickedId, setClickedId] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -89,123 +91,136 @@ export default function EditTopic() {
   const handleOnClickSave = async () => {
     setError('');
     setSuccess('');
+    setIsSaving(true);
   
-    // NO TITLE
-    if (postData.title === "") {
-      setError("Title is required");
-      return;
-    }
-  
-    // UPLOAD IMAGES
-    const imageUrls: string[] = [];
-  
-    for (const img of postData.imgs) {
-      let imageUrl = '';
-      const compareResult = await compareImages(originalImages, img); //link, base64
-
-      if (img && !compareResult) {
-        try {
-          const res = await fetch('/api/upload-image', {
-            method: 'POST',
-            body: JSON.stringify({ file: img }),
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-  
-          const data = await res.json();
-          if (data.secure_url) {
-            imageUrl = data.secure_url;
-            console.log('Image uploaded successfully:', data.secure_url);
-          }
-        } catch (error) {
-          console.error('Image upload failed', error);
-          setError('Image upload failed');
-          return; // Exit early on error
-        }
-      } else if (img && compareResult) {
-        console.log("old image");
-        imageUrl = compareResult;
-      } else {
-        console.log("remove image");
-        imageUrl = '';
+    try {
+      // NO TITLE
+      if (postData.title === "") {
+        setError("Title is required");
+        return;
       }
-  
-      if (imageUrl) imageUrls.push(imageUrl);
-    }
 
-    // DELETE OLD IMAGE
-    for (let i = 0; i < originalImages.length; i++) {
-      const originalImage = originalImages[i];
+      // UPLOAD IMAGES
+      const imageUrls: string[] = [];
 
-      if (!imageUrls.includes(originalImage)) {
-        try {
-          const oldImagePublicId = extractPublicId(originalImage);
-          const deleteRes = await fetch('/api/delete-image', {
-            method: 'POST',
-            body: JSON.stringify({ public_id: oldImagePublicId }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
+      for (const img of postData.imgs) {
+        let imageUrl = '';
+        const compareResult = await compareImages(originalImages, img); //link, base64
 
-          const deleteResult = await deleteRes.json();
-          if (deleteResult.status !== 'ok') {
-            console.error('Failed to delete the old image');
-            setError('Failed to delete the old image');
+        if (img && !compareResult) {
+          try {
+            const res = await fetch('/api/upload-image', {
+              method: 'POST',
+              body: JSON.stringify({ file: img }),
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+
+            const data = await res.json();
+            if (data.secure_url) {
+              imageUrl = data.secure_url;
+              console.log('Image uploaded successfully:', data.secure_url);
+            }
+          } catch (error) {
+            console.error('Image upload failed', error);
+            setError('Image upload failed');
+            return; // Exit early on error
+          }
+        } else if (img && compareResult) {
+          console.log("old image");
+          imageUrl = compareResult;
+        } else {
+          console.log("remove image");
+          imageUrl = '';
+        }
+
+        if (imageUrl) imageUrls.push(imageUrl);
+      }
+
+      // DELETE OLD IMAGE
+      for (let i = 0; i < originalImages.length; i++) {
+        const originalImage = originalImages[i];
+
+        if (!imageUrls.includes(originalImage)) {
+          try {
+            const oldImagePublicId = extractPublicId(originalImage);
+            const deleteRes = await fetch('/api/delete-image', {
+              method: 'POST',
+              body: JSON.stringify({ public_id: oldImagePublicId }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+
+            const deleteResult = await deleteRes.json();
+            if (deleteResult.status !== 'ok') {
+              console.error('Failed to delete the old image');
+              setError('Failed to delete the old image');
+              return;
+            }
+
+            console.log('Old image deleted successfully');
+          } catch (error) {
+            console.error('Error deleting old image', error);
+            setError('Error deleting old image');
             return;
           }
-
-          console.log('Old image deleted successfully');
-        } catch (error) {
-          console.error('Error deleting old image', error);
-          setError('Error deleting old image');
-          return;
         }
       }
-    }
-  
-    // Save data
-    mutation.mutate(
-      {
-        id: topicId,
-        title: postData.title,
-        body: postData.body,
-        email: session?.user?.email || '',
-        imgs: imageUrls, // Send the array of images
-      },
-      {
-        onSuccess: (data) => {
-          if (data.status === 200) {
-            setSuccess(data.data.message);
-            const topicId = data.data.topic._id;
-            if (tags.length > 0) {
-              mutationTag.mutate(
-                {
-                  topicId: topicId,
-                  tags: tags.map(({ tagname, category }) => ({ tagname, category })),
-                  email: session?.user?.email || '',
-                },
-                {
-                  onSuccess: (data) => {
-                    setSuccess(data.data.message);
+
+      // Save data
+      mutation.mutate(
+        {
+          id: topicId,
+          title: postData.title,
+          body: postData.body,
+          email: session?.user?.email || '',
+          imgs: imageUrls, // Send the array of images
+        },
+        {
+          onSuccess: (data) => {
+            if (data.status === 200) {
+              const topicId = data.data.topic._id;
+              if (tags.length > 0) {
+                mutationTag.mutate(
+                  {
+                    topicId: topicId,
+                    tags: tags.map(({ tagname, category }) => ({ tagname, category })),
+                    email: session?.user?.email || '',
                   },
-                  onError: (error) => {
-                    console.error("Tag mutation error:", error);
-                  },
-                }
-              );
+                  {
+                    onSuccess: (data) => {
+                      console.log("Edit topic with tags success!");
+                      setSuccess(data.data.message);
+                      setTimeout(() => {
+                        router.push(`/forum/${topicId}`);
+                      }, 2000);
+                    },
+                    onError: (error) => {
+                      console.error("Tag mutation error:", error);
+                      setError(error.message);
+                    },
+                  }
+                );
+              } else {
+                console.log("Edit topic success!");
+                setSuccess(data.data.message);
+                setTimeout(() => {
+                  router.push(`/forum/${topicId}`);
+                }, 2000);
+              }
             }
-  
-            router.push(`/forum/${topicId}`);
-          }
-        },
-        onError: (error) => {
-          console.error("Mutation Failed:", error);
-          setError(error.message);
-        },
-      }
-    );
+          },
+          onError: (error) => {
+            console.error("Mutation Failed:", error);
+            setError(error.message);
+          },
+        }
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,6 +254,7 @@ export default function EditTopic() {
   };
     
   const handleOnDeleteConfirm = () => {
+    setIsDeleting(true);
     deleteTopicMutation.mutate(
       {
         topicId: topicId,
@@ -248,11 +264,16 @@ export default function EditTopic() {
         onSuccess: (data) => {
           console.log("Delete successfully" + data);
           setSuccess(data.data.message);
-          router.push(`/forum`)
+          setTimeout(() => {
+            router.push(`/forum`)
+          }, 2000);
         },
         onError: (error) => {
           console.error("Delete error:", error);
           setError(error.message);
+        },
+        onSettled: () => {
+          setIsDeleting(false);
         },
       }
     );
@@ -281,6 +302,7 @@ export default function EditTopic() {
   };
   
   const compareSingleImage = async (cloudinaryImageUrl: string, base64Image: string): Promise<string | null> => {
+    if (cloudinaryImageUrl === base64Image) return cloudinaryImageUrl;
     try {
       // Fetch Cloudinary image URL -> Blob
       const response = await fetch(cloudinaryImageUrl);
@@ -319,13 +341,13 @@ export default function EditTopic() {
         message={error}
       />
       }
-      {/* {success &&
+      {success &&
         <AlertBox
         alertType="success"
         title="Success"
         message={success}
         />
-      } */}
+      }
       <div className="flex flex-col gap-6">
         {/* Display selected tags */}
         {tags.some(tag => Object.keys(tag).length > 0) && (
@@ -559,12 +581,15 @@ export default function EditTopic() {
               button_name="Add tags"
               variant="secondary"
               onClick={handleOnClickAddTags}
+              pending={isSaving}
             />
           </div>
           <Button
             button_name="Save"
             variant="primary"
+            pending_state_text="Saving"
             onClick={handleOnClickSave}
+            pending={isSaving}
           />
         </div>
 
@@ -572,6 +597,7 @@ export default function EditTopic() {
           button_name="Delete"
           variant="red"
           onClick={() => setIsConfirmModuleOpen(true)}
+          pending={isSaving}
         />
 
         <AddTagPopup
@@ -586,10 +612,12 @@ export default function EditTopic() {
           text='Do you want to delete this topic?' 
           description='This topic will be permanently deleted and cannot be restored.' 
           confirmText='Delete'
+          pendingText='Deleting'
           cancelText='Cancel'
           confirmHandle={handleOnDeleteConfirm}
           cancelHandle={handleOnDeletecancel}
           state={isConfirmModuleOpen}
+          pending={isDeleting}
         />
       </div>
       {/* Image Full View */}

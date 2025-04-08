@@ -15,7 +15,6 @@ interface PostProps {
   onCommentClicked?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-
 export default function PostInteractionBar({ post, comment_enable, onCommentClicked }: PostProps) {
   const {data: session} = useSession();
 
