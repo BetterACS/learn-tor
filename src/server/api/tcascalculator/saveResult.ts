@@ -171,7 +171,7 @@ export default function saveResult(){
                         const response = await api.post('/recommend', JSON.stringify(payload, null, 2)); // Axios จะแปลง data เป็น JSON ให้อัตโนมัติ
                         // console.log('recommend:', response.data);
 
-                        await TcasCalculatorModel.create({
+                        const result = await TcasCalculatorModel.create({
                             user_id: user_id,
                             institution: inputInstitution,
                             campus: inputCampus,
@@ -185,8 +185,8 @@ export default function saveResult(){
                             chance: response.data.chance,
                             calculated_score: response.data.calculated_score
                         });
-
-                        return { status: 200, data: { message: "Save result success" } };
+                        const result_id = result._id;
+                        return { status: 200, data: { message: "Save result success", result_id: result_id } };
                     
                       } catch (error) {
                         return { status: 500, data: { message: "Error in API call time out" } };
