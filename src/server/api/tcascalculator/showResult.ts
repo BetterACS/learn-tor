@@ -11,7 +11,7 @@ export default function showResult() {
                     result_id: z.string()
                 })
             )
-            .mutation(async ({ input }) => { //ลอง ใช้ query แล้วใน postman ขึ้น error 
+            .mutation(async ({ input }) => {
                 await connectDB();
                 const { result_id } = input;
                 const result = await TcasCalculatorModel.findById(result_id);
