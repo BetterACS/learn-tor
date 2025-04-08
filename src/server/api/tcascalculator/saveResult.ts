@@ -206,6 +206,7 @@ export default function saveResult(){
                             last_year_min_score: last_year_score_min,
                             last_year_max_score: last_year_score_max,
                             student_school_type: student_school_type,
+                            last_years_admitted : last_years_admitted,
                         });
                         const result_id = result._id;
                         return { status: 200, data: { message: "Save result success", result_id: result_id, result : result } };
