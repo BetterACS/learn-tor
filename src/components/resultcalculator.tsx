@@ -40,9 +40,47 @@ const SemiCircleProgressBar = ({ score }: { score: number }) => {
           strokeLinecap="round"
         />
         <text x="50" y="40" textAnchor="middle" fontSize="12" fontWeight="bold" fill={getGradientColor(score)}>
-          {score}
+          {score.toFixed(2)}
         </text>
       </svg>
+    </div>
+  );
+};
+
+const RectangularProgressBar = ({ score, chance }: { score: number, chance: number }) => {
+  const getGradientColor = (score: number) => {
+    if (score <= 50) {
+      const green = Math.floor((200 * score) / 50);
+      return `rgb(200, ${green}, 0)`; 
+    } else if (score <= 100) {
+      const red = Math.floor(200 - (200 * (score - 50)) / 50);
+      return `rgb(${red}, 200, 0)`;  
+    } else {
+      return `rgb(0, 205, 0)`; 
+    }
+  };
+
+  return (
+    <div className="relative w-full h-8 flex flex-col items-center">
+      {/* ข้อความแสดงโอกาสสอบติด */}
+      {/* <p className="mt-2 text-headline-5 font-bold text-center">
+        คุณมีโอกาสสอบติด 
+        <span className="text-primary-600 font-bold">
+          {chance ? (chance * 100).toFixed(2) : "โอกาส"} %
+        </span>
+      </p> */}
+      
+      {/* กราฟแสดงผลคะแนน */}
+      <div className="w-full h-6 bg-gray-300 rounded-lg">
+        <div
+          className="h-full rounded-lg"
+          style={{
+            width: `${score > 100 ? 100 : score}%`, 
+            background: getGradientColor(score),
+            transition: "width 0.5s ease-in-out", 
+          }}
+        />
+      </div>
     </div>
   );
 };
@@ -53,6 +91,7 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [isScoreOpen, setIsScoreOpen] = useState(false);
   const [score, setScore] = useState(0); // เปลี่ยนค่าคะแนนได้
+  const [chance, setChance] = useState(0);
   const [showDetails, setShowDetails] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
   const [calculationResult, setCalculationResult] = useState<any>(null);
@@ -119,6 +158,11 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
               if (data.data?.calculated_score) {
                 const fixedScore = Number(data.data.calculated_score.toFixed(2));
                 setScore(fixedScore);
+              }
+
+              if (data.data?.chance) {
+                const fixedChance = Number(data.data.chance.toFixed(2));
+                setChance(fixedChance);
               }
             }
           },
@@ -225,12 +269,16 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
 
             {/* กล่องข้าง */}
             <div className="w-full lg:w-1/3 lg:max-w-sm bg-white p-6 rounded-lg shadow-lg border border-monochrome-200 mt-6 lg:mt-0 lg:ml-auto" style={{maxHeight: '500px', overflowY: 'auto'}}>
-              <p className="mt-2 mb-2 text-headline-6 font-bold text-center">ผลการคำนวณคะแนนของคุณ</p>
+              <p className="mt-2 mb-2 text-[1.75rem] font-bold text-center">ผลการคำนวณคะแนน</p>
               <SemiCircleProgressBar score={score} />
+              <p className="mt-6 mb-4 text-headline-7 text-center">คะแนนของคุณ: <span className='font-bold'>{calculationResult?.calculated_score.toFixed(2) || "คะแนน"}</span> / 100 คะแนน</p>
+              <hr className="my-4 mt-6 border-monochrome-300" />
+              <p className="mt-6 mb-4 text-headline-5 font-bold text-center">คุณมีโอกาสสอบติด <span className='text-primary-600 font-bold'>{calculationResult?.chance ? (calculationResult.chance * 100).toFixed(2) : "โอกาส"}</span> %</p>
+              <RectangularProgressBar score={chance ? (chance * 100).toFixed(2) : 0} chance={chance}/>   
               {showDetails && (
                 <>
-                  <hr className="my-4 mt-10 border-monochrome-300" />
-                  <h3 className="text-primary-600 text-headline-5 font-bold text-center mb-4 mt-6">สถิติย้อนหลัง</h3>
+                  <hr className="my-4 mt-6 border-monochrome-300" />
+                  <h3 className="text-headline-5 font-bold text-center mb-4 mt-6">สถิติย้อนหลัง</h3>
                   <div className="space-y-4">
                     {[{
                       year: "67",
