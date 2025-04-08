@@ -160,7 +160,6 @@ interface FormData {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
-
       if (name === 'GPAX') {
         const validInput = value.replace(/[^0-9.]/g, '');
         const parts = validInput.split('.');
@@ -172,10 +171,14 @@ interface FormData {
       }
 
       if (name.startsWith('TGAT') || name.startsWith('TPAT') || name.startsWith('A')) {
+        if (value === '') {
+          setFormData((prev) => ({ ...prev, [name]: value }));
+          return;
+        }
+
         const numericValue = parseFloat(value);
         if (isNaN(numericValue) || numericValue < 0 || numericValue > 100) return;
       }
-
       setFormData((prev) => ({ ...prev, [name]: value }));
     };
 

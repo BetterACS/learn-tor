@@ -4,7 +4,7 @@ import { trpc } from '@/app/_trpc/client';
 import { set } from 'mongoose';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { AlertBox } from '@/components/index';
+import { AlertBox, ConfirmModule} from '@/components/index';
 interface Conversation {
   role: 'user' | 'assistant';
   content: string;
@@ -26,14 +26,13 @@ interface ChatbotSidebarProps {
 const getRelativeTime = (date: string) => {
   const currentDate = dayjs(); // Current date and time
   const targetDate = dayjs(date);
+  const diffInDays = currentDate.diff(targetDate, 'day'); // เปลี่ยนเป็น currentDate.diff(targetDate)
 
-  const diffInDays = targetDate.diff(currentDate, 'day'); // Calculate difference in days
-
-  if (diffInDays === 0) {
-    return 'Today';
-  }
-
-  return diffInDays > 0 ? `next ${diffInDays} day${diffInDays > 1 ? 's' : ''}` : `previous ${Math.abs(diffInDays)} day${Math.abs(diffInDays) > 1 ? 's' : ''}`;
+  if (diffInDays === 0) return 'Today';
+  if (diffInDays === 1) return 'Yesterday';
+  if (diffInDays < 7) return `${diffInDays} days ago`;
+  if (diffInDays < 30) return `${Math.floor(diffInDays/7)} weeks ago`;
+  return `${Math.floor(diffInDays/30)} months ago`;
 };
 
 export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: ChatbotSidebarProps) {
@@ -47,10 +46,6 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
   const [error, setError] = useState('');
 
   const [labels, setLabels] = useState<Label[]>([]);
-
-  // { _id: 'Today-1', name: 'แนะนำรอบ Admission ให้หน่อย', date: 'Today' },
-  // { _id: 'Previous2-1', name: 'แนะนำรอบ Admission ให้หน่อย', date: 'Previous 2 Days' },
-  // { _id: 'Previous2-2', name: 'แนะนำรอบ Admission ให้หน่อย', date: 'Previous 2 Days' },
   const mutationChatRoom = trpc.userChatBot.useMutation();
   useEffect(() => {
     if (email) {
@@ -59,7 +54,12 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
           // console.log(data);
           if (data.status === 200) {
             // console.log("data",data.data.allChat);
-            setLabels(data.data.allChat);
+            const sortedData = data.data.allChat.sort((a, b) => {
+              const timeA = a.history[0]?.time ? dayjs(a.history[0].time) : dayjs(0);
+              const timeB = b.history[0]?.time ? dayjs(b.history[0].time) : dayjs(0);
+              return timeB.diff(timeA); // เรียงจากใหม่ไปเก่า
+            });
+            setLabels(sortedData);
           }
           else if (data.status === 400) {
             // console.log(data.data.message);
@@ -165,11 +165,32 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
     setDeleteTarget(null);
   };
 
-  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newLabel = e.target.value;
-    if (newLabel.length <= 40) {
-      setTempLabel(newLabel);
+  const groupedLabels = labels.reduce((acc, label) => {
+    if (!label.history || label.history.length === 0) return acc;
+    
+    const relativeTimeKey = getRelativeTime(label.history[0]?.time || '');
+    if (!acc[relativeTimeKey]) {
+      acc[relativeTimeKey] = [];
     }
+    acc[relativeTimeKey].push(label);
+    return acc;
+  }, {} as Record<string, Label[]>);
+  
+  // เรียงลำดับกลุ่มจากใหม่ไปเก่า
+  const sortedGroupedLabels = Object.entries(groupedLabels)
+    .sort(([a], [b]) => {
+      // จัดลำดับกลุ่มตามความใหม่-เก่า
+      const order = ['Today', 'Yesterday', 'days ago', 'weeks ago', 'months ago'];
+      const aIndex = order.findIndex(o => a.includes(o));
+      const bIndex = order.findIndex(o => b.includes(o));
+      
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      
+      // ถ้าไม่ตรงกับที่กำหนด ให้ใช้การเปรียบเทียบ string ธรรมดา
+      return a.localeCompare(b);
+    });
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempLabel(e.target.value);
   };
   const mutationEditRoom = trpc.editRoom.useMutation();
   const handleSaveRename = (item: string) => {
@@ -262,43 +283,24 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
     );
   };
 
-  const groupedLabels = labels.reduce((acc, label) => {
-    if (!label.history || label.history.length === 0) {
-        console.warn("Label has empty history:", label);
-        return acc; // Skip this label
-    }
-    if (!label.history[0]) {
-         console.warn("Label history[0] is undefined:", label);
-         return acc;
-    }
-
-    const relativeTimeKey = getRelativeTime(label.history[0].time);
-    if (!acc[relativeTimeKey]) {
-        acc[relativeTimeKey] = [];
-    }
-    acc[relativeTimeKey].push(label);
-    return acc;
-}, {} as Record<string, Label[]>);
-
   return (
     <div ref={sidebarRef}>
-      {/* Sidebar Toggle Button */}
       <div className="absolute top-28 left-10 cursor-pointer z-20 flex" onClick={handleToggleSidebar}>
-        <img src="images/feature/hide.avif" alt="Hide Icon" className="w-10 h-10" />
-        {!isSidebarOpen && (
-          <img
-            src="images/feature/new.avif"
-            alt="NewChat Icon"
-            className="w-10 h-10 ml-2"
-            onClick={handleNewChatClick}
-          />
-        )}
-      </div>
+      <img src="images/feature/hide.avif" alt="Hide Icon" className="w-10 h-10" />
+      {!isSidebarOpen && (
+        <img
+          src="images/feature/new.avif"
+          alt="NewChat Icon"
+          className="w-10 h-10 ml-2"
+          onClick={handleNewChatClick}
+        />
+      )}
+    </div>
 
-      {/* Sidebar Content */}
-      <div
-        className={`fixed top-20 left-0 ${isSidebarOpen ? 'block' : 'hidden'} w-full sm:w-full md:w-1/4 lg:w-1/5 h-screen bg-monochrome-100 p-4 transition-all duration-300 z-10`}
-      >
+    <div
+      className={`fixed top-20 left-0 ${isSidebarOpen ? 'block' : 'hidden'} w-full sm:w-full md:w-1/4 lg:w-1/5 h-screen bg-monochrome-100 p-4 transition-all duration-300 z-10 flex flex-col`}
+    >
+      <div className="flex-none">
         <div className="absolute top-7 right-10 cursor-pointer z-20">
           <img
             src="images/feature/new.avif"
@@ -315,45 +317,35 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
           New Chat
         </div>
         <div className="border-t border-monochrome-300 my-4 w-[calc(100%-32px)] mx-auto mt-8" />
+      </div>
 
-        {/* Grouped Chat Items */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-monochrome-300 scrollbar-track-monochrome-100 pb-4">
         {Object.entries(groupedLabels).map(([date, items]) => (
           <div key={date}>
-            <div className="text-primary-600 text-body-large font-bold mt-10 ml-12">{date}</div>
-            {items.map((item) => (
-              <MenuItem key={item._id} item={item._id} />
-            ))}
+            <div className="text-primary-600 text-body-large font-bold mt-4 ml-12 sticky top-0 bg-monochrome-100 py-2 z-10">
+              {date}
+            </div>
+            {items
+              .sort((a, b) => dayjs(b.history[0]?.time).diff(dayjs(a.history[0]?.time)))
+              .map((item) => (
+                <MenuItem key={item._id} item={item._id} />
+              ))}
           </div>
         ))}
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-monochrome-50 p-6 rounded-lg shadow-lg">
-            <p className="text-headline-6 mb-6">
-              คุณต้องการลบแชทนี้ใช่ไหม?<br/><br/>นี่จะเป็นการลบ{' '}
-              <span className="text-red-500">
-                {labels.find((label) => label._id === deleteTarget)?.name || 'this chat'}
-              </span>
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                className="px-4 py-2 bg-monochrome-200 rounded hover:bg-monochrome-300"
-                onClick={() => setIsDeleteModalOpen(false)}
-              >
-                ยกเลิก
-              </button>
-              <button
-                className="px-4 py-2 bg-red-500 text-chrome-50 rounded hover:bg-red-600"
-                onClick={handleConfirmDelete}
-              >
-                ลบ
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  );
+
+    {isDeleteModalOpen && (
+        <ConfirmModule
+          text="คุณต้องการลบแชทนี้ใช่ไหม?"
+          description={`นี่จะเป็นการลบ "${labels.find((label) => label._id === deleteTarget)?.name || 'this chat'}"`}
+          confirmText="ลบ"
+          cancelText="ยกเลิก"
+          confirmHandle={handleConfirmDelete}
+          cancelHandle={() => setIsDeleteModalOpen(false)}
+          state={isDeleteModalOpen}
+        />
+      )}
+  </div>
+);
 }

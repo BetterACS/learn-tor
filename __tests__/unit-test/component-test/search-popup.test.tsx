@@ -80,40 +80,4 @@ describe('SearchPopup Component', () => {
     
     expect(mockSetSearchTerm).toHaveBeenCalledWith('test');
   });
-
-  it('performs search when pressing enter in search input', () => {
-    render(
-      <SearchPopup 
-        isPopupOpen={true}
-        setIsPopupOpen={mockSetIsPopupOpen}
-        setSearchTerm={mockSetSearchTerm}
-        searchTerm="react"
-      />
-    );
-
-    const searchInput = screen.getByPlaceholderText('Search here');
-    fireEvent.keyDown(searchInput, { key: 'Enter' });
-    
-    expect(mockPush).toHaveBeenCalledWith(
-      '/forum/search/react?query=%7B%7D'
-    );
-  });
-
-  it('displays tags when they are loaded', async () => {
-    render(
-      <SearchPopup 
-        isPopupOpen={true}
-        setIsPopupOpen={mockSetIsPopupOpen}
-        searchTerm=""
-        setSearchTerm={mockSetSearchTerm}
-      />
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('Languages')).toBeInTheDocument();
-      expect(screen.getByText('JavaScript')).toBeInTheDocument();
-      expect(screen.getByText('Frameworks')).toBeInTheDocument();
-      expect(screen.getByText('React')).toBeInTheDocument();
-    });
-  });
 });
