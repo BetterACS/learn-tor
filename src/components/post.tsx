@@ -137,7 +137,7 @@ const Post = forwardRef<HTMLDivElement, PostProps>(({ topicId }, ref) => {
           </p>
         </div>
         
-        {post?.img && post.img.trim() !== "" && 
+        {post?.img && post.img !== "" && 
           ( isLoaded ? 
             <div className="h-[25rem] w-full">
               <img src={post?.img} className="w-full h-full object-contain bg-monochrome-950"/>
