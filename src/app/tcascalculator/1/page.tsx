@@ -30,12 +30,17 @@ export default function Calculator1() {
   const fetchMutation = trpc.getFilteredUniversities.useMutation({
     onSuccess: (res) => {
       const data = res.data;
-      setUniversityOptions(data.unique_universities || []);
-      setFacultyOptions(data.unique_faculties || []);
-      setCampusOptions(data.unique_campuses || []);
-      setMajorOptions(data.unique_programs || []);
-      setLanguageOptions(data.unique_course_types || []);
-      setExamTypeOptions(data.unique_admissionTypes || []);
+      console.log("Fetched options:", data);
+      if ('unique_universities' in data) {
+        setUniversityOptions(data.unique_universities || []);
+      } else {
+        console.error("Unexpected data structure:", data);
+      }
+      setFacultyOptions('unique_faculties' in data ? data.unique_faculties || [] : []);
+      setCampusOptions('unique_campuses' in data ? data.unique_campuses || [] : []);
+      setMajorOptions('unique_programs' in data ? data.unique_programs || [] : []);
+      setLanguageOptions('unique_course_types' in data ? data.unique_course_types || [] : []);
+      setExamTypeOptions('unique_admissionTypes' in data ? data.unique_admissionTypes || [] : []);
     },
     onError: (error) => {
       console.error("Fetch options error:", error);
@@ -101,6 +106,26 @@ export default function Calculator1() {
     const updatedTargets = targets.filter((_, i) => i !== index);
     setTargets(updatedTargets);
   };
+
+  // Helper function to check if all previous fields are filled
+  const areAllPreviousFieldsFilled = (target: Target) => {
+    return Boolean(
+      target.university && 
+      target.campus && 
+      target.faculty && 
+      target.major && 
+      target.language
+    );
+  };
+
+  const areAllmostFieldsFilled = (target: Target) => {
+    return Boolean(
+      target.university && 
+      target.campus && 
+      target.faculty && 
+      target.language 
+    );
+  }
 
   return (
     <>
@@ -193,6 +218,7 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "major", val)}
                       options={majorOptions}
                       placeholder="เลือกสาขา"
+                      disabled={!areAllmostFieldsFilled(target)}
                     />
                   </div>
 
@@ -215,6 +241,7 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "examType", val)}
                       options={examTypeOptions}
                       placeholder="เลือกรูปแบบการรับ"
+                      disabled={!areAllPreviousFieldsFilled(target)}
                     />
                   </div>
                 </div>
