@@ -88,10 +88,10 @@ export default function saveResult(){
                 const inputMinScore = searchAdmissionDetails[0]?.round_3[0]?.min_score || 0;
                 const inputMaxScore = searchAdmissionDetails[0]?.round_3[0]?.max_score || 0;
                 const student_school_type = JSON.parse(searchAdmissionDetails[0]?.round_3[0]?.student_school_type.replace(/'/g, '"')) || [];
-                const passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
                 const new_culcurate = searchAdmissionDetails[0]?.round_3[0]?.new_culcurate || {};
-                const last_years_register = searchAdmissionDetails[0]?.round_3[0]?.register || "";
-                const last_years_passed = searchAdmissionDetails[0]?.round_3[0]?.passed || "";
+                const last_years_admitted = searchAdmissionDetails[0]?.round_3[0]?.last_years_admitted || "";
+                const last_years_register = searchAdmissionDetails[0]?.round_3[0]?.last_year_register || "";
+                const last_years_passed = searchAdmissionDetails[0]?.round_3[0]?.last_year_passed || "";
                 const lastscore_score = searchAdmissionDetails[0]?.round_3[0]?.lastscore_score || {};
                 let last_year_score_min = 0
                 let last_year_score_max = 0
@@ -143,8 +143,9 @@ export default function saveResult(){
                         "student_school_type": student_school_type ,//user.lesson_plan,
                         "cur_student_school_type": user.lesson_plan,
                         "admission_type": inputAdmission_type || "",
-                        "passed": passed,
-                        "last_years_admitted": inputAdmitted || "",
+                        // "passed": passed,
+                        "admitted" : inputAdmitted,
+                        "last_years_admitted": last_years_admitted || "",
                         "last_years_register": last_years_register || "",
                         "last_years_passed": last_years_passed || "",
                         "lastscore_score": lastscore_score,
