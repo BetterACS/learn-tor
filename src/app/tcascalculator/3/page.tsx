@@ -12,8 +12,10 @@ export default function Calculator3() {
   const searchParams = useSearchParams();
   const rawData = searchParams.get('data');
   const parsedData = rawData ? JSON.parse(rawData) : null;
+  const resultId = searchParams.get('result_id');
 
   console.log("ข้อมูลจากหน้า Calculator2:", parsedData);
+  console.log("resultId จาก query string:", resultId);
 
   return (
     <>
@@ -62,7 +64,7 @@ export default function Calculator3() {
             </div>
           </div>
         </div>
-      <ResultCalculator />
+      <ResultCalculator resultId={resultId} />
     </>
   );
 }

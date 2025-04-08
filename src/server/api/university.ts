@@ -86,14 +86,12 @@ export default function universityQueries() {
 
                     // สร้าง query object แบบไดนามิก
                     const query: Record<string, any> = {};
-                    if (institution) query.institution = { $regex: new RegExp(institution, "i") };
-                    if (faculty) query.faculty = { $regex: new RegExp(faculty, "i") };
+                    if (institution) query.institution = { $regex: new RegExp(escapeRegex(institution), "i") };
+                    if (faculty) query.faculty = { $regex: new RegExp(escapeRegex(faculty), "i") };
                     
-                    if (course_type) query.course_type = { $regex: new RegExp(course_type, "i") };
-                    if (campus) query.campus = { $regex: new RegExp(campus, "i") };
-                    console.log("admission",admissionType)
+                    if (course_type) query.course_type = { $regex: new RegExp(escapeRegex(course_type), "i") };
+                    if (campus) query.campus = { $regex: new RegExp(escapeRegex(campus), "i") };
                     
-
                     // Query เพื่อหาข้อมูลที่ตรงกับเงื่อนไขทั้งหมด
                     const unique_universities = await UniversityModel.find(query).distinct("institution")
                     ;
@@ -109,7 +107,7 @@ export default function universityQueries() {
                         unique_course_types.length === 1 &&
                         unique_campuses.length === 1
                     ) { 
-                        if (program) query.program = { $regex: new RegExp(program, "i") };
+                        if (program) query.program = { $regex: new RegExp(escapeRegex(program), "i") };
                         const unique_programs = await UniversityModel.find(query).distinct("program");
                         if (unique_programs.length === 1){
                         if (admissionType) {

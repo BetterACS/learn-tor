@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { trpc } from '@/app/_trpc/client';
 
 const SemiCircleProgressBar = ({ score }: { score: number }) => {
   const getGradientColor = (score: number) => {
@@ -38,20 +39,22 @@ const SemiCircleProgressBar = ({ score }: { score: number }) => {
           strokeLinecap="round"
         />
         <text x="50" y="40" textAnchor="middle" fontSize="12" fontWeight="bold" fill={getGradientColor(score)}>
-          {score} / 100
+          {score}
         </text>
       </svg>
     </div>
   );
 };
 
-export default function ResultCalculator({ hideConfirmButton = false }) {
+export default function ResultCalculator({ resultId, hideConfirmButton = false }: { resultId?: string, hideConfirmButton?: boolean }) {
+  console.log("resultId ที่ส่งมา:", resultId);
   const router = useRouter();
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [isScoreOpen, setIsScoreOpen] = useState(false);
-  const [score, setScore] = useState(100); // เปลี่ยนค่าคะแนนได้
+  const [score, setScore] = useState(0); // เปลี่ยนค่าคะแนนได้
   const [showDetails, setShowDetails] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
+  const [calculationResult, setCalculationResult] = useState<any>(null);
 
   const handleConfirmClick = () => {
     sessionStorage.setItem('calculationResult', 'true');
@@ -75,6 +78,32 @@ export default function ResultCalculator({ hideConfirmButton = false }) {
     return null;
   }
 
+  const showResult = trpc.showResult.useMutation();
+
+  useEffect(() => {
+    if (resultId) {
+      showResult.mutate(
+        { result_id: resultId },
+        {
+          onSuccess: (data) => {
+            console.log("ได้ข้อมูลจาก tRPC:", data);
+            if (data.status === 200) {
+              setCalculationResult(data.data);
+
+              if (data.data?.calculated_score) {
+                const fixedScore = Number(data.data.calculated_score.toFixed(2));
+                setScore(fixedScore);
+              }
+            }
+          },
+          onError: (err) => {
+            console.error("เกิดข้อผิดพลาดตอนดึงข้อมูล result:", err);
+          },
+        }
+      );
+    }
+  }, [resultId]);
+
   return (
     <>
       <div className="relative flex flex-col items-center">
@@ -87,11 +116,11 @@ export default function ResultCalculator({ hideConfirmButton = false }) {
               <div className="w-full lg:w-2/3">
                 <div className="flex items-start">
                   <div className="w-1 bg-primary-600 h-24 mr-2"></div>
-                  <div className="ml-1.5">
-                    <h2 className="text-headline-5 font-bold text-primary-600">คณะวิศวกรรมศาสตร์</h2>
-                    <p className="text-headline-6 text-monochrome-700">จุฬาลงกรณ์มหาวิทยาลัย</p>
-                    <p className="text-headline-6 text-monochrome-700">วิศวกรรมทั่วไป</p>
-                    <p className="text-body-large text-monochrome-500">คณะวิศวกรรมศาสตร์ สาขาวิชาวิศวกรรมทั่วไป</p>
+                  <div className="ml-1.5 space-y-1">
+                    <h2 className="text-headline-5 font-bold text-primary-600">{calculationResult?.faculty || "ชื่อคณะ"}</h2>
+                    <p className="text-headline-6 text-monochrome-700">{calculationResult?.institution || "ชื่อมหาวิทยาลัย"}</p>
+                    <p className="text-headline-6 text-monochrome-700">{calculationResult?.program || "ภาควิชา"}</p>
+                    <p className="text-body-large text-monochrome-500">{calculationResult?.admission_type|| "รูปแบบการรับ"}</p>
                   </div>
                 </div>
                 {!showDetails && (
@@ -110,7 +139,7 @@ export default function ResultCalculator({ hideConfirmButton = false }) {
                         <path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 20c1-4 7-6 8-6s7 2 8 6" />
                       </svg>
                       <span>จำนวนที่รับ :</span>
-                      <span className="text-primary-600 font-bold ml-2 ">380</span>
+                      <span className="text-primary-600 font-bold ml-2 ">{calculationResult?.admitted || "จำนวนรับ"}</span>
                     </div>
 
                     <button
@@ -143,24 +172,18 @@ export default function ResultCalculator({ hideConfirmButton = false }) {
                       <div className="flex-grow border-b border-monochrome-300 ml-3"></div>
                     </div>
 
-                    <ul className="text-monochrome-600 mt-6 space-y-5 text-headline-7">
-                      <li className="flex justify-between">
-                        <span>TGAT1 การสื่อสารภาษาอังกฤษ</span>
-                        <span className="font-medium">30 %</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>TGAT2 การคิดอย่างมีเหตุผล</span>
-                        <span className="font-medium">10 %</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>TGAT3 สมรรถนะการทำงานในอนาคต</span>
-                        <span className="font-medium">10 %</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>TPAT3 ความถนัดด้านวิทยาศาสตร์ เทคโนโลยี และวิศวกรรมศาสตร์</span>
-                        <span className="font-medium">50 %</span>
-                      </li>
-                    </ul>
+                    {calculationResult?.score_calculation_formula?.[0] && (
+                      <ul className="text-monochrome-600 mt-6 space-y-5 text-headline-7">
+                        {Object.entries(calculationResult.score_calculation_formula[0]).map(
+                          ([subject, weight], index) => (
+                            <li key={index} className="flex justify-between">
+                              <span>{subject}</span>
+                              <span className="font-medium">{weight}</span>
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    )}
                   </div>
                 )}
               </div>
@@ -185,16 +208,12 @@ export default function ResultCalculator({ hideConfirmButton = false }) {
                   <div className="space-y-4">
                     {[{
                       year: "67",
-                      lowest: "-",
-                      received: "380"
+                      lowest: calculationResult?.min_score?.toFixed(2) || "-",
+                      received: calculationResult?.admitted || "-"
                     }, {
                       year: "66",
-                      lowest: "54.5",
-                      received: "360"
-                    }, {
-                      year: "65",
-                      lowest: "54",
-                      received: "360"
+                      lowest: calculationResult?.last_year_min_score?.toFixed(2) || "-",
+                      received: calculationResult?.admitted || "-"
                     }].map((item, index) => (
                       <div key={index} className="border rounded-lg p-4">
                         <div className="flex justify-between">
@@ -234,14 +253,16 @@ export default function ResultCalculator({ hideConfirmButton = false }) {
         {isBasicOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
-              <h2 className="text-primary-600 text-headline-5 font-bold text-center mb-4">คุณสมบัติพื้นฐาน</h2>
-              <ul className="text-monochrome-800 text-body-large space-y-3 list-disc list-inside">
-                <li>รับผู้สมัครที่จบจาก รร. หลักสูตรแกนกลาง</li>
-                <li>รับผู้สมัครที่จบจาก รร. หลักสูตรนานาชาติ</li>
-                <li>รับผู้สมัครที่จบจาก รร. หลักสูตรอาชีวะ</li>
-                <li>รับผู้สมัครที่จบจาก รร. หลักสูตรตามอัธยาศัย</li>
-                <li>รับผู้สมัครที่จบหลักสูตร GED</li>
-              </ul>
+              {calculationResult?.student_school_type && (
+                <>
+                  <h2 className="text-primary-600 text-headline-5 font-bold text-center mb-4">คุณสมบัติพื้นฐาน</h2>
+                  <ul className="text-monochrome-800 text-body-large space-y-3 list-disc list-inside">
+                    {calculationResult.student_school_type.map((type: string, index: number) => (
+                      <li key={index}>รับผู้สมัครที่จบจาก {type}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
               <div className="flex justify-center mt-6">
                 <button className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition" onClick={() => setIsBasicOpen(false)}>
                   ตกลง
@@ -255,10 +276,18 @@ export default function ResultCalculator({ hideConfirmButton = false }) {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
               <h2 className="text-primary-600 text-headline-5 font-bold text-center mb-4">เงื่อนไขคะแนนขั้นต่ำ</h2>
-              <ul className="text-monochrome-800 text-body-large space-y-3">
-                <li>เกรดเฉลี่ยรวม 6 เทอม <span className="text-primary-600 font-bold">≥ 2.00</span></li>
-                <li>คะแนนรวม <span className="text-primary-600 font-bold">≥ 51</span></li>
-              </ul>
+              {calculationResult?.minimum_criteria?.[0] && (
+                <ul className="text-monochrome-800 text-body-large space-y-3">
+                  {Object.entries(calculationResult.minimum_criteria[0]).map(
+                    ([label, value], index) => (
+                      <li key={index}>
+                        {label} <span className="text-primary-600 font-bold">≥</span>
+                        <span className="text-primary-600 font-bold"> {value}</span>
+                      </li>
+                    )
+                  )}
+                </ul>
+              )}
               <div className="flex justify-center mt-6">
                 <button 
                 className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition" onClick={() => setIsScoreOpen(false)}>
