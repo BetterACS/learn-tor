@@ -34,6 +34,12 @@ export default function SearchableDropdown({ value, onChange, options, placehold
     setIsOpen(false);
   };
 
+  const handleChange = (val: string) => {
+    // เมื่อมีการเปลี่ยนแปลงค่า จะอัปเดตค่าของ target
+    onChange(val);
+    setSearchTerm(val);  // รีเฟรชค่าที่แสดงในช่องค้นหา
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
         <div
@@ -45,7 +51,7 @@ export default function SearchableDropdown({ value, onChange, options, placehold
                 disabled={disabled}
                 onChange={(e) => {
                 if (!disabled) {
-                    setSearchTerm(e.target.value);
+                    handleChange(e.target.value);
                     setIsOpen(true);
                 }
                 }}
