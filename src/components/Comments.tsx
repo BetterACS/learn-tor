@@ -178,6 +178,7 @@ const CommentItem = ({ comment, postId, userEmail, isRoot = false }: { comment: 
               userEmail={userEmail} 
               isCommentClicked={isCommentClicked} 
               setIsCommentClicked={setIsCommentClicked}
+              setShowInput={setShowInput}
               />
             </div>
           )}

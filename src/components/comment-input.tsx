@@ -10,9 +10,10 @@ interface Comment {
   isCommentClicked?: boolean | null;
   setIsCommentClicked?: React.Dispatch<React.SetStateAction<boolean>>;
   userEmail: string;
+  setShowInput: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function CommentInput({ topic_id, parent_id, isCommentClicked, setIsCommentClicked, userEmail }: Comment) {
+export default function CommentInput({ topic_id, parent_id, isCommentClicked, setIsCommentClicked, userEmail, setShowInput }: Comment) {
   const [isCommentExpanded, setIsCommentExpanded] = useState<boolean>(false);
   const [comment, setComment] = useState<string>('');
   const [rows, setRows] = useState<number>(1);
@@ -25,6 +26,7 @@ export default function CommentInput({ topic_id, parent_id, isCommentClicked, se
       setIsCommentExpanded(false);
       setRows(1);
       if (setIsCommentClicked) {
+        setShowInput(false);
         setIsCommentClicked(false);
       }
       
@@ -52,6 +54,7 @@ export default function CommentInput({ topic_id, parent_id, isCommentClicked, se
 
   const handleCancel = () => {
     setIsCommentExpanded(false);
+    setShowInput(false);
     setComment('');
     setRows(1);
     if (setIsCommentClicked) {
