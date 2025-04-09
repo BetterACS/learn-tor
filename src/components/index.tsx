@@ -44,6 +44,10 @@ import CompactSidebar from '@/components/compact-sidebar';
 import TrendingTopicCarousel from '@/components/trending-topic-carousel';
 import ImageFullView from '@/components/image-full-view';
 import SharePopup from '@/components/share-popup';
+import GpaxInput from './gpaxinput';
+import SelectPlan from './selectplan';
+import SpecialInput from './specialinput';
+
 
 export {
   Test,
@@ -94,4 +98,7 @@ export {
   TrendingTopicCarousel,
   ImageFullView,
   SharePopup,
+  SpecialInput,
+  GpaxInput,
+  SelectPlan
 }

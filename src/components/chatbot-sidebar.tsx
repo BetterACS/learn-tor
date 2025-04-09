@@ -21,6 +21,7 @@ interface ChatbotSidebarProps {
   onToggleSidebar: (isOpen: boolean) => void;
   onSelectItem: (item: string) => void;
   email: string;
+  refreshKey: number;
 }
 
 const getRelativeTime = (date: string) => {
@@ -35,7 +36,7 @@ const getRelativeTime = (date: string) => {
   return `${Math.floor(diffInDays/30)} months ago`;
 };
 
-export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: ChatbotSidebarProps) {
+export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email,refreshKey }: ChatbotSidebarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
@@ -72,12 +73,8 @@ export default function ChatbotSidebar({ onToggleSidebar, onSelectItem,email }: 
         }
       });
     }
-  }, [email]);
+  }, [email, refreshKey]);
   
-  
-  
-  
-
   const sidebarRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 

@@ -444,7 +444,7 @@ const ComparisonResults = ({
                           <span style={{ color: getColor(min_score ?? 0, maxOfMinScores, minOfMinScores, medianOfMinScores) }}>
                             {min_score ?? '-'}
                           </span><br />
-                          <span>  &nbsp;- อัตราการแข่งขัน: </span>
+                          <span>  &nbsp;- โอกาสสอบติด: </span>
                           <span style={{ color: getColor(acceptance_rate ?? 0, maxOfAcceptanceRates, minOfAcceptanceRates, medianOfAcceptanceRates) }}>
                             {acceptance_rate ?? '-'}
                           </span><br />

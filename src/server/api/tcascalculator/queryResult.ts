@@ -1,17 +1,17 @@
 import { publicProcedure } from "@/server/trpc";
 import { z } from 'zod';
 import { connectDB } from "@/server/db";
-import { ScoreModel, UserModel } from "@/db/models";
+import { TcasCalculatorModel, UserModel } from "@/db/models";
 
-export default function queryScore() {
+export default function queryResult() {
     return {
-        queryScore: publicProcedure
+        queryResult: publicProcedure
             .input(
                 z.object({
                     email: z.string().email(), 
                 })
             )
-            .query(async ({ input }) => {  // ใช้ query 
+            .query(async ({ input }) => {  // เปลี่ยนจาก mutation เป็น query
                 await connectDB();
                 const { email } = input;
                 const user = await UserModel.findOne({ email });
@@ -21,12 +21,11 @@ export default function queryScore() {
                 }
 
                 const user_id = user._id;
-                const score = await ScoreModel.findOne({ user_id });
+                const result = await TcasCalculatorModel.find({ user_id });
 
                 return {
-                    score,
-                    GPAX: user.GPAX ?? null,
-                    lesson_plan: user.lesson_plan ?? null
+                    status: 200,
+                    data: result
                 };
             })
     }

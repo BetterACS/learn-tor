@@ -1,8 +1,9 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, Calculator, SearchableDropdown } from '@/components/index';
+import { Navbar, Footer, Calculator, SearchableDropdown, ScoreInput } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
+
 
 interface Target {
   university: string;
@@ -29,12 +30,17 @@ export default function Calculator1() {
   const fetchMutation = trpc.getFilteredUniversities.useMutation({
     onSuccess: (res) => {
       const data = res.data;
-      setUniversityOptions(data.unique_universities || []);
-      setFacultyOptions(data.unique_faculties || []);
-      setCampusOptions(data.unique_campuses || []);
-      setMajorOptions(data.unique_programs || []);
-      setLanguageOptions(data.unique_course_types || []);
-      setExamTypeOptions(data.unique_admissionTypes || []);
+      console.log("Fetched options:", data);
+      if ('unique_universities' in data) {
+        setUniversityOptions(data.unique_universities || []);
+      } else {
+        console.error("Unexpected data structure:", data);
+      }
+      setFacultyOptions('unique_faculties' in data ? data.unique_faculties || [] : []);
+      setCampusOptions('unique_campuses' in data ? data.unique_campuses || [] : []);
+      setMajorOptions('unique_programs' in data ? data.unique_programs || [] : []);
+      setLanguageOptions('unique_course_types' in data ? data.unique_course_types || [] : []);
+      setExamTypeOptions('unique_admissionTypes' in data ? data.unique_admissionTypes || [] : []);
     },
     onError: (error) => {
       console.error("Fetch options error:", error);
@@ -56,6 +62,14 @@ export default function Calculator1() {
   // เรียกตอนโหลดครั้งแรก
   useEffect(() => {
     fetchOptions({});
+    setTargets([{
+      university: "",
+      campus: "",
+      faculty: "",
+      major: "",
+      language: "",
+      examType: ""
+    }]);
   }, []);
 
   // เรียกเมื่อ target เปลี่ยน
@@ -71,7 +85,9 @@ export default function Calculator1() {
   };
 
   const handleNextClick = () => {
-    router.push('/tcascalculator/2');
+    // เลือก target ตัวสุดท้ายจาก targets
+    const target = targets[targets.length - 1];
+    router.push(`/tcascalculator/2?university=${encodeURIComponent(target.university)}&campus=${encodeURIComponent(target.campus)}&faculty=${encodeURIComponent(target.faculty)}&major=${encodeURIComponent(target.major)}&language=${encodeURIComponent(target.language)}&examType=${encodeURIComponent(target.examType)}`);
   };
 
   const addTarget = () => {
@@ -94,10 +110,38 @@ export default function Calculator1() {
     setTargets(updatedTargets);
   };
 
-  const removeTarget = (index: number) => {
-    const updatedTargets = targets.filter((_, i) => i !== index);
-    setTargets(updatedTargets);
+  // const removeTarget = (index: number) => {
+  //   const updatedTargets = targets.filter((_, i) => i !== index);
+    
+  //   // รีเซ็ตค่าใน target ที่เหลือ
+  //   setTargets(updatedTargets.map(target => ({
+  //     university: "",
+  //     campus: "",
+  //     faculty: "",
+  //     major: "",
+  //     language: "",
+  //     examType: ""
+  //   })));
+  // };
+
+  const areAllPreviousFieldsFilled = (target: Target) => {
+    return Boolean(
+      target.university && 
+      target.campus && 
+      target.faculty && 
+      target.major && 
+      target.language
+    );
   };
+
+  const areAllmostFieldsFilled = (target: Target) => {
+    return Boolean(
+      target.university && 
+      target.campus && 
+      target.faculty && 
+      target.language 
+    );
+  }
 
   return (
     <>
@@ -139,14 +183,14 @@ export default function Calculator1() {
 
             {targets.map((target, index) => (
               <div key={index} className="relative mb-4 p-4 bg-gray-100 rounded-lg border">
-                <button 
+                {/* <button 
                   className="absolute top-2 right-4 text-primary-600 hover:text-red-800 transition"
                   onClick={() => removeTarget(index)}
                 >
                   <svg aria-hidden="true" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 laptop:h-6 laptop:w-6">
                         <path d="M177.1 48h93.7c2.7 0 5.2 1.3 6.7 3.6l19 28.4h-145l19-28.4c1.5-2.2 4-3.6 6.7-3.6zM354.2 80L317.5 24.9C307.1 9.4 289.6 0 270.9 0H177.1c-18.7 0-36.2 9.4-46.6 24.9L93.8 80H80.1 32 24C10.7 80 0 90.7 0 104s10.7 24 24 24H35.6L59.6 452.7c2.5 33.4 30.3 59.3 63.8 59.3H324.6c33.5 0 61.3-25.9 63.8-59.3L412.4 128H424c13.3 0 24-10.7 24-24s-10.7-24-24-24h-8H367.9 354.2z" fill="currentColor"></path>
                   </svg>
-                </button>
+                </button> */}
 
                 <div className="grid grid-cols-2 gap-x-10 gap-y-6">
                   {/* มหาวิทยาลัย */}
@@ -190,6 +234,7 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "major", val)}
                       options={majorOptions}
                       placeholder="เลือกสาขา"
+                      disabled={!areAllmostFieldsFilled(target)}
                     />
                   </div>
 
@@ -212,13 +257,14 @@ export default function Calculator1() {
                       onChange={(val) => updateTarget(index, "examType", val)}
                       options={examTypeOptions}
                       placeholder="เลือกรูปแบบการรับ"
+                      disabled={!areAllPreviousFieldsFilled(target)}
                     />
                   </div>
                 </div>
               </div>
             ))}
 
-            {targets.length < 3 && (
+            {targets.length < 1 && (
               <div 
                 className="flex items-center border border-dashed border-primary-600 rounded-lg py-3 px-4 cursor-pointer text-primary-600 text-center mt-4"
                 onClick={addTarget}

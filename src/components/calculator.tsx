@@ -2,18 +2,26 @@
 import React, { useState, useEffect } from 'react';
 import { ResultCalculator } from '@/components/index';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { trpc } from '@/app/_trpc/client';
 
 
 const Calculator = () => {
+  const { data: session } = useSession();
   const router = useRouter();
 
   const [showResult, setShowResult] = useState(false);
-  
 
+  const { data: resultData, isLoading, error } = trpc.queryResult.useQuery(
+    { email: session?.user?.email || '' }, 
+    { enabled: !!session?.user?.email } 
+  );
+  
   useEffect(() => {
-    const resultExists = sessionStorage.getItem('calculationResult');
-    setShowResult(!!resultExists);
-  }, []);
+    if (resultData?.data?.length) {
+      setShowResult(true); 
+    }
+  }, [resultData]);
 
   const handleClick = () => {
     router.push('/tcascalculator/1');
@@ -60,8 +68,21 @@ const Calculator = () => {
         </div>
 
         <div className="flex flex-col items-center justify-center">
-        {showResult ? (
-            <ResultCalculator hideConfirmButton={true} />
+          {/* แสดงปุ่มคำนวณคะแนนก่อนถ้ามีผลลัพธ์ */}
+          {showResult && (
+            <button
+              className="mt-6 mb-6 bg-primary-600 text-white px-10 py-3 rounded-lg hover:bg-primary-700 transition text-big-button w-120"
+              onClick={handleClick}
+            >
+              คำนวณคะแนน TCAS
+            </button>
+          )}
+
+          {/* แสดงผลลัพธ์การคำนวณคะแนน */}
+          {showResult ? (
+            resultData?.data?.map((result: any) => (
+              <ResultCalculator key={result._id} resultId={result._id} hideConfirmButton={true} />
+            ))
           ) : (
             <div className="bg-white w-full max-w-[1300px] h-auto md:h-[300px] rounded-lg shadow-md flex flex-col items-center justify-center p-6 md:p-12 border border-gray-200">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-20 h-20 mb-4 text-primary-600">
@@ -74,12 +95,16 @@ const Calculator = () => {
               </p>
             </div>
           )}
-          <button 
-            className="mt-10 mb-10 bg-primary-600 text-white px-10 py-3 rounded-lg hover:bg-primary-700 transition text-big-button w-120"
-            onClick={handleClick}
-          >
-            คำนวณคะแนน TCAS
-          </button>
+
+          {/* แสดงปุ่มคำนวณคะแนนในกรณีที่ไม่มีผลลัพธ์ */}
+          {!showResult && (
+            <button 
+              className="mt-10 mb-10 bg-primary-600 text-white px-10 py-3 rounded-lg hover:bg-primary-700 transition text-big-button w-120"
+              onClick={handleClick}
+            >
+              คำนวณคะแนน TCAS
+            </button>
+          )}
         </div>
       </div>
     </div>
