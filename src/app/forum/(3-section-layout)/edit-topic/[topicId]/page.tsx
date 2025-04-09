@@ -50,6 +50,13 @@ export default function EditTopic() {
   const [clickedId, setClickedId] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [preventClick, setPreventClick] = useState(false);
+
+  useEffect(() => {
+    if (isSaving || isDeleting) {
+      setPreventClick(true);
+    }
+  }, [isSaving, isDeleting]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -125,6 +132,7 @@ export default function EditTopic() {
           } catch (error) {
             console.error('Image upload failed', error);
             setError('Image upload failed');
+            setIsSaving(false);
             return; // Exit early on error
           }
         } else if (img && compareResult) {
@@ -157,6 +165,7 @@ export default function EditTopic() {
             if (deleteResult.status !== 'ok') {
               console.error('Failed to delete the old image');
               setError('Failed to delete the old image');
+              setIsSaving(false);
               return;
             }
 
@@ -164,6 +173,7 @@ export default function EditTopic() {
           } catch (error) {
             console.error('Error deleting old image', error);
             setError('Error deleting old image');
+            setIsSaving(false);
             return;
           }
         }
@@ -194,11 +204,13 @@ export default function EditTopic() {
                       console.log("Edit topic with tags success!");
                       setSuccess(data.data.message);
                       setTimeout(() => {
+                        setIsSaving(false);
                         router.push(`/forum/${topicId}`);
                       }, 2000);
                     },
                     onError: (error) => {
                       console.error("Tag mutation error:", error);
+                      setIsSaving(false);
                       setError(error.message);
                     },
                   }
@@ -207,6 +219,7 @@ export default function EditTopic() {
                 console.log("Edit topic success!");
                 setSuccess(data.data.message);
                 setTimeout(() => {
+                  setIsSaving(false);
                   router.push(`/forum/${topicId}`);
                 }, 2000);
               }
@@ -214,6 +227,7 @@ export default function EditTopic() {
           },
           onError: (error) => {
             console.error("Mutation Failed:", error);
+            setIsSaving(false);
             setError(error.message);
           },
         }
@@ -265,6 +279,7 @@ export default function EditTopic() {
           console.log("Delete successfully" + data);
           setSuccess(data.data.message);
           setTimeout(() => {
+            setIsDeleting(false);
             router.push(`/forum`)
           }, 2000);
         },
@@ -331,7 +346,7 @@ export default function EditTopic() {
 
   return (
     <div className="relative h-full w-full px-[5%]">
-      <p className="text-headline-3 mb-6">
+      <p className={`text-headline-3 mb-6 ${preventClick ? 'text-monochrome-700' : 'text-monochrome-950'}`}>
         Edit Topic
       </p>
       {error && 
@@ -367,29 +382,31 @@ export default function EditTopic() {
         )}
 
         <div className="flex flex-col gap-2 text-headline-5">
-          <p>Title</p>
-          <div className="w-full h-fit bg-monochrome-100 py-3 px-4 rounded-md">
+          <p className={`${preventClick ? 'text-monochrome-700' : 'text-monochrome-950'}`}>Title</p>
+          <div className={`w-full h-fit bg-monochrome-100 py-3 px-4 rounded-md`}>
             <input
+              disabled={preventClick}
               type="text"
               name="title"
               placeholder="Title"
               onChange={handleInputChange}
               value={postData.title} 
-              className="bg-transparent w-full outline-none placeholder-monochrome-600 caret-monochrome-600"/> 
+              className={`bg-transparent w-full outline-none caret-monochrome-600 ${preventClick ? 'placeholder-monochrome-300 text-monochrome-500' : 'placeholder-monochrome-600 text-monochrome-950'}`}/> 
           </div>
         </div>
 
         <div className="flex flex-col gap-2 text-headline-5">
-          <p>Body</p>
+          <p className={`${preventClick ? 'text-monochrome-700' : 'text-monochrome-950'}`}>Body</p>
           <div className="w-full h-fit bg-monochrome-100 py-3 px-4 rounded-md">
             <textarea
+              disabled={preventClick}
               name="body"
               placeholder="Body"
               id=""
               rows={4}
               onChange={handleInputChange}
               value={postData.body}
-              className="w-full resize-none bg-transparent outline-none placeholder-monochrome-600 caret-monochrome-600 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-200"
+              className={`w-full resize-none bg-transparent outline-none caret-monochrome-600 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-200 ${preventClick ? 'placeholder-monochrome-300 text-monochrome-500' : 'placeholder-monochrome-600 text-monochrome-950'}`}
             ></textarea>
           </div>
         </div>
@@ -397,7 +414,7 @@ export default function EditTopic() {
         {/* Image Preview */}
         {Array.isArray(postData?.imgs) && postData.imgs.length > 0 && (
           <div className="w-full h-fit flex flex-col gap-4 justify-center items-center my-6 mb-[3rem]">
-            <p className="text-headline-5">Image Preview</p>
+            <p className={`text-headline-5 ${preventClick ? 'text-monochrome-700' : 'text-monochrome-950'}`}>Image Preview</p>
               {!isLoaded ? (
                 <div className="w-[30rem] maxnm:md:w-[25rem] maxmd:min2sm:w-[40rem] max2sm:w-[25rem] h-[25rem] maxnm:md:h-[20rem] maxmd:min2sm:h-[35rem] max2sm:h-[20rem] animate-pulse">
                   <div className="w-full h-full bg-monochrome-100 rounded-md"/>
@@ -530,12 +547,13 @@ export default function EditTopic() {
         {/* Image Select */}
         {postData.imgs.length > 0 && (
         <div className="w-full h-fit flex flex-col gap-8 justify-center items-center">
-          <p className="text-headline-5">Selected Image</p>
+          <p className={`text-headline-5 ${preventClick ? 'text-monochrome-700' : 'text-monochrome-950'}`}>Selected Image</p>
           <div className="w-full h-full flex flex-wrap gap-4 justify-center">
             {postData.imgs.map((img, index) => (
               <div key={index} className="relative w-fit h-fit flex flex-col justify-center items-center gap-2 rounded-md">
                 <button 
-                  onClick={() => setPostData((prev) => ({ ...prev, imgs: postData.imgs.filter(item => item !== img) }))} className="size-6 text-red-800 self-end"
+                  disabled={preventClick}
+                  onClick={() => setPostData((prev) => ({ ...prev, imgs: postData.imgs.filter(item => item !== img) }))} className={`size-6 self-end ${preventClick ? 'text-red-500 ' : 'text-red-800'}`}
                 >
                   <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                     <path fill="currentColor" d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"></path>
@@ -557,8 +575,12 @@ export default function EditTopic() {
         <div className="w-full flex justify-between">
           <div className="flex items-center gap-4">
             <svg 
-              onClick={() => document.getElementById('file-input')?.click()}
-              className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
+              onClick={() => {
+                if (!preventClick) {
+                  document.getElementById('file-input')?.click();
+                }
+              }}
+              className={`transition-all duration-200 ${preventClick ? 'text-primary-300 cursor-default' : 'text-primary-600 hover:text-primary-700 cursor-pointer'}`}
               xmlns="http://www.w3.org/2000/svg"
               width={24}
               height={24}
@@ -581,15 +603,14 @@ export default function EditTopic() {
               button_name="Add tags"
               variant="secondary"
               onClick={handleOnClickAddTags}
-              pending={isSaving}
+              pending={preventClick}
             />
           </div>
           <Button
             button_name="Save"
             variant="primary"
-            pending_state_text="Saving"
             onClick={handleOnClickSave}
-            pending={isSaving}
+            pending={preventClick}
           />
         </div>
 
@@ -597,7 +618,7 @@ export default function EditTopic() {
           button_name="Delete"
           variant="red"
           onClick={() => setIsConfirmModuleOpen(true)}
-          pending={isSaving}
+          pending={preventClick}
         />
 
         <AddTagPopup
@@ -612,12 +633,11 @@ export default function EditTopic() {
           text='Do you want to delete this topic?' 
           description='This topic will be permanently deleted and cannot be restored.' 
           confirmText='Delete'
-          pendingText='Deleting'
           cancelText='Cancel'
           confirmHandle={handleOnDeleteConfirm}
           cancelHandle={handleOnDeletecancel}
           state={isConfirmModuleOpen}
-          pending={isDeleting}
+          pending={preventClick}
         />
       </div>
       {/* Image Full View */}

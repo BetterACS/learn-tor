@@ -28,8 +28,8 @@ export default function Button({ button_name, pending_state_text, variant="prima
   })();
 
   return (
-    <button 
-      onClick={onClick}
+    <button
+      onClick={pending ? () => {} : onClick}
       className={`h-auto w-fit px-[1.3rem] py-[0.7rem] ${variantClasses} rounded-lg flex justify-center items-center text-nowrap border text-button transition-color duration-200`}
     >
       <p>{pending ? pending_state_text || button_name : button_name}</p>

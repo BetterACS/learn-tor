@@ -91,7 +91,7 @@ const ChatComponent = ({ messages }: { messages: ChatMessage[] }) => {
           )}
           <div
             className={clsx(
-              "text-monochrome-950 text-body-large p-2 mt-6 rounded-lg max-w-[60%]",
+              "text-monochrome-950 text-headline-6 p-2 mt-6 rounded-lg max-w-[60%]",
               {
                 "bg-monochrome-50": msg.role === "assistant",
                 "bg-monochrome-100": msg.role === "user",

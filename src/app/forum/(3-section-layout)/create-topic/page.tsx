@@ -52,6 +52,7 @@ export default function CreateTopic() {
     setIsCreating(true);
     // NO TITLE
     if (postData.title === "") {
+      setIsCreating(false);
       setError("Title is required");
       return;
     } 
@@ -76,6 +77,7 @@ export default function CreateTopic() {
         uploadedImageUrls = uploadResults.filter(Boolean) as string[];
       } catch (err) {
         console.error('Image upload failed', err);
+        setIsCreating(false);
         return;
       }
     }
@@ -91,6 +93,7 @@ export default function CreateTopic() {
       {
         onSuccess: async (data) => {
           if (data.status !== 200) {
+            setIsCreating(false);
             setError(data.data.message);
           } else if (data.status === 200) {
             console.log("Mutation Successful:", data);
@@ -108,7 +111,11 @@ export default function CreateTopic() {
   
                 // After successful tag addition, navigate to the new post
                 if ('topic' in data.data) {
-                  router.push(`/forum/${(data.data.topic as Topic)._id}`);
+                  setSuccess("Create topic successfully.");
+                  setTimeout(() => {
+                    setIsCreating(false);
+                    router.push(`/forum/${(data.data.topic as Topic)._id}`);
+                  }, 2000);
                 } else {
                   setError("Topic data is missing");
                 }
@@ -125,14 +132,18 @@ export default function CreateTopic() {
                   console.log("Topic rolled back successfully.");
                 } catch (rollbackError) {
                   console.error("Rollback failed", rollbackError);
+                } finally {
+                  setIsCreating(false);
                 }
-  
+                
                 setError("Failed to add tags, topic has been deleted.");
+              } finally {
+                setIsCreating(false);
               }
             } else if ('topic' in data.data) {
               setSuccess("Create topic successfully.");
-              setIsCreating(false);
               setTimeout(() => {
+                setIsCreating(false);
                 router.push(`/forum/${(data.data.topic as Topic)._id}`);
               }, 2000);
             }
@@ -140,6 +151,7 @@ export default function CreateTopic() {
         },
         onError: (error) => {
           console.error("Topic creation failed:", error);
+          setIsCreating(false);
           setError("Failed to create topic.");
         },
       }
@@ -204,7 +216,7 @@ export default function CreateTopic() {
   
   return (
     <div className="relative h-full w-full px-[5%]">
-      <p className="text-headline-3 w-full maxmd:text-headline-4 mb-6">
+      <p className={`text-headline-3 w-full maxmd:text-headline-4 mb-6 ${isCreating ? 'text-monochrome-700' : 'text-monochrome-950'}`}>
         Create Topic
       </p>
       {error && 
@@ -240,29 +252,31 @@ export default function CreateTopic() {
         )}
 
         <div className="flex flex-col gap-2 text-headline-5">
-          <p>Title</p>
-          <div className="w-full h-fit bg-monochrome-100 py-3 px-4 rounded-md">
+          <p className={`${isCreating ? 'text-monochrome-700' : 'text-monochrome-950'}`}>Title</p>
+          <div className={`w-full h-fit bg-monochrome-100 py-3 px-4 rounded-md`}>
             <input
+              disabled={isCreating}
               type="text"
               name="title"
               placeholder="Title"
               onChange={handleInputChange}
               value={postData.title} 
-              className="bg-transparent w-full outline-none placeholder-monochrome-600 caret-monochrome-600"/> 
+              className={`bg-transparent w-full outline-none caret-monochrome-600 ${isCreating ? 'placeholder-monochrome-300 text-monochrome-500' : 'placeholder-monochrome-600 text-monochrome-950'}`}/> 
           </div>
         </div>
 
         <div className="flex flex-col gap-2 text-headline-5">
-          <p>Body</p>
+          <p className={`${isCreating ? 'text-monochrome-700' : 'text-monochrome-950'}`}>Body</p>
           <div className="w-full h-fit bg-monochrome-100 py-3 px-4 rounded-md">
             <textarea
+              disabled={isCreating}
               name="body"
               placeholder="Body"
               id=""
               rows={4}
               onChange={handleInputChange}
               value={postData.body}
-              className="w-full resize-none bg-transparent outline-none placeholder-monochrome-600 caret-monochrome-600 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-200"
+              className={`w-full resize-none bg-transparent outline-none placeholder-monochrome-600 caret-monochrome-600 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-monochrome-200 ${isCreating ? 'placeholder-monochrome-300 text-monochrome-500' : 'placeholder-monochrome-600 text-monochrome-950'}`}
             ></textarea>
           </div>
         </div>
@@ -408,6 +422,7 @@ export default function CreateTopic() {
             {postData.imgs.map((img, index) => (
               <div key={index} className="relative w-fit h-fit flex flex-col justify-center items-center gap-2 rounded-md">
                 <button 
+                  disabled={isCreating}
                   onClick={() => setPostData((prev) => ({ ...prev, imgs: postData.imgs.filter(item => item !== img) }))} className="size-6 text-red-800 self-end"
                 >
                   <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
@@ -430,8 +445,12 @@ export default function CreateTopic() {
         <div className="w-full flex justify-between">
           <div className="flex items-center gap-4">
             <svg 
-              onClick={() => document.getElementById('file-input')?.click()}
-              className="text-primary-600 hover:text-primary-700 transition-all duration-200 cursor-pointer"
+              onClick={() => {
+                if (!isCreating) {
+                  document.getElementById('file-input')?.click();
+                }
+              }}
+              className={`transition-all duration-200 ${isCreating ? 'text-primary-300 cursor-default' : 'text-primary-600 hover:text-primary-700 cursor-pointer'}`}
               xmlns="http://www.w3.org/2000/svg"
               width={24}
               height={24}
@@ -459,7 +478,6 @@ export default function CreateTopic() {
           </div>
           <Button
             button_name="Post"
-            pending_state_text="Posting"
             variant="primary"
             onClick={handleOnClickPost}
             pending={isCreating}
