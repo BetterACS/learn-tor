@@ -92,7 +92,7 @@ export default function Navbar() {
 
   const handleSignOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    signOut({ callbackUrl: '/login' });
+    signOut({ callbackUrl: process.env.NEXTAUTH_URL + '/login' });
   };
 
   return (
