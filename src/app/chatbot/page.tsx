@@ -43,6 +43,22 @@ export default function Page() {
   }, [messages]);
   const mutationQueryChat = trpc.queryChat.useMutation();
   const handleSidebarToggle = (isOpen: boolean) => setIsSidebarOpen(isOpen);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTo({
+          top: messagesContainerRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }
+    }, 100);
+  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isBotTyping]);
+
   const handleSelectItem = (item: string) => {
 
     if(item === 'new-chat'){
@@ -115,65 +131,71 @@ export default function Page() {
   };
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col">
+    <div className="h-screen flex flex-col">
       <Navbar />
       <ChatbotSidebar onToggleSidebar={handleSidebarToggle} onSelectItem={handleSelectItem} email={session?.user?.email as string} refreshKey={refreshKey}/>
 
-      <div className={clsx('flex flex-col items-center justify-between h-full transition-all duration-300', {
+      <div className={clsx('flex flex-col h-[calc(100vh-64px)] transition-all duration-300', {
         'lg:ml-[20%] md:ml-[26%] sm:ml-[0%]': isSidebarOpen,
         'ml-0': !isSidebarOpen,
       })}>
-        <div className="flex justify-center flex-col flex-1 overflow-y-auto w-full px-4">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto w-full px-4 pb-4"
+        >
           {messages.length === 0 ? (
-            <div className="text-monochrome-950 text-headline-3 lg:text-headline-2 text-center mt-auto mb-4 animate-fadeInAndFloat">
-              What can I help?
+            <div className="flex items-center justify-center h-full">
+              <div className="text-monochrome-950 text-headline-3 lg:text-headline-2 text-center animate-fadeInAndFloat">
+                What can I help?
+              </div>
             </div>
           ) : (
-            <div className="overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-hidden w-full">
-              {<ChatComponent messages={messages}/>}
+            <div className="w-full pt-4">
+              <ChatComponent messages={messages}/>
               {isBotTyping && (
-                <div className="flex justify-start gap-2 w-full">
+                <div className="flex justify-start gap-2 w-full pb-4">
                   <img src="images/logofooter.avif" alt="assistant Logo" className="w-16 h-16 md:ml-32 lg:ml-56 mt-6" />
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, ml: 2 }}>
                     <CircularProgress size={24} />
                   </Box>
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
 
-        <div className="relative flex flex-col w-full lg:max-w-3xl md:max-w-xl px-4 sm:px-2 mt-auto">
-          <textarea
-            placeholder="Text input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onFocus={() => {
-              if (!isLoggedIn) {
-                setShowAlert(true);
-              }
-            }}
-            maxLength={500}
-            className="h-[90px] p-3 bg-monochrome-100 border border-monochrome-100 rounded-xl text-monochrome-950
-                       placeholder:text-monochrome-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600
-                       resize-none box-border mr-4"
-          />
-          <button
-            type="button"
-            onClick={handleSendMessage}
-            disabled={isBotTyping || input.trim() === ''}
-            className="absolute top-3 right-9 w-8 h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
-          >
-            <img src="images/feature/send.avif" alt="Send Icon" className="w-full h-full" />
-          </button>
-        </div>
-
-        <div className="text-monochrome-500 text-body-small mt-4 mb-12">
-          Learntor อาจมีข้อผิดพลาด ควรตรวจสอบข้อมูลสำคัญ
+        <div className="w-full bg-monochrome pt-4 pb-4">
+          <div className="relative flex flex-col w-full lg:max-w-3xl md:max-w-xl px-4 mx-auto">
+            <textarea
+              placeholder="Text input"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => {
+                if (!isLoggedIn) {
+                  setShowAlert(true);
+                }
+              }}
+              maxLength={500}
+              className="h-[90px] p-3 bg-monochrome-100 border border-monochrome-100 rounded-xl text-monochrome-950
+                         placeholder:text-monochrome-400 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600
+                         resize-none box-border"
+            />
+            <button
+              type="button"
+              onClick={handleSendMessage}
+              disabled={isBotTyping || input.trim() === ''}
+              className="absolute bottom-4 right-7 w-8 h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
+            >
+              <img src="images/feature/send.avif" alt="Send Icon" className="w-full h-full" />
+            </button>
+          </div>
+          <div className="text-monochrome-500 text-body-small text-center mt-4">
+            Learntor อาจมีข้อผิดพลาด ควรตรวจสอบข้อมูลสำคัญ
+          </div>
         </div>
       </div>
+
       {showAlert && (
         <AlertBox
           alertType="warning"
