@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect, forwardRef } from 'react';
 import { useRouter } from 'next/navigation'
 import Link from 'next/link';
-import { PostInteractionBar, MockupTopicLoadingCard, ErrorLoading, ImageFullView } from '@/components/index';
+import { PostInteractionBar, MockupTopicLoadingCard, ErrorLoading, ImageFullView, SharePopup } from '@/components/index';
 import dayjs from 'dayjs';
 import { useSession } from 'next-auth/react';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -47,6 +47,7 @@ const Topic = forwardRef<HTMLDivElement, TopicId>(({ topicId }, ref) => {
   const [isLoaded, setIsLoaded] = useState(false); // Fully loaded state
   const [isImageFull, setIsImageFull] = useState(false);
   const [clickedId, setClickedId] = useState<string>('');
+    const [shareState, setShareState] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -299,6 +300,7 @@ const Topic = forwardRef<HTMLDivElement, TopicId>(({ topicId }, ref) => {
           <PostInteractionBar 
             post={{ id: topic?._id, n_comment: topic?.n_comment }}
             comment_enable={true}
+            setShareState={setShareState}
           />
         </div>
       </Link>
@@ -306,6 +308,9 @@ const Topic = forwardRef<HTMLDivElement, TopicId>(({ topicId }, ref) => {
       {topic && (
         <ImageFullView isImageFull={isImageFull} setIsImageFull={setIsImageFull} imgs={topic?.imgs || []} clickedId={clickedId}/>
       )}
+      {topic &&
+      <SharePopup topicId={topic._id} shareState={shareState} setShareState={setShareState} />
+      }
     </>
   )
 });

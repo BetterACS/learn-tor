@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "cookies-next": "^5.1.0",
     "critters": "^0.0.25",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "fs": "^0.0.1-security",

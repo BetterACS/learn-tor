@@ -43,6 +43,7 @@ import ChatComponent from './ChatComponent';
 import CompactSidebar from '@/components/compact-sidebar';
 import TrendingTopicCarousel from '@/components/trending-topic-carousel';
 import ImageFullView from '@/components/image-full-view';
+import SharePopup from '@/components/share-popup';
 
 export {
   Test,
@@ -92,4 +93,5 @@ export {
   CompactSidebar,
   TrendingTopicCarousel,
   ImageFullView,
+  SharePopup,
 }
