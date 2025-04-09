@@ -62,7 +62,16 @@ export default function Calculator1() {
   // เรียกตอนโหลดครั้งแรก
   useEffect(() => {
     fetchOptions({});
+    setTargets([{
+      university: "",
+      campus: "",
+      faculty: "",
+      major: "",
+      language: "",
+      examType: ""
+    }]);
   }, []);
+
 
   // เรียกเมื่อ target เปลี่ยน
   useEffect(() => {
@@ -167,14 +176,14 @@ export default function Calculator1() {
 
             {targets.map((target, index) => (
               <div key={index} className="relative mb-4 p-4 bg-gray-100 rounded-lg border">
-                <button 
+                {/* <button 
                   className="absolute top-2 right-4 text-primary-600 hover:text-red-800 transition"
                   onClick={() => removeTarget(index)}
                 >
                   <svg aria-hidden="true" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 laptop:h-6 laptop:w-6">
                         <path d="M177.1 48h93.7c2.7 0 5.2 1.3 6.7 3.6l19 28.4h-145l19-28.4c1.5-2.2 4-3.6 6.7-3.6zM354.2 80L317.5 24.9C307.1 9.4 289.6 0 270.9 0H177.1c-18.7 0-36.2 9.4-46.6 24.9L93.8 80H80.1 32 24C10.7 80 0 90.7 0 104s10.7 24 24 24H35.6L59.6 452.7c2.5 33.4 30.3 59.3 63.8 59.3H324.6c33.5 0 61.3-25.9 63.8-59.3L412.4 128H424c13.3 0 24-10.7 24-24s-10.7-24-24-24h-8H367.9 354.2z" fill="currentColor"></path>
                   </svg>
-                </button>
+                </button> */}
 
                 <div className="grid grid-cols-2 gap-x-10 gap-y-6">
                   {/* มหาวิทยาลัย */}

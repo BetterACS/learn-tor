@@ -6,12 +6,13 @@ import { AlertBox } from '@/components/index';
 
 const SemiCircleProgressBar = ({ score }: { score: number }) => {
   const getGradientColor = (score: number) => {
-    if (score <= 50) {
-      const green = Math.floor((200 * score) / 50);
-      return `rgb(200, ${green}, 0)`;
+    const clampedScore = Math.max(0, Math.min(score, 100));
+    if (clampedScore <= 50) {
+      const green = Math.floor((200 * clampedScore) / 50);
+      return `rgb(200, ${green}, 0)`;  // สีเขียวเพิ่มขึ้น
     } else {
-      const red = Math.floor(200 - (200 * (score - 50)) / 50);
-      return `rgb(${red}, 200, 0)`;
+      const red = Math.floor(200 - (200 * (clampedScore - 50)) / 50);
+      return `rgb(${red}, 200, 0)`;  // สีแดงเพิ่มขึ้น
     }
   };
 
@@ -176,7 +177,7 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
 
   return (
     <>
-      <div className="relative flex flex-col items-center">
+      <div className="relative flex flex-col items-center mb-8">
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-4 w-[1100px]">
           </div>
@@ -235,6 +236,8 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
                   </div>
                 )}
 
+                {/* <div className="mt-6">หมายเหตุ : คะแนนของคุณไม่ถึงเกณฑ์คะแนนขั้นต่ำ </div> */}
+
                 {showDetails && (
                   <div className="mt-6">
                     <div className="flex items-center w-full">
@@ -287,7 +290,7 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
                     }, {
                       year: "66",
                       lowest: calculationResult?.last_year_min_score?.toFixed(2) || "-",
-                      received: calculationResult?.admitted || "-"
+                      received: calculationResult?.last_years_admitted || "-"
                     }].map((item, index) => (
                       <div key={index} className="border rounded-lg p-4">
                         <div className="flex justify-between">
