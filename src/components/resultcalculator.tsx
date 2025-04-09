@@ -4,14 +4,21 @@ import React, { useEffect, useState } from 'react';
 import { trpc } from '@/app/_trpc/client';
 import { AlertBox } from '@/components/index';
 
-const SemiCircleProgressBar = ({ score }: { score: number }) => {
+const SemiCircleProgressBar = ({ score, resultId }: { score: number, resultId?: string }) => {
+  // สร้าง unique gradient ID
+  const gradientId = resultId ? `gradient-${resultId}` : `gradient-${Math.random().toString(36).substring(2, 9)}`;
+  
+  // ตรวจสอบว่า score เป็น number หรือไม่ (สำหรับการคำนวณ)
+  const safeScore = typeof score === 'number' ? score : 0;
+  
   const getGradientColor = (score: number) => {
-    if (score <= 50) {
-      const green = Math.floor((200 * score) / 50);
-      return `rgb(200, ${green}, 0)`;
+    const clampedScore = Math.max(0, Math.min(score, 100));
+    if (clampedScore <= 50) {
+      const green = Math.floor((200 * clampedScore) / 50);
+      return `rgb(200, ${green}, 0)`;  // สีเขียวเพิ่มขึ้น
     } else {
-      const red = Math.floor(200 - (200 * (score - 50)) / 50);
-      return `rgb(${red}, 200, 0)`;
+      const red = Math.floor(200 - (200 * (clampedScore - 50)) / 50);
+      return `rgb(${red}, 200, 0)`;  // สีแดงเพิ่มขึ้น
     }
   };
 
@@ -19,9 +26,9 @@ const SemiCircleProgressBar = ({ score }: { score: number }) => {
     <div className="relative w-full h-32 flex flex-col items-center">
       <svg viewBox="0 0 100 50" className="w-full h-full">
         <defs>
-          <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="10" y1="50" x2="90" y2="50">
-            <stop offset="0%" stopColor={getGradientColor(score)} />
-            <stop offset="100%" stopColor={getGradientColor(score)} />
+          <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1="10" y1="50" x2="90" y2="50">
+            <stop offset="0%" stopColor={getGradientColor(safeScore)} />
+            <stop offset="100%" stopColor={getGradientColor(safeScore)} />
           </linearGradient>
         </defs>
         <path
@@ -33,14 +40,14 @@ const SemiCircleProgressBar = ({ score }: { score: number }) => {
         <path
           d="M 10 50 A 40 40 0 1 1 90 50"
           fill="none"
-          stroke="url(#gradient)"
+          stroke={`url(#${gradientId})`}
           strokeWidth="10"
           strokeDasharray="126.92"
-          strokeDashoffset={126.92 - (126.92 * score) / 100}
+          strokeDashoffset={126.92 - (126.92 * safeScore) / 100}
           strokeLinecap="round"
         />
-        <text x="50" y="40" textAnchor="middle" fontSize="12" fontWeight="bold" fill={getGradientColor(score)}>
-          {score.toFixed(2)}
+        <text x="50" y="40" textAnchor="middle" fontSize="12" fontWeight="bold" fill={getGradientColor(safeScore)}>
+          {typeof score === 'number' ? score.toFixed(2) : "0.00"}
         </text>
       </svg>
     </div>
@@ -176,14 +183,14 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
 
   return (
     <>
-      <div className="relative flex flex-col items-center">
+      <div className="relative flex flex-col items-center mb-8">
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-4 w-[1100px]">
           </div>
 
           <div className="bg-white w-full max-w-screen-2xl p-10 rounded-lg shadow-lg border border-primary-600 mt-10 flex flex-col lg:flex-row">
             <div className="flex-grow">
-              <div className="w-full lg:w-2/3">
+              <div className="w-full lg:w-3/4">
                 <div className="flex items-start">
                   <div className="w-1 bg-primary-600 h-24 mr-2"></div>
                   <div className="ml-1.5 space-y-1">
@@ -235,6 +242,12 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
                   </div>
                 )}
 
+                <div className="mt-8">
+                  {calculationResult?.chance < 0.01 && (
+                    <div className='text-body-small text-red-800'>หมายเหตุ: คุณไม่ผ่านเงื่อนไขคะแนนขั้นต่ำหรือคุณสมบัติพื้นฐาน โปรดตรวจสอบเงื่อนไขคะแนนขั้นต่ำและคุณสมบัติพื้นฐาน หรือคะแนนของคุณต่ำกว่าคะแนนต่ำสุดของปีล่าสุดแบบมีนัยสำคัญ </div>
+                  )}
+                </div>
+
                 {showDetails && (
                   <div className="mt-6">
                     <div className="flex items-center w-full">
@@ -270,7 +283,7 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
             {/* กล่องข้าง */}
             <div className="w-full lg:w-1/3 lg:max-w-sm bg-white p-6 rounded-lg shadow-lg border border-monochrome-200 mt-6 lg:mt-0 lg:ml-auto" style={{maxHeight: '500px', overflowY: 'auto'}}>
               <p className="mt-2 mb-2 text-[1.75rem] font-bold text-center">ผลการคำนวณคะแนน</p>
-              <SemiCircleProgressBar score={score} />
+              <SemiCircleProgressBar score={typeof score === 'number' ? score : 0} resultId={resultId}/>
               <p className="mt-6 mb-4 text-headline-7 text-center">คะแนนของคุณ: <span className='font-bold'>{calculationResult?.calculated_score.toFixed(2) || "คะแนน"}</span> / 100 คะแนน</p>
               <hr className="my-4 mt-6 border-monochrome-300" />
               <p className="mt-6 mb-4 text-headline-5 font-bold text-center">คุณมีโอกาสสอบติด <span className='text-primary-600 font-bold'>{calculationResult?.chance ? (calculationResult.chance * 100).toFixed(2) : "โอกาส"}</span> %</p>
@@ -287,7 +300,7 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
                     }, {
                       year: "66",
                       lowest: calculationResult?.last_year_min_score?.toFixed(2) || "-",
-                      received: calculationResult?.admitted || "-"
+                      received: calculationResult?.last_years_admitted || "-"
                     }].map((item, index) => (
                       <div key={index} className="border rounded-lg p-4">
                         <div className="flex justify-between">
