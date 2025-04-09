@@ -128,7 +128,8 @@ export default function Carousel() {
     </div>
   ) : (
     <div className="h-fit w-full px-4">
-      <Slider {...settings}>
+      {!carousel_items.data.message ? ( 
+        <Slider {...settings}>
         {carousel_items?.data.map((item: Topic, index: number) => (
         <Link 
         href={{ pathname: `/forum/${item._id}`,
@@ -153,6 +154,12 @@ export default function Carousel() {
         </Link>
         ))}
       </Slider>
+      ) : (
+        <div>
+          No topic here.
+        </div>
+      )
+      }
     </div>
   )
 }
