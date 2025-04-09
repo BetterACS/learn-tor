@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, ScoreInput, EditButtons, SpecialInput, GpaxInput, SelectPlan  } from '@/components/index';
+import { Navbar, Footer, ScoreInput, EditButtons, SpecialInput, GpaxInput, SelectPlan } from '@/components/index';
 import { trpc } from '@/app/_trpc/client';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -50,9 +50,9 @@ const initialFormData: FormData = {
   TPAT3: '', TPAT4: '', TPAT5: '', A_MATH1: '', A_MATH2: '', A_SCIENCE: '',
   A_PHYSIC: '', A_BIOLOGY: '', A_CHEMISTRY: '', A_SOCIAL: '', A_THAI: '',
   A_ENGLISH: '', A_FRANCE: '', A_GERMANY: '', A_JAPAN: '', A_PALI: '',
-  A_CHINESE: '', A_KOREAN: '', A_SPANISH: '',lesson_plan: '',
+  A_CHINESE: '', A_KOREAN: '', A_SPANISH: '', lesson_plan: '',
 };
-  
+
 export default function Calculator2() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -81,10 +81,10 @@ export default function Calculator2() {
   const requireScore = trpc.requireScore.useMutation({
     onSuccess: (response) => {
       console.log("Response data:", response); // ตรวจสอบค่าที่ได้รับ
-  
-      if (response?.data) { 
+
+      if (response?.data) {
         setRequiredScores(response.data.new_culcurate); // เก็บค่าที่ได้จาก API
-         // ตรวจสอบค่าที่ได้รับ
+        // ตรวจสอบค่าที่ได้รับ
       }
     },
     onError: (error) => {
@@ -92,7 +92,7 @@ export default function Calculator2() {
     },
   });
   console.log(minScore, scoreCalculator); // เช็คค่าที่ดึงมา
-  
+
   console.log("Required scores:", requiredScores);
   console.log(typeof requiredScores);
 
@@ -121,7 +121,7 @@ export default function Calculator2() {
       for (const [key, value] of Object.entries(restScores)) {
         cleanedScores[key] = value !== null ? String(value) : '';
       }
-  
+
       setFormData((prev) => ({
         ...prev,
         ...cleanedScores,
@@ -138,7 +138,7 @@ export default function Calculator2() {
       [name]: value,
     }));
   };
-  
+
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -149,14 +149,14 @@ export default function Calculator2() {
 
   const mutation = trpc.editCalculate.useMutation();
 
-  const handleSaveClick = async () => { 
+  const handleSaveClick = async () => {
     if (!session?.user?.email) {
       console.error('ไม่พบอีเมลของผู้ใช้');
       return;
     }
-  
+
     const maxScoresObject: Record<string, number> = {};
-  
+
     if (requiredScores) {
       Object.entries(requiredScores).forEach(([label, detail]) => {
         if (detail.type === 'max' && Array.isArray(detail.base_subjects)) {
@@ -170,18 +170,18 @@ export default function Calculator2() {
         }
       });
     }
-  
+
     console.log('MAX ที่จะเซฟ:', maxScoresObject);
-  
+
     const specialScoresArray: Array<Record<string, number>> = [];
-  
+
     if (requiredScores) {
       Object.entries(requiredScores).forEach(([label, detail]) => {
         if (detail.type === 'special') {
           const fullLabel = fullLabelMap[label] || label;
-          const score = formData[label]; 
-          const maxValue = formData[`${label}_max`]; 
-  
+          const score = formData[label];
+          const maxValue = formData[`${label}_max`];
+
           if (score && maxValue) {
             const specialObj: Record<string, number> = {};
             specialObj[fullLabel] = parseFloat(score);
@@ -191,9 +191,9 @@ export default function Calculator2() {
         }
       });
     }
-  
+
     console.log('SPEACIAL ที่จะเซฟ:', specialScoresArray);
-  
+
     try {
       const scoreResult = await mutation.mutateAsync({
         email: session.user.email,
@@ -203,19 +203,19 @@ export default function Calculator2() {
           SPEACIAL: specialScoresArray,
         },
       });
-  
+
       console.log('Data saved successfully:', scoreResult);
 
       setIsEditing(false);
-  
+
       setAlertType('success');
       setAlertMessage('บันทึกคะแนนเรียบร้อยแล้ว!');
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
-  
+
     } catch (err) {
       console.error('Error saving data:', err);
-  
+
       setAlertType('error');
       setAlertMessage('เกิดข้อผิดพลาดในการบันทึกคะแนน กรุณาลองใหม่อีกครั้ง');
       setShowAlert(true);
@@ -224,6 +224,7 @@ export default function Calculator2() {
   };
 
   const scoreName = {
+    "เกรดเฉลี่ย": "GPAX",
     "การสื่อสารภาษาอังกฤษ (TGAT1)": "TGAT1",
     "การคิดอย่างมีเหตุผล (TGAT2)": "TGAT2",
     "สมรรถนะการทำงาน (TGAT3)": "TGAT3",
@@ -250,26 +251,26 @@ export default function Calculator2() {
     "A-Level ภาษาบาลี": "A_PALI",
     "A-Level ภาษาสเปน": "A_SPANISH",
   };
-  
+
   const formula = requiredScores || {};
   console.log(formula);
   const showTGATBlock = requiredScores
-  ? Object.keys(requiredScores).some((key) => key.includes('TGAT'))
-  : false;
+    ? Object.keys(requiredScores).some((key) => key.includes('TGAT'))
+    : false;
 
   const showTPATBlock = requiredScores
-  ? ['ทัศนศิลป์ (TPAT21)', 'ดนตรี (TPAT22)', 'นาฏศิลป์ (TPAT23)', 'ความถนัดวิทยาศาสตร์ เทคโนโลยี วิศวกรรมศาสตร์ (TPAT3)', 'ความถนัดสถาปัตยกรรมศาสตร์ (TPAT4)', 'ความถนัดครุศาสตร์-ศึกษาศาสตร์ (TPAT 5)'].some((field) =>
+    ? ['ทัศนศิลป์ (TPAT21)', 'ดนตรี (TPAT22)', 'นาฏศิลป์ (TPAT23)', 'ความถนัดวิทยาศาสตร์ เทคโนโลยี วิศวกรรมศาสตร์ (TPAT3)', 'ความถนัดสถาปัตยกรรมศาสตร์ (TPAT4)', 'ความถนัดครุศาสตร์-ศึกษาศาสตร์ (TPAT 5)'].some((field) =>
       Object.keys(requiredScores).includes(field)
     )
-  : false;
+    : false;
 
   const showALevelBlock = requiredScores
-  ? [
+    ? [
       'A-Level คณิตศาสตร์ประยุกต์ 1 (พื้นฐาน+เพิ่มเติม)', 'A-Level คณิตศาสตร์ประยุกต์ 2 (พื้นฐาน)', 'A-Level วิทยาศาสตร์ประยุกต์', 'A-Level ฟิสิกส์', 'A-Level ชีววิทยา', 'A-Level เคมี',
       'A-Level สังคมศาสตร์', 'A-Level ภาษาไทย', 'A-Level ภาษาอังกฤษ', 'A-Level ภาษาฝรั่งเศส', 'A-Level ภาษาเยอรมัน', 'A-Level ภาษาญี่ปุ่น',
       'A-Level ภาษาเกาหลี', 'A-Level ภาษาจีน', 'A-Level ภาษาบาลี', 'A-Level ภาษาสเปน'
     ].some((field) => Object.keys(requiredScores).includes(field))
-  : false;
+    : false;
 
   const labelMap: Record<string, string> = {};
   Object.keys(formula).forEach((rawKey) => {
@@ -306,7 +307,7 @@ export default function Calculator2() {
 
   const buildScoreObject = () => {
     const scoreObj = {};
-  
+
     // ถ้า requiredScores มี "เกรดเฉลี่ย" และเป็น type: 'single' → ค่อยดึงค่า GPAX
     if (
       requiredScores &&
@@ -324,12 +325,12 @@ export default function Calculator2() {
         };
       }
     }
-  
+
     if (!requiredScores) return scoreObj;
-  
+
     Object.entries(requiredScores).forEach(([label, detail]) => {
       if (label === 'เกรดเฉลี่ย') return; // ข้ามซ้ำ เพราะจัดการแล้วด้านบน
-  
+
       if (detail.type === 'single') {
         const scoreValue = parseFloat(formData[scoreName[label]]);
         if (!isNaN(scoreValue)) {
@@ -350,7 +351,7 @@ export default function Calculator2() {
             maxSubject = subj;
           }
         });
-  
+
         if (maxSubject && maxScore !== -1) {
           scoreObj[label] = {
             type: 'max',
@@ -373,51 +374,85 @@ export default function Calculator2() {
         }
       }
     });
-  
+
     return scoreObj;
   };
 
   const isAllRequiredFieldsFilled = () => {
-    if (!requiredScores || Object.keys(requiredScores).length === 0) return false;
-  
+    // If we're still loading required scores, don't disable the button yet
+    if (!requiredScores) return true;
+    console.log("is zerr",requiredScores )
+    console.log("object key", Object.keys(requiredScores).length)
+    if (Object.keys(requiredScores).length === 0) {
+      console.log("No required scores found");
+      return false
+    }
+
     let hasAtLeastOneMaxScore = false;
-  
+
     for (const [label, detail] of Object.entries(requiredScores)) {
       if (detail.type === 'single') {
-        const value = formData[scoreName[label]];
-        if (!value || String(value).trim() === '') return false;
+      const value = formData[scoreName[label]];
+      if (!value || String(value).trim() === '') {
+        console.log(`Missing value for single type: ${label}`);
+        return false;
+      }
       } else if (detail.type === 'special') {
-        const value = formData[label];
-        const max = formData[`${label}_max`];
-        if (!value || !max || String(value).trim() === '' || String(max).trim() === '') return false;
+      const value = formData[label];
+      const max = formData[`${label}_max`];
+      if (!value || !max || String(value).trim() === '' || String(max).trim() === '') {
+        console.log(`Missing value or max for special type: ${label}`);
+        return false;
+      }
       } else if (detail.type === 'max' && Array.isArray(detail.base_subjects)) {
-        const hasFilled = detail.base_subjects.some(
-          (subj) =>
-            formData[scoreName[subj]] &&
-            String(formData[scoreName[subj]]).trim() !== ''
-        );
-        if (hasFilled) hasAtLeastOneMaxScore = true;
+      const hasFilled = detail.base_subjects.some(
+        (subj) =>
+        formData[scoreName[subj]] &&
+        String(formData[scoreName[subj]]).trim() !== ''
+      );
+      if (hasFilled) {
+        hasAtLeastOneMaxScore = true;
+      } else {
+        console.log(`No value filled for max type: ${label}`);
+      }
       }
     }
-  
+
     // เช็คเฉพาะตอนมี max-type
     const hasMaxSubject = Object.values(requiredScores).some((r: any) => r.type === 'max');
-    if (hasMaxSubject && !hasAtLeastOneMaxScore) return false;
-  
+    if (hasMaxSubject && !hasAtLeastOneMaxScore) {
+      console.log('No max score filled for any max-type subjects');
+      return false;
+    }
+
     // GPAX
     if (
       requiredScores['เกรดเฉลี่ย']?.type === 'single' &&
       (!formData.GPAX || String(formData.GPAX).trim() === '')
-    ) return false;
-  
+    ) {
+      console.log('Missing GPAX value');
+      return false;
+    }
+
     // แผนการเรียน
-    if (!formData.lesson_plan || String(formData.lesson_plan).trim() === '') return false;
-  
+    if (!formData.lesson_plan || String(formData.lesson_plan).trim() === '') {
+      console.log('Missing lesson plan value');
+      return false;
+    }
+
     return true;
   };
-  
-  
-  
+
+  // Add state to track if fields are valid
+  const [fieldsAreValid, setFieldsAreValid] = useState(false);
+
+  // Add useEffect to check field validity whenever requiredScores or formData changes
+  useEffect(() => {
+    if (requiredScores) {
+      setFieldsAreValid(isAllRequiredFieldsFilled());
+    }
+  }, [requiredScores, formData]);
+
   const saveResult = trpc.saveResult.useMutation();
 
   const handleCalculateClick = async () => {
@@ -440,7 +475,7 @@ export default function Calculator2() {
       program: major || '',
       course_type: language || '',
       admission_type: examType || '',
-      score: buildScoreObject(), 
+      score: buildScoreObject(),
     };
 
     try {
@@ -515,23 +550,23 @@ export default function Calculator2() {
             <div className="text-monochrome-800 text-headline-6 mt-3 relative flex items-center whitespace-nowrap">
               GPAX และ ประเภทของหลักสูตรการศึกษา
               <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
-                  </div>
-               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
-                <GpaxInput label="GPAX เกรดเฉลี่ยรวม" value={formData.GPAX} onChange={handleChange} isEditing={isEditing} name="GPAX"/>
-                <SelectPlan
-                                label="ประเภทของหลักสูตรการศึกษา"
-                                name="lesson_plan"
-                                value={formData.lesson_plan}
-                                disabled={!isEditing}
-                                onChange={(e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
-                                options={[
-                                  'หลักสูตรแกนกลาง',
-                                  'หลักสูตรนานาชาติ',
-                                  'หลักสูตรอาชีวะ',
-                                  'หลักสูตรตามอัธยาศัย (กศน.)',
-                                  'หลักสูตร GED',
-                                ]}
-                />
+            </div>
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
+              <GpaxInput label="GPAX เกรดเฉลี่ยรวม" value={formData.GPAX} onChange={handleChange} isEditing={isEditing} name="GPAX" />
+              <SelectPlan
+                label="ประเภทของหลักสูตรการศึกษา"
+                name="lesson_plan"
+                value={formData.lesson_plan}
+                disabled={!isEditing}
+                onChange={(e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))}
+                options={[
+                  'หลักสูตรแกนกลาง',
+                  'หลักสูตรนานาชาติ',
+                  'หลักสูตรอาชีวะ',
+                  'หลักสูตรตามอัธยาศัย (กศน.)',
+                  'หลักสูตร GED',
+                ]}
+              />
             </div>
             {showTGATBlock && (
               <>
@@ -546,32 +581,32 @@ export default function Calculator2() {
                 </div>
               </>
             )}
-            
-              {showTPATBlock && (
-                <>
-                  <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
-                    TPAT ความถนัดทางวิชาชีพ
-                    <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
-                  </div>
-                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
-                    {Object.entries(labelMap).map(([name, label]) => {
-                      if (['ทัศนศิลป์ (TPAT21)', 'ดนตรี (TPAT22)', 'นาฏศิลป์ (TPAT23)', 'ความถนัดวิทยาศาสตร์ เทคโนโลยี วิศวกรรมศาสตร์ (TPAT3)', 'ความถนัดสถาปัตยกรรมศาสตร์ (TPAT4)', 'ความถนัดครุศาสตร์-ศึกษาศาสตร์ (TPAT 5)'].includes(name)) {
-                        return (
-                          <ScoreInput
-                            key={name}
-                            label={fullLabelMap[name] || label}
-                            value={formData[scoreName[name]]}
-                            onChange={handleChange}
-                            isEditing={isEditing}
-                            name={scoreName[name]}
-                          />
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-               </>
-             )}
+
+            {showTPATBlock && (
+              <>
+                <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
+                  TPAT ความถนัดทางวิชาชีพ
+                  <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
+                </div>
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
+                  {Object.entries(labelMap).map(([name, label]) => {
+                    if (['ทัศนศิลป์ (TPAT21)', 'ดนตรี (TPAT22)', 'นาฏศิลป์ (TPAT23)', 'ความถนัดวิทยาศาสตร์ เทคโนโลยี วิศวกรรมศาสตร์ (TPAT3)', 'ความถนัดสถาปัตยกรรมศาสตร์ (TPAT4)', 'ความถนัดครุศาสตร์-ศึกษาศาสตร์ (TPAT 5)'].includes(name)) {
+                      return (
+                        <ScoreInput
+                          key={name}
+                          label={fullLabelMap[name] || label}
+                          value={formData[scoreName[name]]}
+                          onChange={handleChange}
+                          isEditing={isEditing}
+                          name={scoreName[name]}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </>
+            )}
 
             {showALevelBlock && (
               <>
@@ -582,10 +617,10 @@ export default function Calculator2() {
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
                   {Object.entries(labelMap).map(([name, label]) => {
                     if ([
-                        'A-Level คณิตศาสตร์ประยุกต์ 1 (พื้นฐาน+เพิ่มเติม)', 'A-Level คณิตศาสตร์ประยุกต์ 2 (พื้นฐาน)', 'A-Level วิทยาศาสตร์ประยุกต์', 'A-Level ฟิสิกส์', 'A-Level ชีววิทยา', 'A-Level เคมี',
-                        'A-Level สังคมศาสตร์', 'A-Level ภาษาไทย', 'A-Level ภาษาอังกฤษ', 'A-Level ภาษาฝรั่งเศส', 'A-Level ภาษาเยอรมัน', 'A-Level ภาษาญี่ปุ่น',
-                        'A-Level ภาษาเกาหลี', 'A-Level ภาษาจีน', 'A-Level ภาษาบาลี', 'A-Level ภาษาสเปน'
-                      ].includes(name)) {
+                      'A-Level คณิตศาสตร์ประยุกต์ 1 (พื้นฐาน+เพิ่มเติม)', 'A-Level คณิตศาสตร์ประยุกต์ 2 (พื้นฐาน)', 'A-Level วิทยาศาสตร์ประยุกต์', 'A-Level ฟิสิกส์', 'A-Level ชีววิทยา', 'A-Level เคมี',
+                      'A-Level สังคมศาสตร์', 'A-Level ภาษาไทย', 'A-Level ภาษาอังกฤษ', 'A-Level ภาษาฝรั่งเศส', 'A-Level ภาษาเยอรมัน', 'A-Level ภาษาญี่ปุ่น',
+                      'A-Level ภาษาเกาหลี', 'A-Level ภาษาจีน', 'A-Level ภาษาบาลี', 'A-Level ภาษาสเปน'
+                    ].includes(name)) {
                       return (
                         <ScoreInput
                           key={name}
@@ -605,7 +640,7 @@ export default function Calculator2() {
 
             {Object.entries(formula).some(([_, detail]) => detail.type === 'max' && Array.isArray(detail.base_subjects)) && (
               <>
-                <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap"> 
+                <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
                   กลุ่มวิชาภาษาต่างประเทศ (ไม่จำเป็นต้องใส่ครบทุกอัน)
                   <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
                 </div>
@@ -631,7 +666,7 @@ export default function Calculator2() {
 
             {Object.entries(formula).some(([_, detail]) => detail.type === 'special') && (
               <>
-                <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap"> 
+                <div className="text-monochrome-800 text-headline-6 mt-10 relative flex items-center whitespace-nowrap">
                   กลุ่มคะแนนพิเศษ
                   <div className="ml-2 w-full border-b-2 border-monochrome-300"></div>
                 </div>
@@ -670,13 +705,12 @@ export default function Calculator2() {
               <EditButtons isEditing={isEditing} onEditClick={handleEditClick} onCancelClick={handleCancelClick} onSaveClick={handleSaveClick} />
             </div>
             <button
-              className={`mt-16 px-10 py-3 rounded-lg text-big-button w-120 max-h-[43px] transition relative ${
-                isAllRequiredFieldsFilled()
+              className={`mt-16 px-10 py-3 rounded-lg text-big-button w-120 max-h-[43px] transition relative ${fieldsAreValid && requiredScores
                   ? 'bg-primary-600 text-white hover:bg-primary-700'
                   : 'bg-gray-300 text-white cursor-not-allowed'
-              }`}
+                }`}
               onClick={handleCalculateClick}
-              disabled={!isAllRequiredFieldsFilled() || isCalculating}
+              disabled={!fieldsAreValid || !requiredScores || isCalculating}
             >
               {isCalculating ? (
                 <>
