@@ -244,7 +244,7 @@ export default function ResultCalculator({ resultId, hideConfirmButton = false }
 
                 <div className="mt-8">
                   {calculationResult?.chance < 0.01 && (
-                    <div className='text-body-small text-red-800'>หมายเหตุ: คุณไม่ผ่านเงื่อนไขคะแนนขั้นต่ำหรือคุณสมบัติพื้นฐาน โปรดตรวจสอบเงื่อนไขคะแนนขั้นต่ำและคุณสมบัติพื้นฐาน </div>
+                    <div className='text-body-small text-red-800'>หมายเหตุ: คุณไม่ผ่านเงื่อนไขคะแนนขั้นต่ำหรือคุณสมบัติพื้นฐาน โปรดตรวจสอบเงื่อนไขคะแนนขั้นต่ำและคุณสมบัติพื้นฐาน หรือคะแนนของคุณต่ำกว่าคะแนนต่ำสุดของปีล่าสุดแบบมีนัยสำคัญ </div>
                   )}
                 </div>
 
