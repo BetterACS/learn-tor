@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Navbar, ChatbotSidebar, AlertBox,ChatComponent } from '@/components/index';
 import clsx from 'clsx';
 import { trpc } from '@/app/_trpc/client';
+import { set } from 'mongoose';
 
 // เผื่อไว้ใช้
 const formatDate = (dateString: string) => {
@@ -53,10 +54,12 @@ export default function Page() {
     mutationQueryChat.mutate({ email: session?.user?.email as string, chatId: item },{
       onSuccess: (data) => {
         if(data){
-          console.log("data",data.history);
+          // console.log("data histroy",data.history);
           // setMessages(data.history.map((msg: any) => ({ role: msg.role, text: msg.content })));
           setMessages(data.history)
+          // console.log("data",data)
           setChatId(item);
+          // console.log("chatId",item);
         }
       },
       onError: (error) => {
@@ -69,19 +72,18 @@ export default function Page() {
   const handleSendMessage = () => {
     if (input.trim() === '' || isBotTyping) return;
     setMessages((prevMessages) => [...prevMessages, { role: 'user', content: input, time: new Date().toISOString() }]);
-    console.log("input",input)
+    // console.log("input",input)
     setInput('');
     setIsBotTyping(true);
-    if (chatId === '') {
-      setRefreshKey(prev => prev + 1);
-    }
     mutationChat.mutate({ email: session?.user?.email as string, content: input,chatId:chatId },{
       onSuccess: (data) => {
         if(data){
           
           if ('chat' in data) {
-            console.log("data",data.chat.history[data.chat.history.length-1]);
+            // console.log("data in handleSendMessage",data.chat.history[data.chat.history.length-1]);
             setMessages((prevMessages) => [...prevMessages, data.chat.history[data.chat.history.length-1]]);
+            setChatId(data.chat._id);
+            setRefreshKey(prev => prev + 1);
           }
           setIsBotTyping(false);
         }
@@ -115,7 +117,7 @@ export default function Page() {
   return (
     <div className="h-screen overflow-hidden flex flex-col">
       <Navbar />
-      <ChatbotSidebar onToggleSidebar={handleSidebarToggle} onSelectItem={handleSelectItem} email={session?.user?.email as string}/>
+      <ChatbotSidebar onToggleSidebar={handleSidebarToggle} onSelectItem={handleSelectItem} email={session?.user?.email as string} refreshKey={refreshKey}/>
 
       <div className={clsx('flex flex-col items-center justify-between h-full transition-all duration-300', {
         'lg:ml-[20%] md:ml-[26%] sm:ml-[0%]': isSidebarOpen,
