@@ -13,15 +13,23 @@ interface PostProps {
   };
   comment_enable: boolean;
   onCommentClicked?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  setShareState: (shareState: boolean) => void;
 }
 
-export default function PostInteractionBar({ post, comment_enable, onCommentClicked }: PostProps) {
+export default function PostInteractionBar({ post, comment_enable, onCommentClicked, setShareState }: PostProps) {
   const {data: session} = useSession();
+
+  const checkLikeMutation = trpc.checkLike.useMutation();
+  const mutation = trpc.likeTopic.useMutation();
 
   const [isLiked, setIsLiked] = useState<boolean>();
   const [isSaved, setIsSaved] = useState<boolean>();
   const [countLike, setCountLike] = useState<number>();
-  const checkLikeMutation = trpc.checkLike.useMutation();
+  const [buttonStates, setButtonStates] = useState<Record<string, { liked: boolean, isClicked: boolean }>>({
+    like: { liked: isLiked ?? false, isClicked: false },
+    save: { liked: isSaved ?? false, isClicked: false },
+  });
+
   
   useEffect(() => {
     if (session?.user?.email && post?.id) {
@@ -43,12 +51,6 @@ export default function PostInteractionBar({ post, comment_enable, onCommentClic
     }
   }, [session, post]);
 
-  const [buttonStates, setButtonStates] = useState<Record<string, { liked: boolean, isClicked: boolean }>>({
-    like: { liked: isLiked ?? false, isClicked: false },
-    save: { liked: isSaved ?? false, isClicked: false },
-    share: { liked: false, isClicked: false },
-  });
-
   useEffect(() => {
       if (isLiked !== undefined) {
         setButtonStates((prev) => ({
@@ -61,19 +63,17 @@ export default function PostInteractionBar({ post, comment_enable, onCommentClic
       }
     }, [isLiked]);
   
-    useEffect(() => {
-      if (isSaved !== undefined) {
-        setButtonStates((prev) => ({
-          ...prev,
-          save: {
-            liked: isSaved, // ตั้งค่า liked ตาม isSaved
-            isClicked: false, // สถานะการคลิก reset
-          },
-        }));
-      }
-    }, [isSaved]);
-
-  const mutation = trpc.likeTopic.useMutation();
+  useEffect(() => {
+    if (isSaved !== undefined) {
+      setButtonStates((prev) => ({
+        ...prev,
+        save: {
+          liked: isSaved, // ตั้งค่า liked ตาม isSaved
+          isClicked: false, // สถานะการคลิก reset
+        },
+      }));
+    }
+  }, [isSaved]);
 
   // mockup like, save and share button animation
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -163,7 +163,7 @@ export default function PostInteractionBar({ post, comment_enable, onCommentClic
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" className={`size-6 transition-transform duration-200 ${buttonStates.save.isClicked ? 'scale-125' : 'scale-100'}`}><path fill="currentColor" d="M200-120v-640q0-33 23.5-56.5T280-840h400q33 0 56.5 23.5T760-760v640L480-240 200-120Zm80-122 200-86 200 86v-518H280v518Zm0-518h400-400Z"/></svg>
       </button>
       {/* Share */}
-      <button type="button" name="share" onClick={handleClick} className={`text-button flex items-center gap-1 bg-monochrome-100 py-2 px-2 rounded-[1.5rem] hover:text-primary-500 transition duration-200`}>
+      <button type="button" name="share" onClick={(e) => {e.preventDefault(); setShareState(true);}} className={`text-button flex items-center gap-1 bg-monochrome-100 py-2 px-2 rounded-[1.5rem] hover:text-primary-500 transition duration-200`}>
         <svg className={`size-6 transition-transform duration-200`} xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24"><path fill="currentColor" d="m21.707 11.293l-8-8A1 1 0 0 0 12 4v3.545A11.015 11.015 0 0 0 2 18.5V20a1 1 0 0 0 1.784.62a11.46 11.46 0 0 1 7.887-4.049c.05-.006.175-.016.329-.026V20a1 1 0 0 0 1.707.707l8-8a1 1 0 0 0 0-1.414M14 17.586V15.5a1 1 0 0 0-1-1c-.255 0-1.296.05-1.562.085a14 14 0 0 0-7.386 2.948A9.013 9.013 0 0 1 13 9.5a1 1 0 0 0 1-1V6.414L19.586 12Z"></path></svg>
         <p>
           Share
