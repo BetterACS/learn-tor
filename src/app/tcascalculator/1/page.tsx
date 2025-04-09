@@ -79,7 +79,7 @@ export default function Calculator1() {
   const handleNextClick = () => {
     // เลือก target ตัวสุดท้ายจาก targets
     const target = targets[targets.length - 1];
-    router.push(`/tcascalculator/2?university=${target.university}&campus=${target.campus}&faculty=${target.faculty}&major=${target.major}&language=${target.language}&examType=${target.examType}`);
+    router.push(`/tcascalculator/2?university=${encodeURIComponent(target.university)}&campus=${encodeURIComponent(target.campus)}&faculty=${encodeURIComponent(target.faculty)}&major=${encodeURIComponent(target.major)}&language=${encodeURIComponent(target.language)}&examType=${encodeURIComponent(target.examType)}`);
   };
 
   const addTarget = () => {

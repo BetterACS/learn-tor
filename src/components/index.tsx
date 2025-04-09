@@ -96,4 +96,7 @@ export {
   CompactSidebar,
   TrendingTopicCarousel,
   ImageFullView,
+  SpecialInput,
+  GpaxInput,
+  SelectPlan
 }
