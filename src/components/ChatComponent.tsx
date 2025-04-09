@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import clsx from "clsx";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from 'remark-gfm';
-
+import remarkBreaks from 'remark-breaks';
+import rehypeRaw from 'rehype-raw';
 interface MarkdownComponentProps {
   content: string;
 }
@@ -12,7 +13,8 @@ const MarkdownComponent = ({ content }: MarkdownComponentProps) => {
   return (
     <div className="prose max-w-none">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
+        rehypePlugins={[rehypeRaw]}
         components={{
           a: ({node, ...props}) => (
             <a 
@@ -33,6 +35,12 @@ const MarkdownComponent = ({ content }: MarkdownComponentProps) => {
           td: ({node, ...props}) => (
             <td {...props} className="px-4 py-2 border border-monochrome-200" />
           ),
+          span: ({node, className, ...props}) => {
+            if (className?.includes('text-red-600')) {
+              return <span className="text-red-600" {...props} />;
+            }
+            return <span {...props} />;
+          }
         }}
       >
         {content}
@@ -40,7 +48,6 @@ const MarkdownComponent = ({ content }: MarkdownComponentProps) => {
     </div>
   );
 };
-
 interface ChatMessage {
   role: string;
   content: string;
@@ -62,7 +69,7 @@ const ChatComponent = ({ messages }: { messages: ChatMessage[] }) => {
         behavior: "smooth",
         block: "end"
       });
-    }, 100);
+    }, 60);
   };
 
   return (

@@ -144,10 +144,10 @@ export default function Page() {
           className="flex-1 overflow-y-auto w-full px-4 pb-4"
         >
           {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-monochrome-950 text-headline-3 lg:text-headline-2 text-center animate-fadeInAndFloat">
-                What can I help?
-              </div>
+            <div className="grid h-full items-end justify-center">
+             <div className="text-monochrome-950 text-headline-3 lg:text-headline-2 text-center animate-fadeInAndFloat">
+              What can I help?
+             </div>
             </div>
           ) : (
             <div className="w-full pt-4">
@@ -162,7 +162,7 @@ export default function Page() {
               )}
             </div>
           )}
-        </div>
+        </div> 
 
         <div className="w-full bg-monochrome pt-4 pb-4">
           <div className="relative flex flex-col w-full lg:max-w-3xl md:max-w-xl px-4 mx-auto">
