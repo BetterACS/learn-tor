@@ -42,6 +42,22 @@ export default function Page() {
   }, [messages]);
   const mutationQueryChat = trpc.queryChat.useMutation();
   const handleSidebarToggle = (isOpen: boolean) => setIsSidebarOpen(isOpen);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTo({
+          top: messagesContainerRef.current.scrollHeight,
+          behavior: "smooth"
+        });
+      }
+    }, 100);
+  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isBotTyping]);
+
   const handleSelectItem = (item: string) => {
 
     if(item === 'new-chat'){
@@ -121,14 +137,17 @@ export default function Page() {
         'lg:ml-[20%] md:ml-[26%] sm:ml-[0%]': isSidebarOpen,
         'ml-0': !isSidebarOpen,
       })}>
-        <div className="flex justify-center flex-col flex-1 overflow-y-auto w-full px-4">
+        <div 
+          ref={messagesContainerRef}
+          className="flex justify-center flex-col flex-1 overflow-y-auto w-full px-4"
+        >
           {messages.length === 0 ? (
             <div className="text-monochrome-950 text-headline-3 lg:text-headline-2 text-center mt-auto mb-4 animate-fadeInAndFloat">
               What can I help?
             </div>
           ) : (
-            <div className="overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-hidden w-full">
-              {<ChatComponent messages={messages}/>}
+            <div className="w-full">
+              <ChatComponent messages={messages}/>
               {isBotTyping && (
                 <div className="flex justify-start gap-2 w-full">
                   <img src="images/logofooter.avif" alt="assistant Logo" className="w-16 h-16 md:ml-32 lg:ml-56 mt-6" />
@@ -137,12 +156,11 @@ export default function Page() {
                   </Box>
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
 
-        <div className="relative flex flex-col w-full lg:max-w-3xl md:max-w-xl px-4 sm:px-2 mt-auto">
+        <div className=" fixed relative flex flex-col w-full lg:max-w-3xl md:max-w-xl px-4 sm:px-2 mt-auto">
           <textarea
             placeholder="Text input"
             value={input}
