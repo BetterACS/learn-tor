@@ -24,7 +24,7 @@ const sendToken = async (email: string, token: string, subject:string, link:bool
         mailOptions = {
             from: process.env.NEXT_PUBLIC_EMAIL_USER, // sender address
             to: email, // list of receivers
-            subject: subject, // Subject line
+            subject: "Your OTP for Verification - LearnTor", // Subject line
             text: `Verification Token: ${verificationURL} (valid for 15 minutes)`, // plain text body
             html: `<p>Click the link below to verify your account:</p>
                 <a href="${verificationURL}">${verificationURL}</a>`, // HTML body with clickable link
