@@ -185,7 +185,7 @@ export default function Page() {
               type="button"
               onClick={handleSendMessage}
               disabled={isBotTyping || input.trim() === ''}
-              className="absolute bottom-4 right-7 w-8 h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
+              className="absolute top-4 right-7 w-8 h-8 opacity-80 hover:opacity-100 transition-opacity duration-300"
             >
               <img src="images/feature/send.avif" alt="Send Icon" className="w-full h-full" />
             </button>
